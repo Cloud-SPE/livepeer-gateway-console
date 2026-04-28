@@ -13,7 +13,7 @@ consoles bootstrapped from
 [livepeer-modules-project plan 0013][plan-0013] (and its parent plan 0011
 for the orch consoles). Different audience, same TS stack and conventions.
 
-[plan-0013]: ../livepeer-modules-project/docs/exec-plans/active/0013-gateway-console-and-installer-role.md
+[plan-0013]: ../livepeer-modules-project/docs/exec-plans/completed/0013-gateway-console-and-installer-role.md
 [orch-coordinator]: ../livepeer-orch-coordinator
 [secure-orch]: ../livepeer-secure-orch-console
 
