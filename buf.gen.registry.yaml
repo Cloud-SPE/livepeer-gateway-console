@@ -1,0 +1,17 @@
+version: v2
+plugins:
+  - local: ./node_modules/.bin/protoc-gen-ts_proto
+    out: src/providers/resolver/gen
+    opt:
+      - outputServices=grpc-js
+      - esModuleInterop=true
+      - useOptionals=messages
+      - importSuffix=.js
+      - forceLong=bigint
+      - env=node
+inputs:
+  # Pulled from livepeer-modules-project's service-registry-daemon. The
+  # gateway console consumes only the resolver-mode surface — ListKnown,
+  # Select, ResolveByAddress, Refresh, GetAuditLog. (The Publisher service
+  # is for the secure-orch host and not used here.)
+  - directory: ../livepeer-modules-project/service-registry-daemon/proto

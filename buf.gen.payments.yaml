@@ -1,0 +1,18 @@
+version: v2
+plugins:
+  - local: ./node_modules/.bin/protoc-gen-ts_proto
+    out: src/providers/payerDaemon/gen
+    opt:
+      - outputServices=grpc-js
+      - esModuleInterop=true
+      - useOptionals=messages
+      - importSuffix=.js
+      - forceLong=bigint
+      - env=node
+inputs:
+  # Pulled from livepeer-modules-project's payment-daemon (the consolidated
+  # Go monorepo at the sibling path). The gateway console consumes only the
+  # PayerDaemon (sender-mode) RPCs — GetDepositInfo for the escrow view in
+  # particular. Wire format identical to the standalone payment-daemon/
+  # from before plan 0002 of the modules project.
+  - directory: ../livepeer-modules-project/payment-daemon/proto

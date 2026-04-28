@@ -1,0 +1,72 @@
+# Local-dev docker-compose for the gateway-console.
+#
+# Usage:
+#   cp .env.example .env       # fill in ADMIN_TOKEN, CHAIN_RPC
+#   docker compose up --build
+#
+# Prod deployments layer compose.prod.yaml on top:
+#   docker compose -f compose.yaml -f compose.prod.yaml up -d
+#
+# Daemon socket mounts:
+#   The two named volumes below (`resolver-sock`, `sender-sock`) are the
+#   same names the upstream livepeer-modules-project gateway compose
+#   archetype creates (deploy/gateway/compose.yaml). When you run both
+#   stacks side-by-side on the same host, declare the volumes as
+#   `external: true` here OR run both stacks via `docker compose -f
+#   <gateway-archetype>/compose.yaml -f compose.yaml up`. For pure
+#   bootstrap-time / unit testing of this image, the volumes are
+#   declared internally below — the daemon sockets just won't exist
+#   inside, and the /api/health endpoint will report degraded.
+
+services:
+  gateway-console:
+    build:
+      context: .
+    environment:
+      LISTEN_ADDR: '0.0.0.0:8080'
+
+      # Bearer token for /api/* (>= 32 chars).
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?set ADMIN_TOKEN (>= 32 chars)}
+
+      # Chain reads.
+      CHAIN_RPC: ${CHAIN_RPC:?set CHAIN_RPC (Arbitrum One RPC endpoint)}
+      CHAIN_ID: ${CHAIN_ID:-42161}
+      CONTROLLER_ADDRESS: ${CONTROLLER_ADDRESS:-0xD8E8328501E9645d16Cf49539efC04f734606ee4}
+
+      # Storage paths.
+      STATE_PATH: /var/lib/livepeer/state.db
+
+      # Daemon socket paths inside the container — must match the bind
+      # points of the resolver-sock + sender-sock named volumes.
+      RESOLVER_SOCKET_PATH: /var/run/livepeer/resolver/service-registry.sock
+      SENDER_SOCKET_PATH: /var/run/livepeer/sender/payment.sock
+
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_FORMAT: ${LOG_FORMAT:-json}
+    volumes:
+      - gateway-console-state:/var/lib/livepeer
+      # Mount the daemon sockets the upstream gateway-archetype creates.
+      # In a real deployment these are external volumes shared with the
+      # service-registry-daemon (resolver) and payment-daemon (sender)
+      # containers respectively. See the comment-block above.
+      - resolver-sock:/var/run/livepeer/resolver
+      - sender-sock:/var/run/livepeer/sender
+    ports:
+      # Bind to localhost only — operator's reverse proxy fronts this in prod.
+      - '127.0.0.1:8080:8080'
+    healthcheck:
+      test:
+        - 'CMD'
+        - '/nodejs/bin/node'
+        - '-e'
+        - "require('http').get('http://127.0.0.1:8080/healthz',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  gateway-console-state:
+  # When co-deployed with the upstream gateway archetype, override these
+  # in compose.prod.yaml or via `external: true` declarations.
+  resolver-sock:
+  sender-sock:

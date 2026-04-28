@@ -1,0 +1,46 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+
+# Local config / secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+keystore.json
+keystore-password
+
+# Data / local state
+data/
+*.db
+*.sqlite
+
+# Logs
+*.log
+logs/
+
+# buf-generated stubs (regenerated via npm run proto:gen — kept gitignored
+# while bootstrap is in flux; per-repo Plan 0001 may flip this).
+src/providers/payerDaemon/gen/
+src/providers/resolver/gen/

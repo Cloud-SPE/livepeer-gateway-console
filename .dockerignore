@@ -1,0 +1,24 @@
+.git
+.github
+.gitignore
+.env
+.env.*
+node_modules
+dist
+coverage
+*.log
+*.tsbuildinfo
+
+# Docs — the harness PDF alone is ~2 MB and none of docs/ ships in the image.
+docs
+
+# Test-only files
+**/*.test.ts
+
+# Editor / OS detritus
+.vscode
+.idea
+.DS_Store
+
+# CI / lint artifacts
+lint

@@ -1,0 +1,56 @@
+# Production stack overlay for the gateway-console.
+#
+# Paste into Portainer as a single Stack on top of compose.yaml, or run:
+#   docker compose -f compose.yaml -f compose.prod.yaml --env-file .env up -d
+#
+# Ingress:
+#   Traefik (already running on the same VPS, listening on :443) routes
+#   `Host(${GATEWAY_CONSOLE_PUBLIC_HOST})` traffic to the gateway-console
+#   container via the external `ingress` network. Adjust the entrypoint /
+#   certresolver label values via env if your Traefik uses different names.
+#
+# Per Plan 0013 §A, the gateway-console ships NO proxy of its own; this
+# overlay is a copy-paste convenience for the Traefik users — operators
+# using nginx, Caddy, cloudflared, or Tailscale Funnel can ignore the
+# labels and instead point their proxy at the bound `127.0.0.1:8080`.
+#
+# Note: the gateway console is INTERNET-FACING (public host) but every
+# /api/* route is bearer-auth gated. Only /healthz is unauthenticated.
+
+name: livepeer-gateway-console
+
+services:
+  gateway-console:
+    image: ${GATEWAY_CONSOLE_IMAGE:-tztcloud/livepeer-gateway-console:v0.0.1}
+    restart: unless-stopped
+    build: !reset null
+    networks:
+      - default
+      - ingress
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=ingress'
+      - 'traefik.http.routers.livepeer-gateway-console.rule=Host(`${GATEWAY_CONSOLE_PUBLIC_HOST:?set GATEWAY_CONSOLE_PUBLIC_HOST (e.g. gateway.your-domain.example)}`)'
+      - 'traefik.http.routers.livepeer-gateway-console.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}'
+      - 'traefik.http.routers.livepeer-gateway-console.tls=true'
+      - 'traefik.http.routers.livepeer-gateway-console.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}'
+      - 'traefik.http.services.livepeer-gateway-console.loadbalancer.server.port=8080'
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '5'
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512m
+
+networks:
+  default:
+  # Traefik already runs on this host; the gateway-console attaches to its
+  # external `ingress` network so Traefik picks up the labels and routes
+  # Host(${GATEWAY_CONSOLE_PUBLIC_HOST}) traffic to it.
+  # Create once on the VPS if absent: `docker network create ingress`.
+  ingress:
+    external: true
