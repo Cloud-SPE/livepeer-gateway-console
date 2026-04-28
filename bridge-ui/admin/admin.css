@@ -102,3 +102,116 @@ button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Routing dashboard + tables -------------------------------------------- */
+
+.filter-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.filter-row input {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid color-mix(in srgb, CanvasText 30%, transparent);
+  border-radius: 4px;
+  background: Canvas;
+  color: CanvasText;
+}
+
+.filter-row .spacer {
+  flex: 1;
+}
+
+.muted {
+  color: color-mix(in srgb, CanvasText 60%, transparent);
+}
+
+table.data {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.5rem 0 1rem;
+}
+
+table.data th,
+table.data td {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid color-mix(in srgb, CanvasText 12%, transparent);
+  font-size: 0.92rem;
+  vertical-align: top;
+}
+
+table.data tbody tr {
+  cursor: pointer;
+}
+
+table.data tbody tr:hover {
+  background: color-mix(in srgb, CanvasText 5%, transparent);
+}
+
+table.data tbody tr.selected {
+  background: color-mix(in srgb, CanvasText 10%, transparent);
+}
+
+table.data tbody tr.row-fail {
+  background: color-mix(in srgb, #b00020 8%, transparent);
+}
+
+dl.kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4rem 1rem;
+  margin: 0.5rem 0;
+}
+
+dl.kv dt {
+  color: color-mix(in srgb, CanvasText 60%, transparent);
+}
+
+dl.kv dd {
+  margin: 0;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 0.5rem;
+}
+
+.card-header h1,
+.card-header h2 {
+  margin: 0;
+}
+
+.pill {
+  display: inline-block;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background: color-mix(in srgb, CanvasText 10%, transparent);
+}
+
+.pill-fresh,
+.pill-signed,
+.pill-verified {
+  background: color-mix(in srgb, #008844 25%, transparent);
+}
+
+.pill-stale,
+.pill-stale-recoverable {
+  background: color-mix(in srgb, #d97706 25%, transparent);
+}
+
+.pill-stale-failing,
+.pill-unsigned {
+  background: color-mix(in srgb, #b00020 25%, transparent);
+}
+
+.card {
+  margin-bottom: 1rem;
+  max-width: none;
+}

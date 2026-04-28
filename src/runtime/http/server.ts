@@ -30,18 +30,39 @@ import {
   type AuthService,
 } from '../../service/auth/index.js';
 import './fastify-augmentation.js';
+import type { ChainReader } from '../../providers/chain/viem.js';
 import type { PayerDaemonClient } from '../../providers/payerDaemon/client.js';
 import type { ResolverClient } from '../../providers/resolver/client.js';
+import { createAuditService, type AuditService } from '../../service/audit/index.js';
+import { createResolverService, type ResolverService } from '../../service/resolver/index.js';
 import { createRoutingService, type RoutingService } from '../../service/routing/index.js';
+import { createSenderService, type SenderService } from '../../service/sender/index.js';
 import type { Db } from '../../repo/db.js';
+import type { Address } from 'viem';
+import { handleCapabilitySearch } from './handlers/handleCapabilitySearch.js';
+import { handleGetOrch } from './handlers/handleGetOrch.js';
+import { handleGetSenderEscrow } from './handlers/handleGetSenderEscrow.js';
+import { handleGetSenderWallet } from './handlers/handleGetSenderWallet.js';
 import { handleHealth } from './handlers/handleHealth.js';
+import { handleListAuditLog } from './handlers/handleListAuditLog.js';
 import { handleListOrchs } from './handlers/handleListOrchs.js';
+import { handleListResolverAuditLog } from './handlers/handleListResolverAuditLog.js';
+import {
+  handleResolverRefresh,
+  handleResolverRefreshOne,
+} from './handlers/handleResolverRefresh.js';
 
 export interface ServerDeps {
   db: Db;
   adminToken: string;
   resolver: ResolverClient;
   payer: PayerDaemonClient;
+  chain: ChainReader;
+  controllerAddress: Address;
+  chainReadTtlMs: number;
+  /** Hot-wallet address from env. Null when SENDER_ADDRESS is unset. */
+  senderAddress: Address | null;
+  minBalanceWei: string | null;
   resolverSocketPath: string;
   senderSocketPath: string;
   /** Toggle Fastify's own access log. Default true; pass false in tests. */
@@ -51,6 +72,9 @@ export interface ServerDeps {
 export interface ServerHandle {
   http: HttpServer;
   routing: RoutingService;
+  resolverService: ResolverService;
+  sender: SenderService;
+  audit: AuditService;
   auth: AuthService;
 }
 
@@ -59,11 +83,28 @@ export async function createServer(deps: ServerDeps): Promise<ServerHandle> {
   http.app.decorateRequest('actor', '');
   registerErrorHandler(http.app);
   const auth = createAuthService({ adminToken: deps.adminToken });
-  const routing = createRoutingService({ db: deps.db, resolver: deps.resolver });
+  const routing = createRoutingService({
+    db: deps.db,
+    resolver: deps.resolver,
+    chain: deps.chain,
+    controllerAddress: deps.controllerAddress,
+    chainReadTtlMs: deps.chainReadTtlMs,
+  });
+  const resolverService = createResolverService({ resolver: deps.resolver });
+  const sender = createSenderService({
+    payer: deps.payer,
+    chain: deps.chain,
+    senderAddress: deps.senderAddress,
+    minBalanceWei: deps.minBalanceWei,
+  });
+  const audit = createAuditService({ db: deps.db });
 
   registerPublicRoutes(http.app);
   registerApiRoutes(http.app, auth, {
     routing,
+    resolverService,
+    sender,
+    audit,
     resolver: deps.resolver,
     payer: deps.payer,
     resolverSocketPath: deps.resolverSocketPath,
@@ -71,7 +112,7 @@ export async function createServer(deps: ServerDeps): Promise<ServerHandle> {
   });
   await registerSpaStatic(http.app);
 
-  return { http, routing, auth };
+  return { http, routing, resolverService, sender, audit, auth };
 }
 
 // --- error handler: ZodError → 400 with structured issues -------------
@@ -106,6 +147,9 @@ function registerPublicRoutes(app: FastifyInstance): void {
 
 interface ApiDeps {
   routing: RoutingService;
+  resolverService: ResolverService;
+  sender: SenderService;
+  audit: AuditService;
   resolver: ResolverClient;
   payer: PayerDaemonClient;
   resolverSocketPath: string;
@@ -151,6 +195,36 @@ function registerApiRoutes(
   );
   app.get('/api/orchs', (req, reply) =>
     handleListOrchs(req, reply, { routing: deps.routing }),
+  );
+  app.get('/api/orchs/:address', (req, reply) =>
+    handleGetOrch(req, reply, { routing: deps.routing }),
+  );
+  app.get('/api/capabilities/search', (req, reply) =>
+    handleCapabilitySearch(req, reply, { resolver: deps.resolverService }),
+  );
+  app.get('/api/sender/wallet', (req, reply) =>
+    handleGetSenderWallet(req, reply, { sender: deps.sender }),
+  );
+  app.get('/api/sender/escrow', (req, reply) =>
+    handleGetSenderEscrow(req, reply, { sender: deps.sender }),
+  );
+  app.get('/api/audit-log', (req, reply) =>
+    handleListAuditLog(req, reply, { audit: deps.audit }),
+  );
+  app.get('/api/resolver/audit-log', (req, reply) =>
+    handleListResolverAuditLog(req, reply, { resolver: deps.resolverService }),
+  );
+  app.post('/api/resolver/refresh', (req, reply) =>
+    handleResolverRefresh(req, reply, {
+      resolver: deps.resolverService,
+      audit: deps.audit,
+    }),
+  );
+  app.post('/api/resolver/refresh/:address', (req, reply) =>
+    handleResolverRefreshOne(req, reply, {
+      resolver: deps.resolverService,
+      audit: deps.audit,
+    }),
   );
 }
 

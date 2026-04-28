@@ -9,11 +9,13 @@ import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadEnv, parseListenAddr } from './config/env.js';
+import { createChainReader } from './providers/chain/viem.js';
 import { openSqlite } from './providers/database/sqlite.js';
 import { createLogger } from './providers/logger/pino.js';
 import { createPayerDaemonClient } from './providers/payerDaemon/client.js';
 import { createResolverClient } from './providers/resolver/client.js';
 import { createServer } from './runtime/http/server.js';
+import { createAuditPollWorker } from './runtime/workers/auditPoll.js';
 
 async function main(): Promise<void> {
   const env = loadEnv();
@@ -34,14 +36,27 @@ async function main(): Promise<void> {
 
   const resolver = createResolverClient({ socketPath: env.RESOLVER_SOCKET_PATH });
   const payer = createPayerDaemonClient({ socketPath: env.SENDER_SOCKET_PATH });
+  const chain = createChainReader({ rpcUrl: env.CHAIN_RPC, chainId: env.CHAIN_ID });
 
   const server = await createServer({
     db: sqlite.db,
     adminToken: env.ADMIN_TOKEN,
     resolver,
     payer,
+    chain,
+    controllerAddress: env.CONTROLLER_ADDRESS as `0x${string}`,
+    chainReadTtlMs: env.CHAIN_READ_TTL_SEC * 1000,
+    senderAddress: env.SENDER_ADDRESS ? (env.SENDER_ADDRESS as `0x${string}`) : null,
+    minBalanceWei: env.MIN_BALANCE_WEI ?? null,
     resolverSocketPath: env.RESOLVER_SOCKET_PATH,
     senderSocketPath: env.SENDER_SOCKET_PATH,
+  });
+
+  const auditPoll = createAuditPollWorker({
+    resolver,
+    db: sqlite.db,
+    logger,
+    intervalMs: env.RESOLVER_AUDIT_POLL_INTERVAL_SEC * 1000,
   });
 
   // Graceful shutdown.
@@ -56,6 +71,7 @@ async function main(): Promise<void> {
     }, 30_000);
     hardKill.unref();
     try {
+      auditPoll.stop();
       await server.http.close();
       sqlite.close();
       logger.info('shutdown complete');
@@ -70,6 +86,7 @@ async function main(): Promise<void> {
 
   const address = await server.http.listen(listen.host, listen.port);
   logger.info('listening', { address });
+  auditPoll.start();
 }
 
 /**

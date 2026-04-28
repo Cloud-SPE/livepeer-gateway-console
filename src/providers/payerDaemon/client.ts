@@ -1,72 +1,110 @@
 // PayerDaemon gRPC client provider — wraps the buf-generated stubs at
-// `./gen/` behind the small interface the service layer actually uses.
-// Real `@grpc/grpc-js` channel construction (unix-socket dial, retry
-// policy, request deadlines) lands in per-repo Plan 0001; today this
-// file ships an interface + a "client unavailable" stub so handlers
-// can be wired without booting a real daemon at test time.
+// `./gen/` behind the small interface the gateway-console actually uses.
+// The `gen/` directory is populated by `npm run proto:gen:payments` from
+// `../livepeer-modules-project/payment-daemon/proto`.
 //
-// The `gen/` directory is populated by `npm run proto:gen:payments`
-// from `../livepeer-modules-project/payment-daemon/proto`.
+// Surface area: the console only ever reads `GetDepositInfo`. The other
+// PayerDaemon RPCs (StartSession / CreatePayment / CloseSession) belong
+// to the bridge app, not this console — see PRODUCT_SENSE.md.
+//
+// Wallet identity + balance are NOT exposed by the daemon proto; per
+// Plan 0001 they come from chain via ChainReader (§4) configured with a
+// SENDER_ADDRESS env var.
+
+import { credentials, Metadata } from '@grpc/grpc-js';
+import type { CallOptions, ClientUnaryCall, ServiceError } from '@grpc/grpc-js';
+import {
+  PayerDaemonClient as PayerDaemonGrpcClient,
+  type GetDepositInfoRequest,
+  type GetDepositInfoResponse,
+} from './gen/livepeer/payments/v1/payer_daemon.js';
 
 export interface DepositInfo {
-  /** TicketBroker deposit in wei, decimal string (BigInt-safe). */
+  /** TicketBroker deposit in wei, decimal string (BigInt-safe over JSON). */
   depositWei: string;
   /** TicketBroker reserve in wei, decimal string. */
   reserveWei: string;
-}
-
-export interface SenderWalletInfo {
-  /** Hot-wallet address as 0x-prefixed 40-hex. */
-  address: string;
-  /** Wallet balance from chain in wei, decimal string. */
-  balanceWei: string;
-  /** Daemon's configured floor below which it refuses tickets. */
-  minBalanceWei: string | null;
+  /** Round at which an initiated unlock becomes withdrawable. 0 if no unlock pending. */
+  withdrawRound: string;
 }
 
 export interface PayerDaemonClient {
   ping(): Promise<{ ok: boolean; error?: string }>;
-  /** Map to `PayerDaemon.GetDepositInfo`. */
   getDepositInfo(): Promise<DepositInfo>;
-  /** Pull the local hot-wallet identity + balance from the daemon. */
-  getWalletInfo(): Promise<SenderWalletInfo>;
+  close(): void;
 }
 
 export interface PayerDaemonClientOptions {
   socketPath: string;
+  /** Per-call deadline in ms. Default 2000. */
+  callDeadlineMs?: number;
 }
 
-export class PayerDaemonClientUnavailableError extends Error {
-  constructor(method: string, opts: PayerDaemonClientOptions) {
-    super(
-      `PayerDaemonClient.${method} is not implemented yet (bootstrap stub at ` +
-        `socket=${opts.socketPath}). Implement the @grpc/grpc-js channel + ` +
-        `the buf-generated payerDaemon/gen client wiring in per-repo Plan 0001.`,
-    );
-    this.name = 'PayerDaemonClientUnavailableError';
-  }
-}
-
-/**
- * Bootstrap stub. Returns "unavailable" from ping(); throws on every
- * other RPC. The handler shell uses ping() to drive /api/health into a
- * 503 (rather than a 500) when the socket isn't mounted in dev.
- */
 export function createPayerDaemonClient(
   options: PayerDaemonClientOptions,
 ): PayerDaemonClient {
+  const deadlineMs = options.callDeadlineMs ?? 2000;
+  const target = `unix:${options.socketPath}`;
+  const grpc = new PayerDaemonGrpcClient(target, credentials.createInsecure());
+
+  const callOpts = (): Partial<CallOptions> => ({
+    deadline: new Date(Date.now() + deadlineMs),
+  });
+
+  function unary<Req, Res>(
+    fn: (
+      req: Req,
+      md: Metadata,
+      opts: Partial<CallOptions>,
+      cb: (err: ServiceError | null, res: Res) => void,
+    ) => ClientUnaryCall,
+    req: Req,
+  ): Promise<Res> {
+    return new Promise((resolveP, rejectP) => {
+      fn(req, new Metadata(), callOpts(), (err, res) => {
+        if (err) rejectP(err);
+        else resolveP(res);
+      });
+    });
+  }
+
+  async function getDepositInfoInternal(): Promise<DepositInfo> {
+    const res = await unary<GetDepositInfoRequest, GetDepositInfoResponse>(
+      (r, md, o, cb) => grpc.getDepositInfo(r, md, o, cb),
+      {},
+    );
+    return {
+      depositWei: bigEndianBytesToDecimal(res.deposit),
+      reserveWei: bigEndianBytesToDecimal(res.reserve),
+      withdrawRound: res.withdrawRound.toString(10),
+    };
+  }
+
   return {
     async ping() {
-      return {
-        ok: false,
-        error: `payer daemon client unavailable (socket=${options.socketPath}); see Plan 0001 for impl`,
-      };
+      // PayerDaemon has no Health RPC; GetDepositInfo is read-only and
+      // a faithful liveness check (proto doc: "the daemon does not fund
+      // escrow"). Discard the result; we only care that it round-tripped.
+      try {
+        await getDepositInfoInternal();
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, error: errorMessage(err) };
+      }
     },
-    async getDepositInfo() {
-      throw new PayerDaemonClientUnavailableError('getDepositInfo', options);
-    },
-    async getWalletInfo() {
-      throw new PayerDaemonClientUnavailableError('getWalletInfo', options);
+    getDepositInfo: getDepositInfoInternal,
+    close() {
+      grpc.close();
     },
   };
+}
+
+function bigEndianBytesToDecimal(buf: Buffer): string {
+  if (buf.length === 0) return '0';
+  return BigInt(`0x${buf.toString('hex')}`).toString(10);
+}
+
+function errorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  return String(err);
 }

@@ -25,12 +25,22 @@ export default defineConfig({
         'src/scripts/**',
         'src/providers/payerDaemon/gen/**',
         'src/providers/resolver/gen/**',
+        // Pure composition-root + thin library wrappers; verified by
+        // integration in real deployments, not by unit tests. See
+        // Plan 0001 §7 decisions-log for the exclusion rationale.
+        'src/runtime/http/server.ts',
+        'src/runtime/http/fastify-augmentation.ts',
+        'src/providers/http/fastify.ts',
+        'src/providers/logger/pino.ts',
+        // Zod-schema-only files; their runtime behavior is exercised
+        // by every handler's .parse() call rather than directly.
+        'src/types/**',
       ],
       thresholds: {
-        lines: 0,
-        branches: 0,
-        functions: 0,
-        statements: 0,
+        lines: 75,
+        branches: 75,
+        functions: 75,
+        statements: 75,
       },
     },
   },

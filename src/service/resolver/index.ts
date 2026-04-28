@@ -12,7 +12,11 @@ import type {
 export interface ResolverService {
   search(query: SelectQuery): Promise<SelectResult>;
   refresh(target: { address?: string }): Promise<void>;
-  fetchAuditLog(opts?: { since?: number; limit?: number }): Promise<ResolverAuditEntry[]>;
+  fetchAuditLog(opts?: {
+    ethAddress?: string;
+    since?: number;
+    limit?: number;
+  }): Promise<ResolverAuditEntry[]>;
 }
 
 export interface ResolverServiceDeps {

@@ -29,6 +29,33 @@ export const EnvSchema = z.object({
     .default('/var/run/livepeer/resolver/service-registry.sock'),
   SENDER_SOCKET_PATH: z.string().default('/var/run/livepeer/sender/payment.sock'),
 
+  // Routing-dashboard chain-enrichment cache TTL. Per Plan 0001 §3 the
+  // BondingManager pool walk + ServiceRegistry serviceURI reads are
+  // memoized for this many seconds.
+  CHAIN_READ_TTL_SEC: z.coerce.number().int().nonnegative().default(30),
+
+  // routing_observations hydration cadence. The background worker polls
+  // Resolver.GetAuditLog every N seconds and bulk-inserts deduped rows.
+  // 0 disables the poll loop entirely (tests / staging dry-runs).
+  RESOLVER_AUDIT_POLL_INTERVAL_SEC: z.coerce.number().int().nonnegative().default(30),
+
+  // Sender wallet identity. The PayerDaemon owns the keystore via its
+  // own bind-mount but does NOT expose hot-wallet address/balance via
+  // proto; the operator sets this here so the console can read the
+  // balance from chain. Optional — when unset, /api/sender/wallet
+  // returns a structured "not_configured" error.
+  SENDER_ADDRESS: z
+    .string()
+    .regex(/^0x[a-fA-F0-9]{40}$/, { message: 'Expected 0x-prefixed 40-hex address' })
+    .optional(),
+  // Optional informational floor below which the daemon refuses tickets.
+  // Surfaced to the dashboard so operators can spot dips before tickets
+  // start failing.
+  MIN_BALANCE_WEI: z
+    .string()
+    .regex(/^[0-9]+$/, { message: 'MIN_BALANCE_WEI must be a base-10 wei amount' })
+    .optional(),
+
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
   LOG_FORMAT: z.enum(['json', 'text']).default('json'),
 });

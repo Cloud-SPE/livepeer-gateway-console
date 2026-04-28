@@ -5,6 +5,10 @@ import { getActor, getToken, clearSession } from '../lib/session.js';
 
 import './admin-login.js';
 import './admin-routing.js';
+import './admin-orch-detail.js';
+import './admin-capabilities.js';
+import './admin-sender.js';
+import './admin-audit.js';
 
 export class AdminApp extends LitElement {
   static properties = {
@@ -97,24 +101,17 @@ export class AdminApp extends LitElement {
       return html`<admin-routing></admin-routing>`;
     }
     if (path.startsWith('/orchs/')) {
-      return html`<div class="placeholder">
-        Per-orch drilldown — see per-repo Plan 0001 for real content.
-      </div>`;
+      const address = path.slice('/orchs/'.length).split(/[?#]/)[0];
+      return html`<admin-orch-detail .address=${address}></admin-orch-detail>`;
     }
     if (path.startsWith('/capabilities')) {
-      return html`<div class="placeholder">
-        Capability search — see per-repo Plan 0001 for real content.
-      </div>`;
+      return html`<admin-capabilities></admin-capabilities>`;
     }
     if (path.startsWith('/sender')) {
-      return html`<div class="placeholder">
-        Sender wallet + escrow — see per-repo Plan 0001 for real content.
-      </div>`;
+      return html`<admin-sender></admin-sender>`;
     }
     if (path.startsWith('/audit')) {
-      return html`<div class="placeholder">
-        Audit log — see per-repo Plan 0001 for real content.
-      </div>`;
+      return html`<admin-audit></admin-audit>`;
     }
     return html`<p>Unknown route: ${path}</p>`;
   }
