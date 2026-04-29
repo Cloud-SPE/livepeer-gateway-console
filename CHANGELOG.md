@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-04-29
+
+Single-commit dep bump release. No code changes.
+
+### Changed
+
+- `fastify` 4.29 → 5.8 + `@fastify/sensible` 5.6 → 6.0 + `@fastify/static`
+  7.0 → 9.1 — coordinated coupled-major bump via the new `fastify-major`
+  dependabot group (the @fastify/\* plugins peer-pin fastify exactly so
+  all three had to move together). Our usage is the stable Fastify
+  subset (addHook / setErrorHandler / decorateRequest / route methods /
+  fastify-static plugin register), so this is a drop-in. Verified via
+  boot smoke test (server boots, `GET /healthz` returns `{"ok":true}`),
+  full gate suite, and a clean docker build.
+
 ## [0.1.3] - 2026-04-29
 
 Two-commit dep + CI hygiene release. No code changes.
