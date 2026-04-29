@@ -40,7 +40,10 @@ data/
 *.log
 logs/
 
-# buf-generated stubs (regenerated via npm run proto:gen — kept gitignored
-# while bootstrap is in flux; per-repo Plan 0001 may flip this).
-src/providers/payerDaemon/gen/
-src/providers/resolver/gen/
+# buf-generated stubs are now committed (Plan 0001 §post-MVP — the
+# tracker entry "bootstrap-from-clean-clone" item closes by inverting
+# this rule). Re-run `npm run proto:gen` locally when an upstream
+# daemon proto changes; CI's `proto:check` enforces no drift.
+#
+# Note: do NOT add src/providers/payerDaemon/gen/ or
+# src/providers/resolver/gen/ here.

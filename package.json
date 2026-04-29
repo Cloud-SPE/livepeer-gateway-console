@@ -29,6 +29,7 @@
     "proto:gen:payments": "rm -rf src/providers/payerDaemon/gen && mkdir -p src/providers/payerDaemon/gen && buf generate --template buf.gen.payments.yaml",
     "proto:gen:registry": "rm -rf src/providers/resolver/gen && mkdir -p src/providers/resolver/gen && buf generate --template buf.gen.registry.yaml",
     "proto:gen": "npm run proto:gen:payments && npm run proto:gen:registry",
+    "proto:check": "npm run proto:gen && git diff --exit-code -- src/providers/payerDaemon/gen/ src/providers/resolver/gen/",
     "docker:build": "docker build -t livepeer-gateway-console:local .",
     "docker:tag": "scripts/docker-tag.sh",
     "docker:push": "scripts/docker-push.sh"
