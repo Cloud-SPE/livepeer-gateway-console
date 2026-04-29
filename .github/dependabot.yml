@@ -1,0 +1,102 @@
+# Dependabot config. Auto-PRs on dep + base-image + action-version
+# bumps so security patches and minor updates don't rely on a human
+# noticing.
+#
+# Schema:
+#   https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Watched ecosystems:
+#   1. npm (root)         — server deps + bridge-ui/* workspaces
+#                           (npm workspaces use a single root lockfile,
+#                           unlike sibling secure-orch-console which has
+#                           a separate admin-ui lockfile)
+#   2. docker             — Dockerfile base images (node:20-bookworm-slim,
+#                           gcr.io/distroless/nodejs20-debian12)
+#   3. github-actions     — workflow action versions
+#
+# Strategy: group minor + patch updates per ecosystem so each Monday
+# brings at most one PR per ecosystem rather than ten. Major updates
+# always come as their own PR because they typically need code review.
+# CI gates every PR (lint + typecheck + 78 tests + build) so a
+# breaking bump shows up before merge.
+
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: UTC
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    commit-message:
+      prefix: deps
+      prefix-development: deps-dev
+      include: scope
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # @types/node tracks the runtime; we're on Node 20 LTS so types
+      # stay on ^20. Skipping the auto-bump means we don't get spurious
+      # weekly PRs to ^21+. Re-evaluate when we move off Node 20 LTS.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # Fastify 5 is a coupled upgrade (it shifts the plugin API and
+      # forces every @fastify/* plugin to a new major). Plan it as its
+      # own effort, not a weekly Dependabot PR.
+      - dependency-name: "fastify"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@fastify/*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: UTC
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - docker
+    commit-message:
+      prefix: deps(docker)
+    ignore:
+      # Stay on Node 20 LTS (Active LTS through Apr 2026, Maintenance
+      # through Apr 2026). Bump manually when we move to Node 22 / 24.
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+      # Distroless tag follows the Node major; same LTS rationale.
+      - dependency-name: "gcr.io/distroless/nodejs*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: UTC
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - ci
+    commit-message:
+      prefix: ci(actions)
+    groups:
+      actions-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch

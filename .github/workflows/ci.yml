@@ -1,0 +1,61 @@
+# CI for livepeer-gateway-console.
+#
+# Enforces the invariants AGENTS.md already promises: lint passes,
+# typecheck clean, tests green with the 75% coverage floor, build
+# succeeds (server + SPA).
+#
+# Note on `proto:check`: this is a developer-side guard that re-runs
+# `buf generate` against the sibling `livepeer-modules-project` repo
+# and diffs the result against committed gen/. CI does not run it
+# because the sibling repo isn't checked out here — run it locally
+# before pushing if you've edited a daemon proto upstream.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: lint / typecheck / test / build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install workspaces (root + bridge-ui/*)
+        run: npm ci
+
+      - name: Format check (prettier)
+        run: npm run fmt:check
+
+      - name: Lint (ESLint + custom plugin)
+        run: npm run lint
+
+      - name: Typecheck (tsc --noEmit)
+        run: npm run typecheck
+
+      - name: Test (vitest with 75% coverage floor enforced by config)
+        run: npm test
+
+      - name: Build (server + SPA)
+        run: npm run build
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: coverage/
+          if-no-files-found: ignore
+          retention-days: 14
