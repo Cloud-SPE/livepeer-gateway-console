@@ -136,7 +136,7 @@ Outbound HTTPS to `CHAIN_RPC` (Arbitrum One by default):
 - Does **not** edit fleet configuration, push-config, or restart anything.
   The two `Refresh` writes against the resolver cache are the only writes.
 - Does **not** ship a public unauthenticated route. The closest sibling
-  (`orch-coordinator`) serves `/manifest.json` publicly; the gateway
+  (`orch-coordinator`) serves `/.well-known/livepeer-registry.json` publicly; the gateway
   console does not, by design (deliberate divergence — Plan 0013 §B).
 - Does **not** ship a reverse proxy. Operator runs their own. Image binds
   `127.0.0.1:8080`.
