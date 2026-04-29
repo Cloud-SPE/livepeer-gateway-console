@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-04-29
+
+First release. The bootstrap scaffold is now a working operator console.
+
 ### Added
 
 - Per-repo Plan 0001 (gateway-console MVP): the bootstrap scaffold is now a
