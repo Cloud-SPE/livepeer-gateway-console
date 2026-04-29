@@ -1,0 +1,13 @@
+# buf-generated stubs use ts-proto's native formatting. Don't let prettier
+# rewrite them — `npm run proto:check` (CI / local) compares the committed
+# gen/ to a fresh `proto:gen` byte-for-byte, and prettier-vs-ts-proto
+# formatting differences would render that check useless.
+src/providers/payerDaemon/gen/
+src/providers/resolver/gen/
+
+# Build artifacts (also covered by .gitignore but listed here so prettier
+# never tries to format them locally during a `npm run fmt`).
+dist/
+bridge-ui/admin/dist/
+coverage/
+node_modules/

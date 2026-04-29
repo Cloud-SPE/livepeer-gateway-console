@@ -65,7 +65,8 @@ export interface SelectResult {
   nodes: Node[];
 }
 
-export interface ListKnownRequest {}
+export interface ListKnownRequest {
+}
 
 export interface ListKnownResult {
   entries: KnownEntry[];
@@ -111,19 +112,11 @@ export interface HealthResult {
 }
 
 function createBaseResolveByAddressRequest(): ResolveByAddressRequest {
-  return {
-    ethAddress: "",
-    allowLegacyFallback: false,
-    allowUnsigned: false,
-    forceRefresh: false,
-  };
+  return { ethAddress: "", allowLegacyFallback: false, allowUnsigned: false, forceRefresh: false };
 }
 
 export const ResolveByAddressRequest: MessageFns<ResolveByAddressRequest> = {
-  encode(
-    message: ResolveByAddressRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: ResolveByAddressRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.ethAddress !== "") {
       writer.uint32(10).string(message.ethAddress);
     }
@@ -139,12 +132,8 @@ export const ResolveByAddressRequest: MessageFns<ResolveByAddressRequest> = {
     return writer;
   },
 
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): ResolveByAddressRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): ResolveByAddressRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseResolveByAddressRequest();
     while (reader.pos < end) {
@@ -196,23 +185,23 @@ export const ResolveByAddressRequest: MessageFns<ResolveByAddressRequest> = {
       ethAddress: isSet(object.ethAddress)
         ? globalThis.String(object.ethAddress)
         : isSet(object.eth_address)
-          ? globalThis.String(object.eth_address)
-          : "",
+        ? globalThis.String(object.eth_address)
+        : "",
       allowLegacyFallback: isSet(object.allowLegacyFallback)
         ? globalThis.Boolean(object.allowLegacyFallback)
         : isSet(object.allow_legacy_fallback)
-          ? globalThis.Boolean(object.allow_legacy_fallback)
-          : false,
+        ? globalThis.Boolean(object.allow_legacy_fallback)
+        : false,
       allowUnsigned: isSet(object.allowUnsigned)
         ? globalThis.Boolean(object.allowUnsigned)
         : isSet(object.allow_unsigned)
-          ? globalThis.Boolean(object.allow_unsigned)
-          : false,
+        ? globalThis.Boolean(object.allow_unsigned)
+        : false,
       forceRefresh: isSet(object.forceRefresh)
         ? globalThis.Boolean(object.forceRefresh)
         : isSet(object.force_refresh)
-          ? globalThis.Boolean(object.force_refresh)
-          : false,
+        ? globalThis.Boolean(object.force_refresh)
+        : false,
     };
   },
 
@@ -233,14 +222,10 @@ export const ResolveByAddressRequest: MessageFns<ResolveByAddressRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ResolveByAddressRequest>, I>>(
-    base?: I,
-  ): ResolveByAddressRequest {
+  create<I extends Exact<DeepPartial<ResolveByAddressRequest>, I>>(base?: I): ResolveByAddressRequest {
     return ResolveByAddressRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ResolveByAddressRequest>, I>>(
-    object: I,
-  ): ResolveByAddressRequest {
+  fromPartial<I extends Exact<DeepPartial<ResolveByAddressRequest>, I>>(object: I): ResolveByAddressRequest {
     const message = createBaseResolveByAddressRequest();
     message.ethAddress = object.ethAddress ?? "";
     message.allowLegacyFallback = object.allowLegacyFallback ?? false;
@@ -264,10 +249,7 @@ function createBaseResolveResult(): ResolveResult {
 }
 
 export const ResolveResult: MessageFns<ResolveResult> = {
-  encode(
-    message: ResolveResult,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: ResolveResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.ethAddress !== "") {
       writer.uint32(10).string(message.ethAddress);
     }
@@ -284,16 +266,10 @@ export const ResolveResult: MessageFns<ResolveResult> = {
       writer.uint32(40).int32(message.freshnessStatus);
     }
     if (message.cachedAt !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.cachedAt),
-        writer.uint32(50).fork(),
-      ).join();
+      Timestamp.encode(toTimestamp(message.cachedAt), writer.uint32(50).fork()).join();
     }
     if (message.fetchedAt !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.fetchedAt),
-        writer.uint32(58).fork(),
-      ).join();
+      Timestamp.encode(toTimestamp(message.fetchedAt), writer.uint32(58).fork()).join();
     }
     if (message.schemaVersion !== 0) {
       writer.uint32(64).int32(message.schemaVersion);
@@ -302,8 +278,7 @@ export const ResolveResult: MessageFns<ResolveResult> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ResolveResult {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseResolveResult();
     while (reader.pos < end) {
@@ -354,9 +329,7 @@ export const ResolveResult: MessageFns<ResolveResult> = {
             break;
           }
 
-          message.cachedAt = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32()),
-          );
+          message.cachedAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
         case 7: {
@@ -364,9 +337,7 @@ export const ResolveResult: MessageFns<ResolveResult> = {
             break;
           }
 
-          message.fetchedAt = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32()),
-          );
+          message.fetchedAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
         case 8: {
@@ -391,37 +362,35 @@ export const ResolveResult: MessageFns<ResolveResult> = {
       ethAddress: isSet(object.ethAddress)
         ? globalThis.String(object.ethAddress)
         : isSet(object.eth_address)
-          ? globalThis.String(object.eth_address)
-          : "",
+        ? globalThis.String(object.eth_address)
+        : "",
       resolvedUri: isSet(object.resolvedUri)
         ? globalThis.String(object.resolvedUri)
         : isSet(object.resolved_uri)
-          ? globalThis.String(object.resolved_uri)
-          : "",
+        ? globalThis.String(object.resolved_uri)
+        : "",
       mode: isSet(object.mode) ? resolveModeFromJSON(object.mode) : 0,
-      nodes: globalThis.Array.isArray(object?.nodes)
-        ? object.nodes.map((e: any) => Node.fromJSON(e))
-        : [],
+      nodes: globalThis.Array.isArray(object?.nodes) ? object.nodes.map((e: any) => Node.fromJSON(e)) : [],
       freshnessStatus: isSet(object.freshnessStatus)
         ? freshnessStatusFromJSON(object.freshnessStatus)
         : isSet(object.freshness_status)
-          ? freshnessStatusFromJSON(object.freshness_status)
-          : 0,
+        ? freshnessStatusFromJSON(object.freshness_status)
+        : 0,
       cachedAt: isSet(object.cachedAt)
         ? fromJsonTimestamp(object.cachedAt)
         : isSet(object.cached_at)
-          ? fromJsonTimestamp(object.cached_at)
-          : undefined,
+        ? fromJsonTimestamp(object.cached_at)
+        : undefined,
       fetchedAt: isSet(object.fetchedAt)
         ? fromJsonTimestamp(object.fetchedAt)
         : isSet(object.fetched_at)
-          ? fromJsonTimestamp(object.fetched_at)
-          : undefined,
+        ? fromJsonTimestamp(object.fetched_at)
+        : undefined,
       schemaVersion: isSet(object.schemaVersion)
         ? globalThis.Number(object.schemaVersion)
         : isSet(object.schema_version)
-          ? globalThis.Number(object.schema_version)
-          : 0,
+        ? globalThis.Number(object.schema_version)
+        : 0,
     };
   },
 
@@ -454,14 +423,10 @@ export const ResolveResult: MessageFns<ResolveResult> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ResolveResult>, I>>(
-    base?: I,
-  ): ResolveResult {
+  create<I extends Exact<DeepPartial<ResolveResult>, I>>(base?: I): ResolveResult {
     return ResolveResult.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ResolveResult>, I>>(
-    object: I,
-  ): ResolveResult {
+  fromPartial<I extends Exact<DeepPartial<ResolveResult>, I>>(object: I): ResolveResult {
     const message = createBaseResolveResult();
     message.ethAddress = object.ethAddress ?? "";
     message.resolvedUri = object.resolvedUri ?? "";
@@ -476,23 +441,11 @@ export const ResolveResult: MessageFns<ResolveResult> = {
 };
 
 function createBaseSelectRequest(): SelectRequest {
-  return {
-    capability: "",
-    model: "",
-    tier: "",
-    minWeight: 0,
-    geoLat: 0,
-    geoLon: 0,
-    geoWithinKm: 0,
-    hasGeo: false,
-  };
+  return { capability: "", model: "", tier: "", minWeight: 0, geoLat: 0, geoLon: 0, geoWithinKm: 0, hasGeo: false };
 }
 
 export const SelectRequest: MessageFns<SelectRequest> = {
-  encode(
-    message: SelectRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: SelectRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.capability !== "") {
       writer.uint32(10).string(message.capability);
     }
@@ -521,8 +474,7 @@ export const SelectRequest: MessageFns<SelectRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): SelectRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSelectRequest();
     while (reader.pos < end) {
@@ -603,36 +555,34 @@ export const SelectRequest: MessageFns<SelectRequest> = {
 
   fromJSON(object: any): SelectRequest {
     return {
-      capability: isSet(object.capability)
-        ? globalThis.String(object.capability)
-        : "",
+      capability: isSet(object.capability) ? globalThis.String(object.capability) : "",
       model: isSet(object.model) ? globalThis.String(object.model) : "",
       tier: isSet(object.tier) ? globalThis.String(object.tier) : "",
       minWeight: isSet(object.minWeight)
         ? globalThis.Number(object.minWeight)
         : isSet(object.min_weight)
-          ? globalThis.Number(object.min_weight)
-          : 0,
+        ? globalThis.Number(object.min_weight)
+        : 0,
       geoLat: isSet(object.geoLat)
         ? globalThis.Number(object.geoLat)
         : isSet(object.geo_lat)
-          ? globalThis.Number(object.geo_lat)
-          : 0,
+        ? globalThis.Number(object.geo_lat)
+        : 0,
       geoLon: isSet(object.geoLon)
         ? globalThis.Number(object.geoLon)
         : isSet(object.geo_lon)
-          ? globalThis.Number(object.geo_lon)
-          : 0,
+        ? globalThis.Number(object.geo_lon)
+        : 0,
       geoWithinKm: isSet(object.geoWithinKm)
         ? globalThis.Number(object.geoWithinKm)
         : isSet(object.geo_within_km)
-          ? globalThis.Number(object.geo_within_km)
-          : 0,
+        ? globalThis.Number(object.geo_within_km)
+        : 0,
       hasGeo: isSet(object.hasGeo)
         ? globalThis.Boolean(object.hasGeo)
         : isSet(object.has_geo)
-          ? globalThis.Boolean(object.has_geo)
-          : false,
+        ? globalThis.Boolean(object.has_geo)
+        : false,
     };
   },
 
@@ -665,14 +615,10 @@ export const SelectRequest: MessageFns<SelectRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SelectRequest>, I>>(
-    base?: I,
-  ): SelectRequest {
+  create<I extends Exact<DeepPartial<SelectRequest>, I>>(base?: I): SelectRequest {
     return SelectRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SelectRequest>, I>>(
-    object: I,
-  ): SelectRequest {
+  fromPartial<I extends Exact<DeepPartial<SelectRequest>, I>>(object: I): SelectRequest {
     const message = createBaseSelectRequest();
     message.capability = object.capability ?? "";
     message.model = object.model ?? "";
@@ -691,10 +637,7 @@ function createBaseSelectResult(): SelectResult {
 }
 
 export const SelectResult: MessageFns<SelectResult> = {
-  encode(
-    message: SelectResult,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: SelectResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.nodes) {
       Node.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -702,8 +645,7 @@ export const SelectResult: MessageFns<SelectResult> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): SelectResult {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSelectResult();
     while (reader.pos < end) {
@@ -727,11 +669,7 @@ export const SelectResult: MessageFns<SelectResult> = {
   },
 
   fromJSON(object: any): SelectResult {
-    return {
-      nodes: globalThis.Array.isArray(object?.nodes)
-        ? object.nodes.map((e: any) => Node.fromJSON(e))
-        : [],
-    };
+    return { nodes: globalThis.Array.isArray(object?.nodes) ? object.nodes.map((e: any) => Node.fromJSON(e)) : [] };
   },
 
   toJSON(message: SelectResult): unknown {
@@ -742,14 +680,10 @@ export const SelectResult: MessageFns<SelectResult> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SelectResult>, I>>(
-    base?: I,
-  ): SelectResult {
+  create<I extends Exact<DeepPartial<SelectResult>, I>>(base?: I): SelectResult {
     return SelectResult.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SelectResult>, I>>(
-    object: I,
-  ): SelectResult {
+  fromPartial<I extends Exact<DeepPartial<SelectResult>, I>>(object: I): SelectResult {
     const message = createBaseSelectResult();
     message.nodes = object.nodes?.map((e) => Node.fromPartial(e)) || [];
     return message;
@@ -761,16 +695,12 @@ function createBaseListKnownRequest(): ListKnownRequest {
 }
 
 export const ListKnownRequest: MessageFns<ListKnownRequest> = {
-  encode(
-    _: ListKnownRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(_: ListKnownRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ListKnownRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListKnownRequest();
     while (reader.pos < end) {
@@ -794,14 +724,10 @@ export const ListKnownRequest: MessageFns<ListKnownRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListKnownRequest>, I>>(
-    base?: I,
-  ): ListKnownRequest {
+  create<I extends Exact<DeepPartial<ListKnownRequest>, I>>(base?: I): ListKnownRequest {
     return ListKnownRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListKnownRequest>, I>>(
-    _: I,
-  ): ListKnownRequest {
+  fromPartial<I extends Exact<DeepPartial<ListKnownRequest>, I>>(_: I): ListKnownRequest {
     const message = createBaseListKnownRequest();
     return message;
   },
@@ -812,10 +738,7 @@ function createBaseListKnownResult(): ListKnownResult {
 }
 
 export const ListKnownResult: MessageFns<ListKnownResult> = {
-  encode(
-    message: ListKnownResult,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: ListKnownResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.entries) {
       KnownEntry.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -823,8 +746,7 @@ export const ListKnownResult: MessageFns<ListKnownResult> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ListKnownResult {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListKnownResult();
     while (reader.pos < end) {
@@ -849,9 +771,7 @@ export const ListKnownResult: MessageFns<ListKnownResult> = {
 
   fromJSON(object: any): ListKnownResult {
     return {
-      entries: globalThis.Array.isArray(object?.entries)
-        ? object.entries.map((e: any) => KnownEntry.fromJSON(e))
-        : [],
+      entries: globalThis.Array.isArray(object?.entries) ? object.entries.map((e: any) => KnownEntry.fromJSON(e)) : [],
     };
   },
 
@@ -863,17 +783,12 @@ export const ListKnownResult: MessageFns<ListKnownResult> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListKnownResult>, I>>(
-    base?: I,
-  ): ListKnownResult {
+  create<I extends Exact<DeepPartial<ListKnownResult>, I>>(base?: I): ListKnownResult {
     return ListKnownResult.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListKnownResult>, I>>(
-    object: I,
-  ): ListKnownResult {
+  fromPartial<I extends Exact<DeepPartial<ListKnownResult>, I>>(object: I): ListKnownResult {
     const message = createBaseListKnownResult();
-    message.entries =
-      object.entries?.map((e) => KnownEntry.fromPartial(e)) || [];
+    message.entries = object.entries?.map((e) => KnownEntry.fromPartial(e)) || [];
     return message;
   },
 };
@@ -883,10 +798,7 @@ function createBaseKnownEntry(): KnownEntry {
 }
 
 export const KnownEntry: MessageFns<KnownEntry> = {
-  encode(
-    message: KnownEntry,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: KnownEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.ethAddress !== "") {
       writer.uint32(10).string(message.ethAddress);
     }
@@ -897,17 +809,13 @@ export const KnownEntry: MessageFns<KnownEntry> = {
       writer.uint32(24).int32(message.freshnessStatus);
     }
     if (message.cachedAt !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.cachedAt),
-        writer.uint32(34).fork(),
-      ).join();
+      Timestamp.encode(toTimestamp(message.cachedAt), writer.uint32(34).fork()).join();
     }
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): KnownEntry {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseKnownEntry();
     while (reader.pos < end) {
@@ -942,9 +850,7 @@ export const KnownEntry: MessageFns<KnownEntry> = {
             break;
           }
 
-          message.cachedAt = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32()),
-          );
+          message.cachedAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
       }
@@ -961,19 +867,19 @@ export const KnownEntry: MessageFns<KnownEntry> = {
       ethAddress: isSet(object.ethAddress)
         ? globalThis.String(object.ethAddress)
         : isSet(object.eth_address)
-          ? globalThis.String(object.eth_address)
-          : "",
+        ? globalThis.String(object.eth_address)
+        : "",
       mode: isSet(object.mode) ? resolveModeFromJSON(object.mode) : 0,
       freshnessStatus: isSet(object.freshnessStatus)
         ? freshnessStatusFromJSON(object.freshnessStatus)
         : isSet(object.freshness_status)
-          ? freshnessStatusFromJSON(object.freshness_status)
-          : 0,
+        ? freshnessStatusFromJSON(object.freshness_status)
+        : 0,
       cachedAt: isSet(object.cachedAt)
         ? fromJsonTimestamp(object.cachedAt)
         : isSet(object.cached_at)
-          ? fromJsonTimestamp(object.cached_at)
-          : undefined,
+        ? fromJsonTimestamp(object.cached_at)
+        : undefined,
     };
   },
 
@@ -997,9 +903,7 @@ export const KnownEntry: MessageFns<KnownEntry> = {
   create<I extends Exact<DeepPartial<KnownEntry>, I>>(base?: I): KnownEntry {
     return KnownEntry.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<KnownEntry>, I>>(
-    object: I,
-  ): KnownEntry {
+  fromPartial<I extends Exact<DeepPartial<KnownEntry>, I>>(object: I): KnownEntry {
     const message = createBaseKnownEntry();
     message.ethAddress = object.ethAddress ?? "";
     message.mode = object.mode ?? 0;
@@ -1014,10 +918,7 @@ function createBaseRefreshRequest(): RefreshRequest {
 }
 
 export const RefreshRequest: MessageFns<RefreshRequest> = {
-  encode(
-    message: RefreshRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: RefreshRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.ethAddress !== "") {
       writer.uint32(10).string(message.ethAddress);
     }
@@ -1028,8 +929,7 @@ export const RefreshRequest: MessageFns<RefreshRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): RefreshRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseRefreshRequest();
     while (reader.pos < end) {
@@ -1065,8 +965,8 @@ export const RefreshRequest: MessageFns<RefreshRequest> = {
       ethAddress: isSet(object.ethAddress)
         ? globalThis.String(object.ethAddress)
         : isSet(object.eth_address)
-          ? globalThis.String(object.eth_address)
-          : "",
+        ? globalThis.String(object.eth_address)
+        : "",
       force: isSet(object.force) ? globalThis.Boolean(object.force) : false,
     };
   },
@@ -1082,14 +982,10 @@ export const RefreshRequest: MessageFns<RefreshRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<RefreshRequest>, I>>(
-    base?: I,
-  ): RefreshRequest {
+  create<I extends Exact<DeepPartial<RefreshRequest>, I>>(base?: I): RefreshRequest {
     return RefreshRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<RefreshRequest>, I>>(
-    object: I,
-  ): RefreshRequest {
+  fromPartial<I extends Exact<DeepPartial<RefreshRequest>, I>>(object: I): RefreshRequest {
     const message = createBaseRefreshRequest();
     message.ethAddress = object.ethAddress ?? "";
     message.force = object.force ?? false;
@@ -1102,18 +998,12 @@ function createBaseGetAuditLogRequest(): GetAuditLogRequest {
 }
 
 export const GetAuditLogRequest: MessageFns<GetAuditLogRequest> = {
-  encode(
-    message: GetAuditLogRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: GetAuditLogRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.ethAddress !== "") {
       writer.uint32(10).string(message.ethAddress);
     }
     if (message.since !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.since),
-        writer.uint32(18).fork(),
-      ).join();
+      Timestamp.encode(toTimestamp(message.since), writer.uint32(18).fork()).join();
     }
     if (message.limit !== 0) {
       writer.uint32(24).int32(message.limit);
@@ -1121,12 +1011,8 @@ export const GetAuditLogRequest: MessageFns<GetAuditLogRequest> = {
     return writer;
   },
 
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): GetAuditLogRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): GetAuditLogRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetAuditLogRequest();
     while (reader.pos < end) {
@@ -1145,9 +1031,7 @@ export const GetAuditLogRequest: MessageFns<GetAuditLogRequest> = {
             break;
           }
 
-          message.since = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32()),
-          );
+          message.since = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
         case 3: {
@@ -1172,8 +1056,8 @@ export const GetAuditLogRequest: MessageFns<GetAuditLogRequest> = {
       ethAddress: isSet(object.ethAddress)
         ? globalThis.String(object.ethAddress)
         : isSet(object.eth_address)
-          ? globalThis.String(object.eth_address)
-          : "",
+        ? globalThis.String(object.eth_address)
+        : "",
       since: isSet(object.since) ? fromJsonTimestamp(object.since) : undefined,
       limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
     };
@@ -1193,14 +1077,10 @@ export const GetAuditLogRequest: MessageFns<GetAuditLogRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetAuditLogRequest>, I>>(
-    base?: I,
-  ): GetAuditLogRequest {
+  create<I extends Exact<DeepPartial<GetAuditLogRequest>, I>>(base?: I): GetAuditLogRequest {
     return GetAuditLogRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetAuditLogRequest>, I>>(
-    object: I,
-  ): GetAuditLogRequest {
+  fromPartial<I extends Exact<DeepPartial<GetAuditLogRequest>, I>>(object: I): GetAuditLogRequest {
     const message = createBaseGetAuditLogRequest();
     message.ethAddress = object.ethAddress ?? "";
     message.since = object.since ?? undefined;
@@ -1214,10 +1094,7 @@ function createBaseAuditLogResult(): AuditLogResult {
 }
 
 export const AuditLogResult: MessageFns<AuditLogResult> = {
-  encode(
-    message: AuditLogResult,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: AuditLogResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.events) {
       AuditEvent.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -1225,8 +1102,7 @@ export const AuditLogResult: MessageFns<AuditLogResult> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): AuditLogResult {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAuditLogResult();
     while (reader.pos < end) {
@@ -1251,9 +1127,7 @@ export const AuditLogResult: MessageFns<AuditLogResult> = {
 
   fromJSON(object: any): AuditLogResult {
     return {
-      events: globalThis.Array.isArray(object?.events)
-        ? object.events.map((e: any) => AuditEvent.fromJSON(e))
-        : [],
+      events: globalThis.Array.isArray(object?.events) ? object.events.map((e: any) => AuditEvent.fromJSON(e)) : [],
     };
   },
 
@@ -1265,14 +1139,10 @@ export const AuditLogResult: MessageFns<AuditLogResult> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<AuditLogResult>, I>>(
-    base?: I,
-  ): AuditLogResult {
+  create<I extends Exact<DeepPartial<AuditLogResult>, I>>(base?: I): AuditLogResult {
     return AuditLogResult.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<AuditLogResult>, I>>(
-    object: I,
-  ): AuditLogResult {
+  fromPartial<I extends Exact<DeepPartial<AuditLogResult>, I>>(object: I): AuditLogResult {
     const message = createBaseAuditLogResult();
     message.events = object.events?.map((e) => AuditEvent.fromPartial(e)) || [];
     return message;
@@ -1284,15 +1154,9 @@ function createBaseAuditEvent(): AuditEvent {
 }
 
 export const AuditEvent: MessageFns<AuditEvent> = {
-  encode(
-    message: AuditEvent,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: AuditEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.at !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.at),
-        writer.uint32(10).fork(),
-      ).join();
+      Timestamp.encode(toTimestamp(message.at), writer.uint32(10).fork()).join();
     }
     if (message.ethAddress !== "") {
       writer.uint32(18).string(message.ethAddress);
@@ -1310,8 +1174,7 @@ export const AuditEvent: MessageFns<AuditEvent> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): AuditEvent {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseAuditEvent();
     while (reader.pos < end) {
@@ -1372,8 +1235,8 @@ export const AuditEvent: MessageFns<AuditEvent> = {
       ethAddress: isSet(object.ethAddress)
         ? globalThis.String(object.ethAddress)
         : isSet(object.eth_address)
-          ? globalThis.String(object.eth_address)
-          : "",
+        ? globalThis.String(object.eth_address)
+        : "",
       kind: isSet(object.kind) ? globalThis.String(object.kind) : "",
       mode: isSet(object.mode) ? resolveModeFromJSON(object.mode) : 0,
       detail: isSet(object.detail) ? globalThis.String(object.detail) : "",
@@ -1403,9 +1266,7 @@ export const AuditEvent: MessageFns<AuditEvent> = {
   create<I extends Exact<DeepPartial<AuditEvent>, I>>(base?: I): AuditEvent {
     return AuditEvent.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<AuditEvent>, I>>(
-    object: I,
-  ): AuditEvent {
+  fromPartial<I extends Exact<DeepPartial<AuditEvent>, I>>(object: I): AuditEvent {
     const message = createBaseAuditEvent();
     message.at = object.at ?? undefined;
     message.ethAddress = object.ethAddress ?? "";
@@ -1417,20 +1278,11 @@ export const AuditEvent: MessageFns<AuditEvent> = {
 };
 
 function createBaseHealthResult(): HealthResult {
-  return {
-    mode: "",
-    chainOk: false,
-    manifestFetcherOk: false,
-    cacheSize: 0,
-    lastChainSuccess: undefined,
-  };
+  return { mode: "", chainOk: false, manifestFetcherOk: false, cacheSize: 0, lastChainSuccess: undefined };
 }
 
 export const HealthResult: MessageFns<HealthResult> = {
-  encode(
-    message: HealthResult,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: HealthResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.mode !== "") {
       writer.uint32(10).string(message.mode);
     }
@@ -1444,17 +1296,13 @@ export const HealthResult: MessageFns<HealthResult> = {
       writer.uint32(32).int32(message.cacheSize);
     }
     if (message.lastChainSuccess !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.lastChainSuccess),
-        writer.uint32(42).fork(),
-      ).join();
+      Timestamp.encode(toTimestamp(message.lastChainSuccess), writer.uint32(42).fork()).join();
     }
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): HealthResult {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseHealthResult();
     while (reader.pos < end) {
@@ -1497,9 +1345,7 @@ export const HealthResult: MessageFns<HealthResult> = {
             break;
           }
 
-          message.lastChainSuccess = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32()),
-          );
+          message.lastChainSuccess = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
       }
@@ -1517,23 +1363,23 @@ export const HealthResult: MessageFns<HealthResult> = {
       chainOk: isSet(object.chainOk)
         ? globalThis.Boolean(object.chainOk)
         : isSet(object.chain_ok)
-          ? globalThis.Boolean(object.chain_ok)
-          : false,
+        ? globalThis.Boolean(object.chain_ok)
+        : false,
       manifestFetcherOk: isSet(object.manifestFetcherOk)
         ? globalThis.Boolean(object.manifestFetcherOk)
         : isSet(object.manifest_fetcher_ok)
-          ? globalThis.Boolean(object.manifest_fetcher_ok)
-          : false,
+        ? globalThis.Boolean(object.manifest_fetcher_ok)
+        : false,
       cacheSize: isSet(object.cacheSize)
         ? globalThis.Number(object.cacheSize)
         : isSet(object.cache_size)
-          ? globalThis.Number(object.cache_size)
-          : 0,
+        ? globalThis.Number(object.cache_size)
+        : 0,
       lastChainSuccess: isSet(object.lastChainSuccess)
         ? fromJsonTimestamp(object.lastChainSuccess)
         : isSet(object.last_chain_success)
-          ? fromJsonTimestamp(object.last_chain_success)
-          : undefined,
+        ? fromJsonTimestamp(object.last_chain_success)
+        : undefined,
     };
   },
 
@@ -1557,14 +1403,10 @@ export const HealthResult: MessageFns<HealthResult> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<HealthResult>, I>>(
-    base?: I,
-  ): HealthResult {
+  create<I extends Exact<DeepPartial<HealthResult>, I>>(base?: I): HealthResult {
     return HealthResult.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<HealthResult>, I>>(
-    object: I,
-  ): HealthResult {
+  fromPartial<I extends Exact<DeepPartial<HealthResult>, I>>(object: I): HealthResult {
     const message = createBaseHealthResult();
     message.mode = object.mode ?? "";
     message.chainOk = object.chainOk ?? false;
@@ -1583,75 +1425,54 @@ export const ResolverService = {
     responseStream: false as const,
     requestSerialize: (value: ResolveByAddressRequest): Buffer =>
       Buffer.from(ResolveByAddressRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ResolveByAddressRequest =>
-      ResolveByAddressRequest.decode(value),
-    responseSerialize: (value: ResolveResult): Buffer =>
-      Buffer.from(ResolveResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ResolveResult =>
-      ResolveResult.decode(value),
+    requestDeserialize: (value: Buffer): ResolveByAddressRequest => ResolveByAddressRequest.decode(value),
+    responseSerialize: (value: ResolveResult): Buffer => Buffer.from(ResolveResult.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ResolveResult => ResolveResult.decode(value),
   },
   select: {
     path: "/livepeer.registry.v1.Resolver/Select" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: SelectRequest): Buffer =>
-      Buffer.from(SelectRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): SelectRequest =>
-      SelectRequest.decode(value),
-    responseSerialize: (value: SelectResult): Buffer =>
-      Buffer.from(SelectResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer): SelectResult =>
-      SelectResult.decode(value),
+    requestSerialize: (value: SelectRequest): Buffer => Buffer.from(SelectRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SelectRequest => SelectRequest.decode(value),
+    responseSerialize: (value: SelectResult): Buffer => Buffer.from(SelectResult.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SelectResult => SelectResult.decode(value),
   },
   listKnown: {
     path: "/livepeer.registry.v1.Resolver/ListKnown" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: ListKnownRequest): Buffer =>
-      Buffer.from(ListKnownRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ListKnownRequest =>
-      ListKnownRequest.decode(value),
-    responseSerialize: (value: ListKnownResult): Buffer =>
-      Buffer.from(ListKnownResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ListKnownResult =>
-      ListKnownResult.decode(value),
+    requestSerialize: (value: ListKnownRequest): Buffer => Buffer.from(ListKnownRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ListKnownRequest => ListKnownRequest.decode(value),
+    responseSerialize: (value: ListKnownResult): Buffer => Buffer.from(ListKnownResult.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ListKnownResult => ListKnownResult.decode(value),
   },
   refresh: {
     path: "/livepeer.registry.v1.Resolver/Refresh" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: RefreshRequest): Buffer =>
-      Buffer.from(RefreshRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): RefreshRequest =>
-      RefreshRequest.decode(value),
-    responseSerialize: (value: Empty): Buffer =>
-      Buffer.from(Empty.encode(value).finish()),
+    requestSerialize: (value: RefreshRequest): Buffer => Buffer.from(RefreshRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): RefreshRequest => RefreshRequest.decode(value),
+    responseSerialize: (value: Empty): Buffer => Buffer.from(Empty.encode(value).finish()),
     responseDeserialize: (value: Buffer): Empty => Empty.decode(value),
   },
   getAuditLog: {
     path: "/livepeer.registry.v1.Resolver/GetAuditLog" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: GetAuditLogRequest): Buffer =>
-      Buffer.from(GetAuditLogRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetAuditLogRequest =>
-      GetAuditLogRequest.decode(value),
-    responseSerialize: (value: AuditLogResult): Buffer =>
-      Buffer.from(AuditLogResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer): AuditLogResult =>
-      AuditLogResult.decode(value),
+    requestSerialize: (value: GetAuditLogRequest): Buffer => Buffer.from(GetAuditLogRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetAuditLogRequest => GetAuditLogRequest.decode(value),
+    responseSerialize: (value: AuditLogResult): Buffer => Buffer.from(AuditLogResult.encode(value).finish()),
+    responseDeserialize: (value: Buffer): AuditLogResult => AuditLogResult.decode(value),
   },
   health: {
     path: "/livepeer.registry.v1.Resolver/Health" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: Empty): Buffer =>
-      Buffer.from(Empty.encode(value).finish()),
+    requestSerialize: (value: Empty): Buffer => Buffer.from(Empty.encode(value).finish()),
     requestDeserialize: (value: Buffer): Empty => Empty.decode(value),
-    responseSerialize: (value: HealthResult): Buffer =>
-      Buffer.from(HealthResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer): HealthResult =>
-      HealthResult.decode(value),
+    responseSerialize: (value: HealthResult): Buffer => Buffer.from(HealthResult.encode(value).finish()),
+    responseDeserialize: (value: Buffer): HealthResult => HealthResult.decode(value),
   },
 } as const;
 
@@ -1710,10 +1531,7 @@ export interface ResolverClient extends Client {
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: ListKnownResult) => void,
   ): ClientUnaryCall;
-  refresh(
-    request: RefreshRequest,
-    callback: (error: ServiceError | null, response: Empty) => void,
-  ): ClientUnaryCall;
+  refresh(request: RefreshRequest, callback: (error: ServiceError | null, response: Empty) => void): ClientUnaryCall;
   refresh(
     request: RefreshRequest,
     metadata: Metadata,
@@ -1740,10 +1558,7 @@ export interface ResolverClient extends Client {
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: AuditLogResult) => void,
   ): ClientUnaryCall;
-  health(
-    request: Empty,
-    callback: (error: ServiceError | null, response: HealthResult) => void,
-  ): ClientUnaryCall;
+  health(request: Empty, callback: (error: ServiceError | null, response: HealthResult) => void): ClientUnaryCall;
   health(
     request: Empty,
     metadata: Metadata,
@@ -1761,41 +1576,22 @@ export const ResolverClient = makeGenericClientConstructor(
   ResolverService,
   "livepeer.registry.v1.Resolver",
 ) as unknown as {
-  new (
-    address: string,
-    credentials: ChannelCredentials,
-    options?: Partial<ClientOptions>,
-  ): ResolverClient;
+  new (address: string, credentials: ChannelCredentials, options?: Partial<ClientOptions>): ResolverClient;
   service: typeof ResolverService;
   serviceName: string;
 };
 
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | bigint
-  | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
-export type DeepPartial<T> = T extends Builtin
-  ? T
-  : T extends globalThis.Array<infer U>
-    ? globalThis.Array<DeepPartial<U>>
-    : T extends ReadonlyArray<infer U>
-      ? ReadonlyArray<DeepPartial<U>>
-      : T extends {}
-        ? { [K in keyof T]?: DeepPartial<T[K]> }
-        : Partial<T>;
+export type DeepPartial<T> = T extends Builtin ? T
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
+  : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin
-  ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
-      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
-    };
+export type Exact<P, I extends P> = P extends Builtin ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function toTimestamp(date: Date): Timestamp {
   const seconds = BigInt(Math.trunc(date.getTime() / 1_000));

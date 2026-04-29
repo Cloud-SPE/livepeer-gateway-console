@@ -83,28 +83,18 @@ function createBaseBuildManifestRequest(): BuildManifestRequest {
 }
 
 export const BuildManifestRequest: MessageFns<BuildManifestRequest> = {
-  encode(
-    message: BuildManifestRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: BuildManifestRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.nodes) {
       Node.encode(v!, writer.uint32(10).fork()).join();
     }
     if (message.expiresAt !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.expiresAt),
-        writer.uint32(18).fork(),
-      ).join();
+      Timestamp.encode(toTimestamp(message.expiresAt), writer.uint32(18).fork()).join();
     }
     return writer;
   },
 
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): BuildManifestRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): BuildManifestRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseBuildManifestRequest();
     while (reader.pos < end) {
@@ -123,9 +113,7 @@ export const BuildManifestRequest: MessageFns<BuildManifestRequest> = {
             break;
           }
 
-          message.expiresAt = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32()),
-          );
+          message.expiresAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
       }
@@ -139,14 +127,12 @@ export const BuildManifestRequest: MessageFns<BuildManifestRequest> = {
 
   fromJSON(object: any): BuildManifestRequest {
     return {
-      nodes: globalThis.Array.isArray(object?.nodes)
-        ? object.nodes.map((e: any) => Node.fromJSON(e))
-        : [],
+      nodes: globalThis.Array.isArray(object?.nodes) ? object.nodes.map((e: any) => Node.fromJSON(e)) : [],
       expiresAt: isSet(object.expiresAt)
         ? fromJsonTimestamp(object.expiresAt)
         : isSet(object.expires_at)
-          ? fromJsonTimestamp(object.expires_at)
-          : undefined,
+        ? fromJsonTimestamp(object.expires_at)
+        : undefined,
     };
   },
 
@@ -161,14 +147,10 @@ export const BuildManifestRequest: MessageFns<BuildManifestRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<BuildManifestRequest>, I>>(
-    base?: I,
-  ): BuildManifestRequest {
+  create<I extends Exact<DeepPartial<BuildManifestRequest>, I>>(base?: I): BuildManifestRequest {
     return BuildManifestRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<BuildManifestRequest>, I>>(
-    object: I,
-  ): BuildManifestRequest {
+  fromPartial<I extends Exact<DeepPartial<BuildManifestRequest>, I>>(object: I): BuildManifestRequest {
     const message = createBaseBuildManifestRequest();
     message.nodes = object.nodes?.map((e) => Node.fromPartial(e)) || [];
     message.expiresAt = object.expiresAt ?? undefined;
@@ -177,18 +159,11 @@ export const BuildManifestRequest: MessageFns<BuildManifestRequest> = {
 };
 
 function createBaseBuildResult(): BuildResult {
-  return {
-    manifestJson: Buffer.alloc(0),
-    canonicalBytes: Buffer.alloc(0),
-    canonicalSha256: "",
-  };
+  return { manifestJson: Buffer.alloc(0), canonicalBytes: Buffer.alloc(0), canonicalSha256: "" };
 }
 
 export const BuildResult: MessageFns<BuildResult> = {
-  encode(
-    message: BuildResult,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: BuildResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.manifestJson.length !== 0) {
       writer.uint32(10).bytes(message.manifestJson);
     }
@@ -202,8 +177,7 @@ export const BuildResult: MessageFns<BuildResult> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): BuildResult {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseBuildResult();
     while (reader.pos < end) {
@@ -247,18 +221,18 @@ export const BuildResult: MessageFns<BuildResult> = {
       manifestJson: isSet(object.manifestJson)
         ? Buffer.from(bytesFromBase64(object.manifestJson))
         : isSet(object.manifest_json)
-          ? Buffer.from(bytesFromBase64(object.manifest_json))
-          : Buffer.alloc(0),
+        ? Buffer.from(bytesFromBase64(object.manifest_json))
+        : Buffer.alloc(0),
       canonicalBytes: isSet(object.canonicalBytes)
         ? Buffer.from(bytesFromBase64(object.canonicalBytes))
         : isSet(object.canonical_bytes)
-          ? Buffer.from(bytesFromBase64(object.canonical_bytes))
-          : Buffer.alloc(0),
+        ? Buffer.from(bytesFromBase64(object.canonical_bytes))
+        : Buffer.alloc(0),
       canonicalSha256: isSet(object.canonicalSha256)
         ? globalThis.String(object.canonicalSha256)
         : isSet(object.canonical_sha256)
-          ? globalThis.String(object.canonical_sha256)
-          : "",
+        ? globalThis.String(object.canonical_sha256)
+        : "",
     };
   },
 
@@ -279,9 +253,7 @@ export const BuildResult: MessageFns<BuildResult> = {
   create<I extends Exact<DeepPartial<BuildResult>, I>>(base?: I): BuildResult {
     return BuildResult.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<BuildResult>, I>>(
-    object: I,
-  ): BuildResult {
+  fromPartial<I extends Exact<DeepPartial<BuildResult>, I>>(object: I): BuildResult {
     const message = createBaseBuildResult();
     message.manifestJson = object.manifestJson ?? Buffer.alloc(0);
     message.canonicalBytes = object.canonicalBytes ?? Buffer.alloc(0);
@@ -295,28 +267,18 @@ function createBaseBuildAndSignRequest(): BuildAndSignRequest {
 }
 
 export const BuildAndSignRequest: MessageFns<BuildAndSignRequest> = {
-  encode(
-    message: BuildAndSignRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: BuildAndSignRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.nodes) {
       Node.encode(v!, writer.uint32(10).fork()).join();
     }
     if (message.expiresAt !== undefined) {
-      Timestamp.encode(
-        toTimestamp(message.expiresAt),
-        writer.uint32(18).fork(),
-      ).join();
+      Timestamp.encode(toTimestamp(message.expiresAt), writer.uint32(18).fork()).join();
     }
     return writer;
   },
 
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): BuildAndSignRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): BuildAndSignRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseBuildAndSignRequest();
     while (reader.pos < end) {
@@ -335,9 +297,7 @@ export const BuildAndSignRequest: MessageFns<BuildAndSignRequest> = {
             break;
           }
 
-          message.expiresAt = fromTimestamp(
-            Timestamp.decode(reader, reader.uint32()),
-          );
+          message.expiresAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
       }
@@ -351,14 +311,12 @@ export const BuildAndSignRequest: MessageFns<BuildAndSignRequest> = {
 
   fromJSON(object: any): BuildAndSignRequest {
     return {
-      nodes: globalThis.Array.isArray(object?.nodes)
-        ? object.nodes.map((e: any) => Node.fromJSON(e))
-        : [],
+      nodes: globalThis.Array.isArray(object?.nodes) ? object.nodes.map((e: any) => Node.fromJSON(e)) : [],
       expiresAt: isSet(object.expiresAt)
         ? fromJsonTimestamp(object.expiresAt)
         : isSet(object.expires_at)
-          ? fromJsonTimestamp(object.expires_at)
-          : undefined,
+        ? fromJsonTimestamp(object.expires_at)
+        : undefined,
     };
   },
 
@@ -373,14 +331,10 @@ export const BuildAndSignRequest: MessageFns<BuildAndSignRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<BuildAndSignRequest>, I>>(
-    base?: I,
-  ): BuildAndSignRequest {
+  create<I extends Exact<DeepPartial<BuildAndSignRequest>, I>>(base?: I): BuildAndSignRequest {
     return BuildAndSignRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<BuildAndSignRequest>, I>>(
-    object: I,
-  ): BuildAndSignRequest {
+  fromPartial<I extends Exact<DeepPartial<BuildAndSignRequest>, I>>(object: I): BuildAndSignRequest {
     const message = createBaseBuildAndSignRequest();
     message.nodes = object.nodes?.map((e) => Node.fromPartial(e)) || [];
     message.expiresAt = object.expiresAt ?? undefined;
@@ -393,22 +347,15 @@ function createBaseSignManifestRequest(): SignManifestRequest {
 }
 
 export const SignManifestRequest: MessageFns<SignManifestRequest> = {
-  encode(
-    message: SignManifestRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: SignManifestRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.manifestJson.length !== 0) {
       writer.uint32(10).bytes(message.manifestJson);
     }
     return writer;
   },
 
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): SignManifestRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): SignManifestRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSignManifestRequest();
     while (reader.pos < end) {
@@ -436,8 +383,8 @@ export const SignManifestRequest: MessageFns<SignManifestRequest> = {
       manifestJson: isSet(object.manifestJson)
         ? Buffer.from(bytesFromBase64(object.manifestJson))
         : isSet(object.manifest_json)
-          ? Buffer.from(bytesFromBase64(object.manifest_json))
-          : Buffer.alloc(0),
+        ? Buffer.from(bytesFromBase64(object.manifest_json))
+        : Buffer.alloc(0),
     };
   },
 
@@ -449,14 +396,10 @@ export const SignManifestRequest: MessageFns<SignManifestRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SignManifestRequest>, I>>(
-    base?: I,
-  ): SignManifestRequest {
+  create<I extends Exact<DeepPartial<SignManifestRequest>, I>>(base?: I): SignManifestRequest {
     return SignManifestRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SignManifestRequest>, I>>(
-    object: I,
-  ): SignManifestRequest {
+  fromPartial<I extends Exact<DeepPartial<SignManifestRequest>, I>>(object: I): SignManifestRequest {
     const message = createBaseSignManifestRequest();
     message.manifestJson = object.manifestJson ?? Buffer.alloc(0);
     return message;
@@ -468,10 +411,7 @@ function createBaseSignedManifest(): SignedManifest {
 }
 
 export const SignedManifest: MessageFns<SignedManifest> = {
-  encode(
-    message: SignedManifest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: SignedManifest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.manifestJson.length !== 0) {
       writer.uint32(10).bytes(message.manifestJson);
     }
@@ -482,8 +422,7 @@ export const SignedManifest: MessageFns<SignedManifest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): SignedManifest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSignedManifest();
     while (reader.pos < end) {
@@ -519,13 +458,13 @@ export const SignedManifest: MessageFns<SignedManifest> = {
       manifestJson: isSet(object.manifestJson)
         ? Buffer.from(bytesFromBase64(object.manifestJson))
         : isSet(object.manifest_json)
-          ? Buffer.from(bytesFromBase64(object.manifest_json))
-          : Buffer.alloc(0),
+        ? Buffer.from(bytesFromBase64(object.manifest_json))
+        : Buffer.alloc(0),
       signatureValue: isSet(object.signatureValue)
         ? globalThis.String(object.signatureValue)
         : isSet(object.signature_value)
-          ? globalThis.String(object.signature_value)
-          : "",
+        ? globalThis.String(object.signature_value)
+        : "",
     };
   },
 
@@ -540,14 +479,10 @@ export const SignedManifest: MessageFns<SignedManifest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SignedManifest>, I>>(
-    base?: I,
-  ): SignedManifest {
+  create<I extends Exact<DeepPartial<SignedManifest>, I>>(base?: I): SignedManifest {
     return SignedManifest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SignedManifest>, I>>(
-    object: I,
-  ): SignedManifest {
+  fromPartial<I extends Exact<DeepPartial<SignedManifest>, I>>(object: I): SignedManifest {
     const message = createBaseSignedManifest();
     message.manifestJson = object.manifestJson ?? Buffer.alloc(0);
     message.signatureValue = object.signatureValue ?? "";
@@ -560,22 +495,15 @@ function createBaseWriteServiceURIRequest(): WriteServiceURIRequest {
 }
 
 export const WriteServiceURIRequest: MessageFns<WriteServiceURIRequest> = {
-  encode(
-    message: WriteServiceURIRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: WriteServiceURIRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.uri !== "") {
       writer.uint32(10).string(message.uri);
     }
     return writer;
   },
 
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): WriteServiceURIRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): WriteServiceURIRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseWriteServiceURIRequest();
     while (reader.pos < end) {
@@ -610,14 +538,10 @@ export const WriteServiceURIRequest: MessageFns<WriteServiceURIRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<WriteServiceURIRequest>, I>>(
-    base?: I,
-  ): WriteServiceURIRequest {
+  create<I extends Exact<DeepPartial<WriteServiceURIRequest>, I>>(base?: I): WriteServiceURIRequest {
     return WriteServiceURIRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<WriteServiceURIRequest>, I>>(
-    object: I,
-  ): WriteServiceURIRequest {
+  fromPartial<I extends Exact<DeepPartial<WriteServiceURIRequest>, I>>(object: I): WriteServiceURIRequest {
     const message = createBaseWriteServiceURIRequest();
     message.uri = object.uri ?? "";
     return message;
@@ -629,10 +553,7 @@ function createBaseTxHashResult(): TxHashResult {
 }
 
 export const TxHashResult: MessageFns<TxHashResult> = {
-  encode(
-    message: TxHashResult,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: TxHashResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.txHash !== "") {
       writer.uint32(10).string(message.txHash);
     }
@@ -640,8 +561,7 @@ export const TxHashResult: MessageFns<TxHashResult> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): TxHashResult {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseTxHashResult();
     while (reader.pos < end) {
@@ -669,8 +589,8 @@ export const TxHashResult: MessageFns<TxHashResult> = {
       txHash: isSet(object.txHash)
         ? globalThis.String(object.txHash)
         : isSet(object.tx_hash)
-          ? globalThis.String(object.tx_hash)
-          : "",
+        ? globalThis.String(object.tx_hash)
+        : "",
     };
   },
 
@@ -682,14 +602,10 @@ export const TxHashResult: MessageFns<TxHashResult> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TxHashResult>, I>>(
-    base?: I,
-  ): TxHashResult {
+  create<I extends Exact<DeepPartial<TxHashResult>, I>>(base?: I): TxHashResult {
     return TxHashResult.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TxHashResult>, I>>(
-    object: I,
-  ): TxHashResult {
+  fromPartial<I extends Exact<DeepPartial<TxHashResult>, I>>(object: I): TxHashResult {
     const message = createBaseTxHashResult();
     message.txHash = object.txHash ?? "";
     return message;
@@ -701,10 +617,7 @@ function createBaseProbeWorkerRequest(): ProbeWorkerRequest {
 }
 
 export const ProbeWorkerRequest: MessageFns<ProbeWorkerRequest> = {
-  encode(
-    message: ProbeWorkerRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: ProbeWorkerRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.url !== "") {
       writer.uint32(10).string(message.url);
     }
@@ -714,12 +627,8 @@ export const ProbeWorkerRequest: MessageFns<ProbeWorkerRequest> = {
     return writer;
   },
 
-  decode(
-    input: BinaryReader | Uint8Array,
-    length?: number,
-  ): ProbeWorkerRequest {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(input: BinaryReader | Uint8Array, length?: number): ProbeWorkerRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseProbeWorkerRequest();
     while (reader.pos < end) {
@@ -756,8 +665,8 @@ export const ProbeWorkerRequest: MessageFns<ProbeWorkerRequest> = {
       timeoutSeconds: isSet(object.timeoutSeconds)
         ? globalThis.Number(object.timeoutSeconds)
         : isSet(object.timeout_seconds)
-          ? globalThis.Number(object.timeout_seconds)
-          : 0,
+        ? globalThis.Number(object.timeout_seconds)
+        : 0,
     };
   },
 
@@ -772,14 +681,10 @@ export const ProbeWorkerRequest: MessageFns<ProbeWorkerRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ProbeWorkerRequest>, I>>(
-    base?: I,
-  ): ProbeWorkerRequest {
+  create<I extends Exact<DeepPartial<ProbeWorkerRequest>, I>>(base?: I): ProbeWorkerRequest {
     return ProbeWorkerRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ProbeWorkerRequest>, I>>(
-    object: I,
-  ): ProbeWorkerRequest {
+  fromPartial<I extends Exact<DeepPartial<ProbeWorkerRequest>, I>>(object: I): ProbeWorkerRequest {
     const message = createBaseProbeWorkerRequest();
     message.url = object.url ?? "";
     message.timeoutSeconds = object.timeoutSeconds ?? 0;
@@ -792,10 +697,7 @@ function createBaseProbeResult(): ProbeResult {
 }
 
 export const ProbeResult: MessageFns<ProbeResult> = {
-  encode(
-    message: ProbeResult,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
+  encode(message: ProbeResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.capabilitiesJson.length !== 0) {
       writer.uint32(10).bytes(message.capabilitiesJson);
     }
@@ -803,8 +705,7 @@ export const ProbeResult: MessageFns<ProbeResult> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ProbeResult {
-    const reader =
-      input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseProbeResult();
     while (reader.pos < end) {
@@ -832,8 +733,8 @@ export const ProbeResult: MessageFns<ProbeResult> = {
       capabilitiesJson: isSet(object.capabilitiesJson)
         ? Buffer.from(bytesFromBase64(object.capabilitiesJson))
         : isSet(object.capabilities_json)
-          ? Buffer.from(bytesFromBase64(object.capabilities_json))
-          : Buffer.alloc(0),
+        ? Buffer.from(bytesFromBase64(object.capabilities_json))
+        : Buffer.alloc(0),
     };
   },
 
@@ -848,9 +749,7 @@ export const ProbeResult: MessageFns<ProbeResult> = {
   create<I extends Exact<DeepPartial<ProbeResult>, I>>(base?: I): ProbeResult {
     return ProbeResult.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ProbeResult>, I>>(
-    object: I,
-  ): ProbeResult {
+  fromPartial<I extends Exact<DeepPartial<ProbeResult>, I>>(object: I): ProbeResult {
     const message = createBaseProbeResult();
     message.capabilitiesJson = object.capabilitiesJson ?? Buffer.alloc(0);
     return message;
@@ -863,40 +762,28 @@ export const PublisherService = {
     path: "/livepeer.registry.v1.Publisher/BuildManifest" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: BuildManifestRequest): Buffer =>
-      Buffer.from(BuildManifestRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): BuildManifestRequest =>
-      BuildManifestRequest.decode(value),
-    responseSerialize: (value: BuildResult): Buffer =>
-      Buffer.from(BuildResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer): BuildResult =>
-      BuildResult.decode(value),
+    requestSerialize: (value: BuildManifestRequest): Buffer => Buffer.from(BuildManifestRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): BuildManifestRequest => BuildManifestRequest.decode(value),
+    responseSerialize: (value: BuildResult): Buffer => Buffer.from(BuildResult.encode(value).finish()),
+    responseDeserialize: (value: Buffer): BuildResult => BuildResult.decode(value),
   },
   signManifest: {
     path: "/livepeer.registry.v1.Publisher/SignManifest" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: SignManifestRequest): Buffer =>
-      Buffer.from(SignManifestRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): SignManifestRequest =>
-      SignManifestRequest.decode(value),
-    responseSerialize: (value: SignedManifest): Buffer =>
-      Buffer.from(SignedManifest.encode(value).finish()),
-    responseDeserialize: (value: Buffer): SignedManifest =>
-      SignedManifest.decode(value),
+    requestSerialize: (value: SignManifestRequest): Buffer => Buffer.from(SignManifestRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SignManifestRequest => SignManifestRequest.decode(value),
+    responseSerialize: (value: SignedManifest): Buffer => Buffer.from(SignedManifest.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SignedManifest => SignedManifest.decode(value),
   },
   buildAndSign: {
     path: "/livepeer.registry.v1.Publisher/BuildAndSign" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: BuildAndSignRequest): Buffer =>
-      Buffer.from(BuildAndSignRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): BuildAndSignRequest =>
-      BuildAndSignRequest.decode(value),
-    responseSerialize: (value: SignedManifest): Buffer =>
-      Buffer.from(SignedManifest.encode(value).finish()),
-    responseDeserialize: (value: Buffer): SignedManifest =>
-      SignedManifest.decode(value),
+    requestSerialize: (value: BuildAndSignRequest): Buffer => Buffer.from(BuildAndSignRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): BuildAndSignRequest => BuildAndSignRequest.decode(value),
+    responseSerialize: (value: SignedManifest): Buffer => Buffer.from(SignedManifest.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SignedManifest => SignedManifest.decode(value),
   },
   writeServiceUri: {
     path: "/livepeer.registry.v1.Publisher/WriteServiceURI" as const,
@@ -904,37 +791,27 @@ export const PublisherService = {
     responseStream: false as const,
     requestSerialize: (value: WriteServiceURIRequest): Buffer =>
       Buffer.from(WriteServiceURIRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): WriteServiceURIRequest =>
-      WriteServiceURIRequest.decode(value),
-    responseSerialize: (value: TxHashResult): Buffer =>
-      Buffer.from(TxHashResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer): TxHashResult =>
-      TxHashResult.decode(value),
+    requestDeserialize: (value: Buffer): WriteServiceURIRequest => WriteServiceURIRequest.decode(value),
+    responseSerialize: (value: TxHashResult): Buffer => Buffer.from(TxHashResult.encode(value).finish()),
+    responseDeserialize: (value: Buffer): TxHashResult => TxHashResult.decode(value),
   },
   probeWorker: {
     path: "/livepeer.registry.v1.Publisher/ProbeWorker" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: ProbeWorkerRequest): Buffer =>
-      Buffer.from(ProbeWorkerRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ProbeWorkerRequest =>
-      ProbeWorkerRequest.decode(value),
-    responseSerialize: (value: ProbeResult): Buffer =>
-      Buffer.from(ProbeResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ProbeResult =>
-      ProbeResult.decode(value),
+    requestSerialize: (value: ProbeWorkerRequest): Buffer => Buffer.from(ProbeWorkerRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ProbeWorkerRequest => ProbeWorkerRequest.decode(value),
+    responseSerialize: (value: ProbeResult): Buffer => Buffer.from(ProbeResult.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ProbeResult => ProbeResult.decode(value),
   },
   health: {
     path: "/livepeer.registry.v1.Publisher/Health" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: Empty): Buffer =>
-      Buffer.from(Empty.encode(value).finish()),
+    requestSerialize: (value: Empty): Buffer => Buffer.from(Empty.encode(value).finish()),
     requestDeserialize: (value: Buffer): Empty => Empty.decode(value),
-    responseSerialize: (value: HealthResult): Buffer =>
-      Buffer.from(HealthResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer): HealthResult =>
-      HealthResult.decode(value),
+    responseSerialize: (value: HealthResult): Buffer => Buffer.from(HealthResult.encode(value).finish()),
+    responseDeserialize: (value: Buffer): HealthResult => HealthResult.decode(value),
   },
 } as const;
 
@@ -1023,10 +900,7 @@ export interface PublisherClient extends Client {
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: ProbeResult) => void,
   ): ClientUnaryCall;
-  health(
-    request: Empty,
-    callback: (error: ServiceError | null, response: HealthResult) => void,
-  ): ClientUnaryCall;
+  health(request: Empty, callback: (error: ServiceError | null, response: HealthResult) => void): ClientUnaryCall;
   health(
     request: Empty,
     metadata: Metadata,
@@ -1044,11 +918,7 @@ export const PublisherClient = makeGenericClientConstructor(
   PublisherService,
   "livepeer.registry.v1.Publisher",
 ) as unknown as {
-  new (
-    address: string,
-    credentials: ChannelCredentials,
-    options?: Partial<ClientOptions>,
-  ): PublisherClient;
+  new (address: string, credentials: ChannelCredentials, options?: Partial<ClientOptions>): PublisherClient;
   service: typeof PublisherService;
   serviceName: string;
 };
@@ -1061,32 +931,17 @@ function base64FromBytes(arr: Uint8Array): string {
   return globalThis.Buffer.from(arr).toString("base64");
 }
 
-type Builtin =
-  | Date
-  | Function
-  | Uint8Array
-  | string
-  | number
-  | boolean
-  | bigint
-  | undefined;
+type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 
-export type DeepPartial<T> = T extends Builtin
-  ? T
-  : T extends globalThis.Array<infer U>
-    ? globalThis.Array<DeepPartial<U>>
-    : T extends ReadonlyArray<infer U>
-      ? ReadonlyArray<DeepPartial<U>>
-      : T extends {}
-        ? { [K in keyof T]?: DeepPartial<T[K]> }
-        : Partial<T>;
+export type DeepPartial<T> = T extends Builtin ? T
+  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
+  : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin
-  ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
-      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
-    };
+export type Exact<P, I extends P> = P extends Builtin ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function toTimestamp(date: Date): Timestamp {
   const seconds = BigInt(Math.trunc(date.getTime() / 1_000));
