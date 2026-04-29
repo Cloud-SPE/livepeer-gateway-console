@@ -1,7 +1,8 @@
-// /api/health — pings both daemon sockets (resolver + sender). Returns
-// 200 when both ping OK; 503 when either reports unavailable. This is
-// the bootstrap-time wiring; per-repo Plan 0001 swaps the stub clients
-// for real @grpc/grpc-js channels and tightens the response shape.
+// /api/health — pings both daemon sockets (resolver + sender) via real
+// @grpc/grpc-js clients. Returns 200 when both ping OK; 503 when either
+// reports unavailable. The body also surfaces a filesystem-level socket
+// presence check so operators can distinguish "daemon container missing"
+// from "daemon process unhealthy".
 
 import { z } from "zod";
 import type { FastifyReply, FastifyRequest } from "fastify";

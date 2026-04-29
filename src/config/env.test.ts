@@ -1,5 +1,5 @@
-// Bootstrap-time placeholder. Real coverage of the env loader lands in
-// per-repo Plan 0001 §1 alongside the rest of the test floor.
+// loadEnv + parseListenAddr — covers the rejection branches (short
+// ADMIN_TOKEN, malformed LISTEN_ADDR) plus the default-everything path.
 
 import { describe, expect, it } from "vitest";
 import { loadEnv, parseListenAddr } from "./env.js";

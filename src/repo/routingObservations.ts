@@ -1,7 +1,7 @@
 // Routing-observations repository — bulk-insert hydration + per-orch
-// recent-history read. Hydrated by a background worker that pulls
-// `Resolver.GetAuditLog` on a configurable cadence; per-repo Plan 0001
-// drives that loop.
+// recent-history read. Hydrated by `runtime/workers/auditPoll.ts`, which
+// pulls `Resolver.GetAuditLog` on a `RESOLVER_AUDIT_POLL_INTERVAL_SEC`
+// cadence (default 30s).
 
 import { and, desc, eq } from "drizzle-orm";
 import type { Db } from "./db.js";

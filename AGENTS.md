@@ -6,6 +6,10 @@ unix daemon sockets read-write (resolver + sender), reads chain over HTTPS RPC,
 serves a Lit/Vite admin SPA. **Holds the operator's hot-wallet keystore via
 the payment-daemon mount only — the console process itself never sees it.**
 
+Wire-compatible with `payment-daemon v2.0.0+` (consumes only
+`payer_daemon.proto`; the v2.0.0 breaks were on the payee surface and on
+the daemon's own YAML schema, neither of which we touch).
+
 **Humans steer. Agents execute. Scaffolding is the artifact.**
 
 ## Start here
@@ -30,7 +34,7 @@ the payment-daemon mount only — the console process itself never sees it.**
 - `docs/generated/` — auto-generated; never hand-edit
 - `docs/operations/` — operator runbooks
 - `docs/references/` — external material (incl. the harness PDF)
-- `bridge-ui/` — browser apps (sibling to `src/`, not under it)
+- `admin-ui/` — browser SPA (separate npm install root; sibling to `src/`, not under it)
 
 ## The layer rule (non-negotiable)
 
@@ -44,9 +48,9 @@ Cross-cutting concerns (`better-sqlite3`, `viem`, `fastify`, `pino`,
 `@grpc/grpc-js`) enter through a single layer: `src/providers/`. Nothing in
 `service/` or `runtime/` may import those libraries directly.
 
-`bridge-ui/` is **not** part of the `src/` layer stack. It is a sibling
-deliverable that talks to the gateway console over HTTP only and may not
-import from `src/`.
+`admin-ui/` is **not** part of the `src/` layer stack. It is a separate
+npm install root with its own lockfile; the SPA talks to the gateway
+console over HTTP only and may not import from `src/`.
 
 Lints enforce this. See [DESIGN.md](DESIGN.md) and `lint/eslint-plugin-livepeer-gateway-console/`.
 

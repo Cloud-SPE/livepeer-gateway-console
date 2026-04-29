@@ -8,6 +8,6 @@ src/providers/resolver/gen/
 # Build artifacts (also covered by .gitignore but listed here so prettier
 # never tries to format them locally during a `npm run fmt`).
 dist/
-bridge-ui/admin/dist/
+admin-ui/admin/dist/
 coverage/
 node_modules/

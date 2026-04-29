@@ -11,7 +11,7 @@ export default tseslint.config(
       "node_modules/**",
       "coverage/**",
       "**/*.d.ts",
-      "bridge-ui/**",
+      "admin-ui/**",
       "lint/**",
       "migrations/**",
       // buf-generated stubs — never lint generated code.

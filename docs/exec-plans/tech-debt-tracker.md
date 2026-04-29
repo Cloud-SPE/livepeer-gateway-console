@@ -44,6 +44,23 @@ Append-only. Strike through items when resolved; do not delete.
 
 ## Surfaced by major-version sweep (2026-04-29 — zod 4 / vitest 4 / vite 8 / better-sqlite3 12)
 
+- **First-boot migration runner is hand-authored.** `applyBootstrapMigrationIfNeeded`
+  in `src/main.ts` runs `migrations/0001_init.sql` once on a fresh
+  schema. Fine while we have one migration; needs to swap for a real
+  `drizzle-kit migrate` step once migration 0002 lands so applied
+  migrations are tracked instead of inferred from "tables exist".
+  Files: `src/main.ts:101`, `migrations/`.
+
+- **`npm install --package-lock-only` produced an out-of-sync lockfile**
+  twice during the v0.1.x release work (commits ab92f23 + 54d6379, both
+  followed by fix-up regen commits). The flag updates the lockfile's
+  `version` field but does not re-resolve workspace transitive deps,
+  which `npm ci` then rejects. Add a `pre-tag` local check (`npm ci`
+  against the staged lockfile) so version-bump commits can't ship a
+  lockfile that CI will reject. Until then, recipe is: `rm -rf
+node_modules package-lock.json && npm install` after any version
+  bump.
+
 - **Coverage `branches` floor softened to 70%.** Vitest 4's v8
   instrumentation tightened branch counting (~3 percentage points
   fewer branches covered for the same code vs vitest 1). Lines /

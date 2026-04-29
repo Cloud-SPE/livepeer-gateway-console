@@ -9,15 +9,15 @@
   },
   "main": "./dist/main.js",
   "workspaces": [
-    "bridge-ui/shared",
-    "bridge-ui/admin"
+    "lint/eslint-plugin-livepeer-gateway-console"
   ],
   "scripts": {
     "build": "npm run build:server && npm run build:ui",
     "build:server": "tsc -p tsconfig.json",
-    "build:ui": "npm run build -w admin",
+    "build:ui": "cd admin-ui && npm ci && npm run build:admin",
     "dev": "node --import tsx --watch src/main.ts",
-    "dev:ui": "npm run dev -w admin",
+    "dev:ui": "cd admin-ui && npm run dev:admin",
+    "test:ui": "cd admin-ui && npm ci && npm test --workspace=admin",
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --coverage",

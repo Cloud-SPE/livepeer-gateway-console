@@ -1,4 +1,4 @@
-// Bootstrap-time placeholder. Real coverage lands in per-repo Plan 0001.
+// Bearer-auth happy-path + the four rejection branches.
 
 import { describe, expect, it } from "vitest";
 import {

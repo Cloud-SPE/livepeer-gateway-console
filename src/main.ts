@@ -99,10 +99,11 @@ async function main(): Promise<void> {
 }
 
 /**
- * Hand-authored bootstrap migration runner. Reads `migrations/0001_init.sql`
- * relative to the running file and executes it iff the schema has no tables
- * yet. Per-repo Plan 0001 promotes this to a real drizzle-kit migrator that
- * tracks applied migrations.
+ * First-boot migration runner. Reads `migrations/0001_init.sql` relative
+ * to the running file and executes it iff the schema has no tables yet
+ * — i.e., a fresh container with an empty STATE_PATH volume. Logged in
+ * the tech-debt tracker as a follow-up to swap for a real drizzle-kit
+ * migrator that tracks applied migrations once we add migration 0002.
  */
 function applyBootstrapMigrationIfNeeded(
   raw: import("better-sqlite3").Database,

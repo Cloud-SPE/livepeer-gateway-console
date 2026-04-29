@@ -2,14 +2,18 @@
 
 ## What this is
 
-A single Lit ^3 + Vite ^6 web app served from `bridge-ui/admin/` and shipped
+A single Lit ^3 + Vite ^8 web app served from `admin-ui/admin/` and shipped
 in the runtime image at `/admin/console/`. Operators paste their bearer token
 into a login screen, and the app then talks to the same Fastify process over
 `/api/*` with `Authorization: Bearer <token>`.
 
 This is a **build-time** SPA: Vite emits a static bundle into
-`bridge-ui/admin/dist/`, which the runtime image copies and `@fastify/static`
+`admin-ui/admin/dist/`, which the runtime image copies and `@fastify/static`
 serves under the `/admin/console/` URL prefix.
+
+`admin-ui/` is its own npm install root with its own lockfile
+(`admin-ui/package-lock.json`). The repo root only knows about it via the
+`build:ui` / `dev:ui` / `test:ui` scripts (`cd admin-ui && npm ci && ...`).
 
 ## The routing dashboard is the central screen
 
@@ -43,22 +47,23 @@ Everything else (sender, audit) is a side trip from the dashboard.
 ## Stack
 
 - **Lit ^3** — web components, plain CSS via shadow DOM
-- **Vite ^6** — dev server + build (proxies `/api` and `/admin` to the local
+- **Vite ^8** — dev server + build (proxies `/api` and `/admin` to the local
   Fastify in dev; emits static bundle in prod)
 - **RxJS ^7** — service-layer reactivity (one BehaviorSubject per service,
   components subscribe via Lit `connectedCallback`)
 - **Plain `fetch()`** + `sessionStorage` — auth header injection via the
-  shared `bridge-ui/shared/lib/api-base.js` factory
+  shared `admin-ui/shared/lib/api-base.js` factory
 
-No router library. Hash-based routing via `bridge-ui/shared/lib/route.js` (a
+No router library. Hash-based routing via `admin-ui/shared/lib/route.js` (a
 ~20-line `onhashchange` wrapper, ported from openai-livepeer-bridge / inherited
 from livepeer-orch-coordinator).
 
 ## Layout
 
 ```
-bridge-ui/
-├── package.json              # npm-workspace root; hoists lit + rxjs
+admin-ui/
+├── package.json              # workspace root: ["shared", "admin"]; hoists lit + rxjs
+├── package-lock.json         # SPA's own lockfile (separate from repo-root)
 ├── shared/                   # cross-UI primitives
 │   ├── lib/api-base.js       # the createApi() fetch wrapper
 │   ├── lib/events.js         # GATEWAY_EVENTS + on/emit helpers
@@ -71,11 +76,16 @@ bridge-ui/
     ├── admin.css
     ├── vite.config.js        # base = '/admin/console/'
     ├── components/
-    │   ├── admin-app.js      # router shell
-    │   ├── admin-login.js    # bearer paste screen
-    │   └── admin-routing.js  # routing-dashboard placeholder
+    │   ├── admin-app.js          # router shell
+    │   ├── admin-login.js        # bearer paste screen
+    │   ├── admin-routing.js      # central multi-pane dashboard
+    │   ├── admin-orch-detail.js  # #/orchs/:address drilldown
+    │   ├── admin-capabilities.js # Resolver.Select search
+    │   ├── admin-sender.js       # wallet + escrow cards
+    │   └── admin-audit.js        # paginated bearer-action log
     └── lib/
         ├── api.js            # binds api-base to /api/* with sessionStorage token
+        ├── format.js         # wei / timestamp / address display helpers
         └── session.js
 ```
 
@@ -84,10 +94,11 @@ bridge-ui/
 From repo root:
 
 ```bash
-npm install                  # installs workspaces incl. bridge-ui/*
-npm run build:ui             # vite build into bridge-ui/admin/dist
-npm run dev:ui               # vite dev server on http://localhost:5174
+npm install                  # installs root deps + lint-plugin workspace
+npm run build:ui             # cd admin-ui && npm ci && vite build into admin-ui/admin/dist
+npm run dev:ui               # cd admin-ui && vite dev server on http://localhost:5174
                              #   proxies /api and /admin to http://localhost:8080
+npm run test:ui              # cd admin-ui && vitest run --workspace=admin
 ```
 
 The Fastify server in dev runs separately (`npm run dev` at the repo root).
@@ -110,8 +121,8 @@ Vite proxies API calls so cookies / CORS aren't an issue.
 
 1. Login screen accepts a bearer token + an operator handle (used for audit
    attribution).
-2. `bridge-ui/admin/lib/api.js` wraps `createApi()` from
-   `bridge-ui/shared/lib/api-base.js`, injecting the bearer header.
+2. `admin-ui/admin/lib/api.js` wraps `createApi()` from
+   `admin-ui/shared/lib/api-base.js`, injecting the bearer header.
 3. On any `401`, the api-base fires `gateway:unauthorized`; the app shell
    clears sessionStorage and shows the login screen.
 4. Token never leaves the browser. We do not set cookies, do not call any
@@ -123,8 +134,8 @@ Vite proxies API calls so cookies / CORS aren't an issue.
 - Adding a router library (react-router, lit-router-equivalent). The
   hash-route helper is enough; if it isn't, that is a design-doc-worthy
   conversation.
-- Importing from `src/` in `bridge-ui/`. The SPA is HTTP-only.
-- TypeScript inside `bridge-ui/`. Plain JS + JSDoc keeps the build pipeline
+- Importing from `src/` in `admin-ui/`. The SPA is HTTP-only.
+- TypeScript inside `admin-ui/`. Plain JS + JSDoc keeps the build pipeline
   short. (Consistent with sibling consoles.)
 - A second SPA (no `portal`). The gateway-console audience is a single
   operator role.

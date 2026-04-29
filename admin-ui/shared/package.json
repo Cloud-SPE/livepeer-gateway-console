@@ -1,0 +1,17 @@
+{
+  "name": "gateway-console-shared",
+  "version": "0.1.1",
+  "private": true,
+  "type": "module",
+  "description": "Cross-UI primitives for the gateway-console admin SPA. No own runtime deps; consumers carry lit + rxjs and shared resolves them via the hoisted node_modules.",
+  "exports": {
+    "./lib/api-base.js": "./lib/api-base.js",
+    "./lib/events.js": "./lib/events.js",
+    "./lib/route.js": "./lib/route.js",
+    "./lib/session-storage.js": "./lib/session-storage.js"
+  },
+  "peerDependencies": {
+    "lit": "^3.3.0",
+    "rxjs": "^7.8.0"
+  }
+}

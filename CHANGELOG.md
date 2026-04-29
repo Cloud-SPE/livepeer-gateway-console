@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (BREAKING for in-tree contributors; no runtime impact)
+
+- Renamed `bridge-ui/` → `admin-ui/` to align with sibling consoles
+  (`livepeer-secure-orch-console`, `livepeer-orch-coordinator`). The
+  bootstrap (Plan 0013) literally specified `bridge-ui/`; the siblings
+  diverged to `admin-ui/` later, and we'd been the inconsistent one.
+- Restructured the SPA tree as a separate npm install root (its own
+  `package-lock.json`) instead of a workspace of the repo root —
+  matches sibling shape exactly. The repo-root `package.json`
+  workspaces field is now `["lint/eslint-plugin-livepeer-gateway-console"]`.
+  Build/dev/test scripts updated: `build:ui` runs
+  `cd admin-ui && npm ci && npm run build:admin`; `test:ui` similar.
+- Internal package names: `admin` → `gateway-console-admin`;
+  `@gateway-console-ui/shared` → `gateway-console-shared`. Workspace
+  root: `gateway-console-admin-ui`.
+- Documentation: forward-references to "per-repo Plan 0001 will…" /
+  "bootstrap stub" cleaned up (Plan 0001 shipped in v0.1.0; the work is
+  now live, not pending).
+- Documentation: payment-daemon v2.0.0+ compatibility note added
+  (README + AGENTS). The v2.0.0 breaking changes (`worker.yaml`
+  rename, `payee_daemon.proto` field deletion) sit on surfaces this
+  console doesn't consume; we're wire-compatible without code changes.
+
+### Fixed
+
+- `.prettierignore` excludes the buf-generated `gen/` directories so
+  `npm run fmt` can't corrupt them (which would render `npm run
+proto:check` useless against any fresh regen).
+
 ## [0.1.1] - 2026-04-29
 
 Tooling + dependency modernization. No runtime behavior change.

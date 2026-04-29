@@ -1,0 +1,21 @@
+{
+  "name": "gateway-console-admin-ui",
+  "version": "0.1.1",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "admin"
+  ],
+  "scripts": {
+    "build:admin": "npm run build --workspace=admin",
+    "dev:admin": "npm run dev --workspace=admin",
+    "test:admin": "npm run test --workspace=admin",
+    "build:all": "npm run build:admin",
+    "test:all": "npm run test:admin"
+  },
+  "devDependencies": {
+    "lit": "^3.3.2",
+    "rxjs": "^7.8.1"
+  }
+}

@@ -49,10 +49,14 @@ diagram see [DESIGN.md](DESIGN.md). For UI architecture see
 - The two upstream daemons running and exposing their unix sockets:
   - `service-registry-daemon` in resolver mode →
     `/var/run/livepeer/resolver/service-registry.sock`
-  - `payment-daemon` in sender mode → `/var/run/livepeer/sender/payment.sock`
+  - `payment-daemon` (v2.0.0+) in sender mode →
+    `/var/run/livepeer/sender/payment.sock`
 
   In a typical deployment those are named volumes from
   [`livepeer-modules-project/deploy/gateway/compose.yaml`][gateway-compose].
+  The console consumes only `payer_daemon.proto` (read-only RPCs); the
+  v2.0.0 breaking changes (`worker.yaml` rename, `payee_daemon.proto`
+  field deletion) sit on surfaces this console does not touch.
 
 [gateway-compose]: ../livepeer-modules-project/deploy/gateway/compose.yaml
 
@@ -102,7 +106,9 @@ src/
 ├── runtime/      # Fastify HTTP server + route handlers
 ├── providers/    # cross-cutting (better-sqlite3, viem, fastify, pino, @grpc/grpc-js)
 └── utils/        # zero-dep helpers
-bridge-ui/admin/  # Lit + Vite SPA (operator console; routing dashboard is the central screen)
+admin-ui/         # Lit + Vite SPA (separate npm install root)
+admin-ui/admin/   # the SPA itself; routing dashboard is the central screen
+admin-ui/shared/  # cross-UI primitives (api-base, events, route, session-storage)
 lint/             # custom ESLint plugin (six rules with remediation hints)
 docs/             # design docs, exec-plans, references (incl. openai-harness.pdf)
 ```

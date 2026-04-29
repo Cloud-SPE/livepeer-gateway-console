@@ -26,7 +26,7 @@ console only ever calls `GetDepositInfo` for read-only escrow visibility.
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  ui/             admin SPA (bridge-ui/admin/, Lit + Vite) │
+│  ui/             admin SPA (admin-ui/admin/, Lit + Vite)  │
 ├──────────────────────────────────────────────────────────┤
 │  runtime/        HTTP server + handlers (Fastify shell)   │
 ├──────────────────────────────────────────────────────────┤
@@ -55,7 +55,7 @@ Dependency rule: each layer may import only layers **below** it, plus
 `providers/` and `utils/`. Enforced by
 `eslint-plugin-livepeer-gateway-console/layer-check`.
 
-`bridge-ui/` is **not** part of the `src/` layer stack. The SPA talks to the
+`admin-ui/` is **not** part of the `src/` layer stack. The SPA talks to the
 backend over HTTP only and may not import from `src/`.
 
 ## Domains
@@ -105,8 +105,10 @@ SQLite, single `state.db` file (path = `STATE_PATH`). Two tables; full SQL in
   append-only.
 - **`routing_observations`** — periodic-poll snapshots of the resolver's
   audit-log entries; per-orch drilldown panels query this for routing-history
-  charts. Hydrated by a worker that pulls `Resolver.GetAuditLog` on a
-  configurable cadence (per-repo Plan 0001).
+  charts. Hydrated by `runtime/workers/auditPoll.ts`, which pulls
+  `Resolver.GetAuditLog` on a `RESOLVER_AUDIT_POLL_INTERVAL_SEC` cadence
+  (default 30s; set 0 to disable). In-memory `since` watermark; failed
+  ticks don't poison the cursor.
 
 Filesystem state: **none**. Unlike `livepeer-orch-coordinator`, the gateway
 console serves nothing publicly and does not own a manifest file.

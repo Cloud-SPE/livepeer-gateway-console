@@ -38,9 +38,11 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            admin-ui/package-lock.json
 
-      - name: Install workspaces (root + bridge-ui/*)
+      - name: Install root + lint-plugin workspace
         run: npm ci
 
       - name: Format check (prettier)

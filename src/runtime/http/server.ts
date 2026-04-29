@@ -245,12 +245,12 @@ function registerApiRoutes(
 // --- /admin/console/* — Lit/Vite SPA static assets ---------------------
 
 async function registerSpaStatic(app: FastifyInstance): Promise<void> {
-  // Resolve `bridge-ui/admin/dist` relative to the running file. In the
+  // Resolve `admin-ui/admin/dist` relative to the running file. In the
   // distroless image dist/main.js sits at /app/dist/main.js; the SPA bundle
-  // is copied by the Dockerfile to /app/bridge-ui/admin/dist.
+  // is copied by the Dockerfile to /app/admin-ui/admin/dist.
   const here = dirname(fileURLToPath(import.meta.url));
-  // dist/runtime/http/server.js  ->  ../../../bridge-ui/admin/dist
-  const spaRoot = resolve(here, "..", "..", "..", "bridge-ui", "admin", "dist");
+  // dist/runtime/http/server.js  ->  ../../../admin-ui/admin/dist
+  const spaRoot = resolve(here, "..", "..", "..", "admin-ui", "admin", "dist");
   if (!existsSync(spaRoot)) {
     // Bootstrap-time the SPA might not be built yet (e.g. running tests).
     // Don't crash the server; just skip mount.
