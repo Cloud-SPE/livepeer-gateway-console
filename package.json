@@ -1,6 +1,6 @@
 {
   "name": "livepeer-gateway-console",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "Public-facing operator console for Livepeer gateway/bridge entities — routing dashboard + capability search + sender wallet view + audit log + Refresh actions.",
   "type": "module",

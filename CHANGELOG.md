@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-04-29
+
+Two-commit dep + CI hygiene release. No code changes.
+
+### Changed
+
+- `eslint` 9.39 → 10.2 + `pino` 9.14 → 10.3 (both clean drop-ins —
+  typescript-eslint already accepts eslint 10, pino's API surface we
+  use is unchanged).
+- `.github/dependabot.yml`: replaced the `fastify` / `@fastify/*` and
+  `vitest` / `@vitest/coverage-v8` major-version **ignores** with
+  major-version **groups** so dependabot opens ONE coordinated PR per
+  coupled set (instead of three individual PRs that can't merge alone
+  / silently going forever-blocked). Also added a `drizzle-major` group
+  for `drizzle-orm` + `drizzle-kit` (which ship in lockstep). The
+  `@types/node` major ignore is kept as a genuine Node-LTS-version-pin
+  coupling.
+
+### Note
+
+- `typescript` 5 → 6 attempted via Dependabot PR #6 was closed (not
+  ignored) — blocked on `drizzle-kit@0.31.10` (peer `typescript:
+^5.6.3`) and `ts-proto@2.11.6` (peer `typescript: ^5.8.3`). Will
+  revisit when those tools add TS 6 support; dependabot will reopen
+  automatically when it sees a fresh major.
+
 ## [0.1.2] - 2026-04-29
 
 Repo-shape alignment with sibling consoles + the leftover doc sweep
