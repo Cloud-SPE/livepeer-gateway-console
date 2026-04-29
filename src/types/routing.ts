@@ -13,7 +13,7 @@ export const OrchRosterRowSchema = z.object({
   address: EthAddressLike,
   serviceUri: z.string().nullable(),
   capabilities: z.array(z.string()).default([]),
-  models: z.array(z.string()).default([]),
+  offerings: z.array(z.string()).default([]),
   signatureStatus: z.enum(["signed", "unsigned", "unknown"]).default("unknown"),
   freshnessStatus: z.enum(["fresh", "stale", "unknown"]).default("unknown"),
   /** Orchestrator's active-set membership from the BondingManager pool walk. */
@@ -30,7 +30,7 @@ export const RoutingObservationSchema = z.object({
   observedAt: z.number().int().positive(),
   orchAddress: EthAddressLike,
   capability: z.string().nullable(),
-  model: z.string().nullable(),
+  offering: z.string().nullable(),
   signatureStatus: z.string().nullable(),
   freshnessStatus: z.string().nullable(),
   detailsJson: z.string().nullable(),
@@ -40,7 +40,7 @@ export type RoutingObservation = z.infer<typeof RoutingObservationSchema>;
 
 export const CapabilitySearchQuerySchema = z.strictObject({
   capability: z.string().min(1).max(120),
-  model: z.string().min(1).max(240).optional(),
+  offering: z.string().min(1).max(240).optional(),
   tier: z.string().min(1).max(60).optional(),
 });
 

@@ -49,7 +49,7 @@ export interface ResolvedNode {
   url: string;
   region: string;
   capabilities: readonly string[];
-  models: readonly string[];
+  offerings: readonly string[];
   signatureStatus: SignatureLabel;
   operatorAddress: string;
   enabled: boolean;
@@ -70,7 +70,7 @@ export interface ResolvedOrch {
 
 export interface SelectQuery {
   capability: string;
-  model?: string;
+  offering?: string;
   tier?: string;
 }
 
@@ -173,7 +173,7 @@ export function createResolverClient(
     async select(query) {
       const req: SelectRequest = {
         capability: query.capability,
-        model: query.model ?? "",
+        offering: query.offering ?? "",
         tier: query.tier ?? "",
         minWeight: 0,
         geoLat: 0,
@@ -269,13 +269,13 @@ function mapResolveResult(r: ResolveResult): ResolvedOrch {
 
 function mapNode(n: ProtoNode): ResolvedNode {
   const capabilities = n.capabilities.map((c) => c.name);
-  const models = n.capabilities.flatMap((c) => c.models.map((m) => m.id));
+  const offerings = n.capabilities.flatMap((c) => c.offerings.map((m) => m.id));
   return {
     id: n.id,
     url: n.url,
     region: n.region,
     capabilities,
-    models,
+    offerings,
     signatureStatus: mapSignature(n.signatureStatus),
     operatorAddress: n.operatorAddress,
     enabled: n.enabled,

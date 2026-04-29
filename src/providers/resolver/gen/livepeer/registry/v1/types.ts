@@ -206,12 +206,12 @@ export function sourceToJSON(object: Source): string {
 export interface Capability {
   name: string;
   workUnit: string;
-  models: Model[];
+  offerings: Offering[];
   /** arbitrary JSON, opaque */
   extraJson: Buffer;
 }
 
-export interface Model {
+export interface Offering {
   id: string;
   /** decimal big-int as string */
   pricePerWorkUnitWei: string;
@@ -238,7 +238,7 @@ export interface Node {
 }
 
 function createBaseCapability(): Capability {
-  return { name: "", workUnit: "", models: [], extraJson: Buffer.alloc(0) };
+  return { name: "", workUnit: "", offerings: [], extraJson: Buffer.alloc(0) };
 }
 
 export const Capability: MessageFns<Capability> = {
@@ -249,8 +249,8 @@ export const Capability: MessageFns<Capability> = {
     if (message.workUnit !== "") {
       writer.uint32(18).string(message.workUnit);
     }
-    for (const v of message.models) {
-      Model.encode(v!, writer.uint32(26).fork()).join();
+    for (const v of message.offerings) {
+      Offering.encode(v!, writer.uint32(26).fork()).join();
     }
     if (message.extraJson.length !== 0) {
       writer.uint32(34).bytes(message.extraJson);
@@ -286,7 +286,7 @@ export const Capability: MessageFns<Capability> = {
             break;
           }
 
-          message.models.push(Model.decode(reader, reader.uint32()));
+          message.offerings.push(Offering.decode(reader, reader.uint32()));
           continue;
         }
         case 4: {
@@ -314,7 +314,7 @@ export const Capability: MessageFns<Capability> = {
         : isSet(object.work_unit)
         ? globalThis.String(object.work_unit)
         : "",
-      models: globalThis.Array.isArray(object?.models) ? object.models.map((e: any) => Model.fromJSON(e)) : [],
+      offerings: globalThis.Array.isArray(object?.offerings) ? object.offerings.map((e: any) => Offering.fromJSON(e)) : [],
       extraJson: isSet(object.extraJson)
         ? Buffer.from(bytesFromBase64(object.extraJson))
         : isSet(object.extra_json)
@@ -331,8 +331,8 @@ export const Capability: MessageFns<Capability> = {
     if (message.workUnit !== "") {
       obj.workUnit = message.workUnit;
     }
-    if (message.models?.length) {
-      obj.models = message.models.map((e) => Model.toJSON(e));
+    if (message.offerings?.length) {
+      obj.offerings = message.offerings.map((e) => Offering.toJSON(e));
     }
     if (message.extraJson.length !== 0) {
       obj.extraJson = base64FromBytes(message.extraJson);
@@ -347,18 +347,18 @@ export const Capability: MessageFns<Capability> = {
     const message = createBaseCapability();
     message.name = object.name ?? "";
     message.workUnit = object.workUnit ?? "";
-    message.models = object.models?.map((e) => Model.fromPartial(e)) || [];
+    message.offerings = object.offerings?.map((e) => Offering.fromPartial(e)) || [];
     message.extraJson = object.extraJson ?? Buffer.alloc(0);
     return message;
   },
 };
 
-function createBaseModel(): Model {
+function createBaseOffering(): Offering {
   return { id: "", pricePerWorkUnitWei: "", warm: false, constraintsJson: Buffer.alloc(0) };
 }
 
-export const Model: MessageFns<Model> = {
-  encode(message: Model, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Offering: MessageFns<Offering> = {
+  encode(message: Offering, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -374,10 +374,10 @@ export const Model: MessageFns<Model> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Model {
+  decode(input: BinaryReader | Uint8Array, length?: number): Offering {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseModel();
+    const message = createBaseOffering();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -422,7 +422,7 @@ export const Model: MessageFns<Model> = {
     return message;
   },
 
-  fromJSON(object: any): Model {
+  fromJSON(object: any): Offering {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       pricePerWorkUnitWei: isSet(object.pricePerWorkUnitWei)
@@ -439,7 +439,7 @@ export const Model: MessageFns<Model> = {
     };
   },
 
-  toJSON(message: Model): unknown {
+  toJSON(message: Offering): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -456,11 +456,11 @@ export const Model: MessageFns<Model> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Model>, I>>(base?: I): Model {
-    return Model.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Offering>, I>>(base?: I): Offering {
+    return Offering.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Model>, I>>(object: I): Model {
-    const message = createBaseModel();
+  fromPartial<I extends Exact<DeepPartial<Offering>, I>>(object: I): Offering {
+    const message = createBaseOffering();
     message.id = object.id ?? "";
     message.pricePerWorkUnitWei = object.pricePerWorkUnitWei ?? "";
     message.warm = object.warm ?? false;

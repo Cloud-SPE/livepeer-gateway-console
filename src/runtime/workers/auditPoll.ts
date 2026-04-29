@@ -123,7 +123,7 @@ function eventToObservation(e: {
     observedAt: e.occurredAt,
     orchAddress: (e.orchAddress ?? "").toLowerCase(),
     capability: null,
-    model: null,
+    offering: null,
     signatureStatus: null,
     freshnessStatus: null,
     detailsJson: JSON.stringify({

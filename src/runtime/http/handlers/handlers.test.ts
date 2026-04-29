@@ -83,7 +83,7 @@ describe("handleListOrchs", () => {
     const reply = makeReply();
     await handleListOrchs(
       makeReq({
-        query: { capability: "whisper", model: "whisper-large" },
+        query: { capability: "whisper", offering: "whisper-large" },
       }) as never,
       reply as never,
       { routing: makeRouting({ listOrchs }) },
@@ -161,7 +161,7 @@ describe("handleCapabilitySearch", () => {
       makeReq({
         query: {
           capability: "whisper",
-          model: "whisper-large",
+          offering: "whisper-large",
           tier: "tier-0",
         },
       }) as never,
@@ -170,7 +170,7 @@ describe("handleCapabilitySearch", () => {
     );
     expect(search).toHaveBeenCalledWith({
       capability: "whisper",
-      model: "whisper-large",
+      offering: "whisper-large",
       tier: "tier-0",
     });
     expect(reply.body).toMatchObject({ orchAddress: ORCH_A });
@@ -339,12 +339,12 @@ describe("handleListResolverAuditLog", () => {
 
 // --------------------------- helpers -----------------------------------
 
-function rosterRow(addr: string, capabilities: string[], models: string[]) {
+function rosterRow(addr: string, capabilities: string[], offerings: string[]) {
   return {
     address: addr,
     serviceUri: null,
     capabilities,
-    models,
+    offerings,
     signatureStatus: "unknown" as const,
     freshnessStatus: "unknown" as const,
     activePoolMember: false,

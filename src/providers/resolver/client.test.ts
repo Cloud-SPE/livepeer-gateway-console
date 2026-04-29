@@ -96,7 +96,7 @@ describe("ResolverClient", () => {
     expect(r?.nodes).toHaveLength(1);
     expect(r?.nodes[0]).toMatchObject({
       capabilities: ["transcode", "whisper"],
-      models: ["whisper-large"],
+      offerings: ["whisper-large"],
       signatureStatus: "verified",
       operatorAddress: ORCH_A,
     });
@@ -110,7 +110,7 @@ describe("ResolverClient", () => {
   it("select() returns top-weighted node + reason", async () => {
     const r = await client.select({
       capability: "whisper",
-      model: "whisper-large",
+      offering: "whisper-large",
     });
     expect(r.orchAddress).toBe(ORCH_A);
     expect(r.reason).toBe("top-weighted");
@@ -234,13 +234,13 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
               {
                 name: "transcode",
                 workUnit: "pixel",
-                models: [],
+                offerings: [],
                 extraJson: Buffer.alloc(0),
               },
               {
                 name: "whisper",
                 workUnit: "second",
-                models: [
+                offerings: [
                   {
                     id: "whisper-large",
                     pricePerWorkUnitWei: "1000",

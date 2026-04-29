@@ -95,7 +95,7 @@ export function createRoutingService(deps: RoutingServiceDeps): RoutingService {
           address: k.address,
           serviceUri: serviceUris[i] ?? null,
           capabilities: [],
-          models: [],
+          offerings: [],
           signatureStatus: "unknown",
           freshnessStatus: narrowFreshness(k.freshnessStatus),
           activePoolMember: stakeWei !== undefined,
@@ -150,13 +150,13 @@ function rosterRowFromResolved(
 ): OrchRosterRow {
   const top: ResolvedNode | undefined = r.nodes[0];
   const capabilities = dedupe(r.nodes.flatMap((n) => [...n.capabilities]));
-  const models = dedupe(r.nodes.flatMap((n) => [...n.models]));
+  const offerings = dedupe(r.nodes.flatMap((n) => [...n.offerings]));
   return {
     address: r.address,
     // Prefer chain-derived serviceURI; fall back to whatever the resolver reported.
     serviceUri: e.serviceUri ?? (r.resolvedUri || null),
     capabilities,
-    models,
+    offerings,
     signatureStatus: top ? narrowSignature(top.signatureStatus) : "unknown",
     freshnessStatus: narrowFreshness(r.freshnessStatus),
     activePoolMember: e.activePoolMember,
@@ -209,7 +209,7 @@ function rowToObservation(r: {
   observedAt: number;
   orchAddress: string;
   capability: string | null;
-  model: string | null;
+  offering: string | null;
   signatureStatus: string | null;
   freshnessStatus: string | null;
   detailsJson: string | null;
@@ -219,7 +219,7 @@ function rowToObservation(r: {
     observedAt: r.observedAt,
     orchAddress: r.orchAddress,
     capability: r.capability,
-    model: r.model,
+    offering: r.offering,
     signatureStatus: r.signatureStatus,
     freshnessStatus: r.freshnessStatus,
     detailsJson: r.detailsJson,

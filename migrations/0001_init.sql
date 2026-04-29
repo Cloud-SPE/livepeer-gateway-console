@@ -18,7 +18,7 @@ CREATE TABLE `routing_observations` (
   `observed_at` integer NOT NULL,
   `orch_address` text NOT NULL,
   `capability` text,
-  `model` text,
+  `offering` text,
   `signature_status` text,
   `freshness_status` text,
   `details_json` text

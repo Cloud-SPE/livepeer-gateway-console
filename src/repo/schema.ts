@@ -35,7 +35,7 @@ export const routingObservations = sqliteTable(
     observedAt: integer("observed_at").notNull(),
     orchAddress: text("orch_address").notNull(),
     capability: text("capability"),
-    model: text("model"),
+    offering: text("offering"),
     signatureStatus: text("signature_status"),
     freshnessStatus: text("freshness_status"),
     detailsJson: text("details_json"),

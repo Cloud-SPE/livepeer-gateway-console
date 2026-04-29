@@ -18,7 +18,7 @@ export async function handleCapabilitySearch(
   const query = CapabilitySearchQuerySchema.parse(req.query ?? {});
   const result = await deps.resolver.search({
     capability: query.capability,
-    ...(query.model !== undefined ? { model: query.model } : {}),
+    ...(query.offering !== undefined ? { offering: query.offering } : {}),
     ...(query.tier !== undefined ? { tier: query.tier } : {}),
   });
   await reply.send(result);

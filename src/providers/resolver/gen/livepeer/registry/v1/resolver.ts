@@ -52,7 +52,7 @@ export interface ResolveResult {
 
 export interface SelectRequest {
   capability: string;
-  model: string;
+  offering: string;
   tier: string;
   minWeight: number;
   geoLat: number;
@@ -441,7 +441,7 @@ export const ResolveResult: MessageFns<ResolveResult> = {
 };
 
 function createBaseSelectRequest(): SelectRequest {
-  return { capability: "", model: "", tier: "", minWeight: 0, geoLat: 0, geoLon: 0, geoWithinKm: 0, hasGeo: false };
+  return { capability: "", offering: "", tier: "", minWeight: 0, geoLat: 0, geoLon: 0, geoWithinKm: 0, hasGeo: false };
 }
 
 export const SelectRequest: MessageFns<SelectRequest> = {
@@ -449,8 +449,8 @@ export const SelectRequest: MessageFns<SelectRequest> = {
     if (message.capability !== "") {
       writer.uint32(10).string(message.capability);
     }
-    if (message.model !== "") {
-      writer.uint32(18).string(message.model);
+    if (message.offering !== "") {
+      writer.uint32(18).string(message.offering);
     }
     if (message.tier !== "") {
       writer.uint32(26).string(message.tier);
@@ -493,7 +493,7 @@ export const SelectRequest: MessageFns<SelectRequest> = {
             break;
           }
 
-          message.model = reader.string();
+          message.offering = reader.string();
           continue;
         }
         case 3: {
@@ -556,7 +556,7 @@ export const SelectRequest: MessageFns<SelectRequest> = {
   fromJSON(object: any): SelectRequest {
     return {
       capability: isSet(object.capability) ? globalThis.String(object.capability) : "",
-      model: isSet(object.model) ? globalThis.String(object.model) : "",
+      offering: isSet(object.offering) ? globalThis.String(object.offering) : "",
       tier: isSet(object.tier) ? globalThis.String(object.tier) : "",
       minWeight: isSet(object.minWeight)
         ? globalThis.Number(object.minWeight)
@@ -591,8 +591,8 @@ export const SelectRequest: MessageFns<SelectRequest> = {
     if (message.capability !== "") {
       obj.capability = message.capability;
     }
-    if (message.model !== "") {
-      obj.model = message.model;
+    if (message.offering !== "") {
+      obj.model = message.offering;
     }
     if (message.tier !== "") {
       obj.tier = message.tier;
@@ -621,7 +621,7 @@ export const SelectRequest: MessageFns<SelectRequest> = {
   fromPartial<I extends Exact<DeepPartial<SelectRequest>, I>>(object: I): SelectRequest {
     const message = createBaseSelectRequest();
     message.capability = object.capability ?? "";
-    message.model = object.model ?? "";
+    message.offering = object.offering ?? "";
     message.tier = object.tier ?? "";
     message.minWeight = object.minWeight ?? 0;
     message.geoLat = object.geoLat ?? 0;

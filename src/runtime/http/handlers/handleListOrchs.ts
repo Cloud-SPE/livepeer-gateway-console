@@ -9,7 +9,7 @@ import type { RoutingService } from "../../../service/routing/index.js";
 
 const ListOrchsQuerySchema = z.strictObject({
   capability: z.string().min(1).max(120).optional(),
-  model: z.string().min(1).max(240).optional(),
+  offering: z.string().min(1).max(240).optional(),
 });
 
 export interface HandleListOrchsDeps {
@@ -27,14 +27,14 @@ export async function handleListOrchs(
   await reply.send({ orchs: filtered });
 }
 
-function filterOrchs<T extends { capabilities: string[]; models: string[] }>(
+function filterOrchs<T extends { capabilities: string[]; offerings: string[] }>(
   rows: T[],
   query: z.infer<typeof ListOrchsQuerySchema>,
 ): T[] {
   return rows.filter((r) => {
     if (query.capability && !r.capabilities.includes(query.capability))
       return false;
-    if (query.model && !r.models.includes(query.model)) return false;
+    if (query.offering && !r.offerings.includes(query.offering)) return false;
     return true;
   });
 }
