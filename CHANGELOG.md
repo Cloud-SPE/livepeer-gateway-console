@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-04-29
+
+Repo-shape alignment with sibling consoles + the leftover doc sweep
+from the v0.1.1 work. No runtime API change; contributor-facing only.
+
 ### Changed (BREAKING for in-tree contributors; no runtime impact)
 
 - Renamed `bridge-ui/` → `admin-ui/` to align with sibling consoles

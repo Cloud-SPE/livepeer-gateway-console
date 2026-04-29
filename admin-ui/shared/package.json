@@ -1,6 +1,6 @@
 {
   "name": "gateway-console-shared",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "description": "Cross-UI primitives for the gateway-console admin SPA. No own runtime deps; consumers carry lit + rxjs and shared resolves them via the hoisted node_modules.",
