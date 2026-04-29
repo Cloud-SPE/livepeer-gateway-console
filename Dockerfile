@@ -1,22 +1,34 @@
 # syntax=docker/dockerfile:1.6
 
 # ------------------------------------------------------------------------------
-# deps: install all root-workspace deps (prod + dev) for the build stage.
-# Root workspaces is just the lint plugin; the SPA install happens
-# separately in the `ui` stage against admin-ui/package-lock.json.
-# We use the debian-slim (glibc) base because better-sqlite3 ships native
-# bindings — building on musl/alpine and copying into the distroless glibc
-# runtime image fails at dlopen time. Keep all native compilation on glibc
-# end-to-end.
+# deps: install runtime deps (prod + dev) for the build stage. The lint
+# plugin is a workspace member of the repo-root package.json, but it never
+# runs at build/runtime — and `lint/` is dockerignored on purpose. Strip
+# the `workspaces` field from the in-image package.json so npm install
+# treats it as a flat package and doesn't go looking for the lint plugin.
+#
+# Using `npm install --no-package-lock` rather than `npm ci`: the lockfile
+# still references the stripped workspace, which `npm ci` would fail on.
+#
+# We deliberately do NOT pass --ignore-scripts: better-sqlite3's postinstall
+# is what fetches (or compiles) the prebuilt native binding for the active
+# Node ABI. The base is debian-slim (glibc) so the binding is compatible
+# with the distroless glibc runtime stage below; mixing musl/alpine here
+# would fail at dlopen time in production.
 # ------------------------------------------------------------------------------
 FROM node:20-bookworm-slim AS deps
 WORKDIR /app
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends python3 make g++ \
-  && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json* ./
-COPY lint/eslint-plugin-livepeer-gateway-console/package.json ./lint/eslint-plugin-livepeer-gateway-console/
-RUN npm install --ignore-scripts && npm rebuild better-sqlite3
+RUN node -e "const p=require('./package.json');delete p.workspaces;require('fs').writeFileSync('package.json',JSON.stringify(p,null,2));"
+# python3 + build-essential cover the case where prebuild-install can't
+# match a published prebuild for the active Node ABI and falls back to
+# compiling node-gyp from source. node:20-bookworm-slim drops these to
+# keep the base small; we add them only for the install step.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 build-essential \
+  && npm install --no-package-lock \
+  && apt-get purge -y --auto-remove python3 build-essential \
+  && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------------------------------------------
 # ui: build the admin SPA in its own stage against admin-ui/package-lock.json.
@@ -30,20 +42,19 @@ RUN npm install
 RUN npm run build:admin
 
 # ------------------------------------------------------------------------------
-# build: compile TypeScript. Prune devDeps + rebuild better-sqlite3 against
-# glibc so the distroless runtime can dlopen it.
+# build: run tsc; prune dev deps so the runtime copies only prod node_modules.
+# better-sqlite3's binding was already compiled in `deps`; npm prune doesn't
+# touch it.
 # ------------------------------------------------------------------------------
 FROM node:20-bookworm-slim AS build
 WORKDIR /app
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends python3 make g++ \
-  && rm -rf /var/lib/apt/lists/*
 COPY --from=deps /app/node_modules ./node_modules
-COPY package.json package-lock.json* tsconfig.json ./
+COPY --from=deps /app/package.json ./package.json
+COPY tsconfig.json ./
 COPY src ./src
 COPY migrations ./migrations
 RUN npx tsc -p tsconfig.json
-RUN npm prune --omit=dev && npm rebuild better-sqlite3
+RUN npm prune --omit=dev
 
 # ------------------------------------------------------------------------------
 # runtime: distroless Node 20. Non-root by default. No shell.
