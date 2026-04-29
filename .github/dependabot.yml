@@ -15,7 +15,17 @@
 #
 # Strategy: group minor + patch updates per ecosystem so each Monday
 # brings at most one PR per ecosystem rather than ten. Major updates
-# always come as their own PR because they typically need code review.
+# come as their own PR(s); coupled-pair majors (fastify ↔ @fastify/*,
+# vitest ↔ @vitest/*, drizzle-orm ↔ drizzle-kit) are also grouped so
+# dependabot opens ONE coordinated PR with the whole set bumped together
+# rather than three failing PRs that can't merge in isolation.
+#
+# Why groups instead of ignores: ignoring a major bump forever just
+# kicks the can — a known security fix or compat bump quietly piles up.
+# Grouping lets dependabot keep us informed; the PR may still need
+# manual code work for API churn (and may close-with-comment when it
+# does), but at least we see it.
+#
 # CI gates every PR (lint + typecheck + 78 tests + build) so a
 # breaking bump shows up before merge.
 
@@ -43,27 +53,38 @@ updates:
         update-types:
           - minor
           - patch
+      # fastify v5 shifts the plugin API; every @fastify/* must move
+      # together or npm ci ERESOLVEs. One coordinated PR.
+      fastify-major:
+        patterns:
+          - "fastify"
+          - "@fastify/*"
+        update-types:
+          - major
+      # @vitest/coverage-v8 peer-pins vitest exactly; bumping either
+      # one alone ERESOLVEs (we hit this on the v0.1.x sweep).
+      vitest-major:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+        update-types:
+          - major
+      # drizzle-orm + drizzle-kit ship in lockstep from the same
+      # monorepo; bumping one without the other invites schema/runtime
+      # skew. (Already true at the minor level; explicit at major.)
+      drizzle-major:
+        patterns:
+          - "drizzle-orm"
+          - "drizzle-kit"
+        update-types:
+          - major
     ignore:
       # @types/node tracks the runtime; we're on Node 20 LTS so types
       # stay on ^20. Skipping the auto-bump means we don't get spurious
       # weekly PRs to ^21+. Re-evaluate when we move off Node 20 LTS.
+      # (This is genuinely a Node-version-pin coupling, not an "API
+      # churn we'll deal with later" excuse — keep as ignore.)
       - dependency-name: "@types/node"
-        update-types: ["version-update:semver-major"]
-      # Fastify 5 is a coupled upgrade (it shifts the plugin API and
-      # forces every @fastify/* plugin to a new major). Plan it as its
-      # own effort, not a weekly Dependabot PR.
-      - dependency-name: "fastify"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@fastify/*"
-        update-types: ["version-update:semver-major"]
-      # Vitest + @vitest/coverage-v8 are a coupled pair: the v8 plugin
-      # peer-pins vitest to its own exact version, so bumping either
-      # one without the other ERESOLVEs npm ci. Plan vitest majors as
-      # a single coordinated effort (likely API churn in vi.fn types,
-      # coverage reporters, and config shape).
-      - dependency-name: "vitest"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@vitest/coverage-v8"
         update-types: ["version-update:semver-major"]
 
   # SPA workspace — separate npm install root with its own lockfile.
