@@ -3,9 +3,13 @@
 // `occurred_at` defaults to unixepoch() * 1000 at the DB so the service
 // can omit it.
 
-import { desc, lt } from 'drizzle-orm';
-import type { Db } from './db.js';
-import { auditEvents, type AuditEventInsert, type AuditEventRow } from './schema.js';
+import { desc, lt } from "drizzle-orm";
+import type { Db } from "./db.js";
+import {
+  auditEvents,
+  type AuditEventInsert,
+  type AuditEventRow,
+} from "./schema.js";
 
 export async function append(db: Db, input: AuditEventInsert): Promise<void> {
   db.insert(auditEvents).values(input).run();

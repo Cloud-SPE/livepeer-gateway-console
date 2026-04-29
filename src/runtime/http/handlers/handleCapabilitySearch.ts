@@ -2,9 +2,9 @@
 // `Resolver.Select`. Operator picks (capability, model?, tier?); the
 // daemon decides which orch wins.
 
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import type { ResolverService } from '../../../service/resolver/index.js';
-import { CapabilitySearchQuerySchema } from '../../../types/routing.js';
+import type { FastifyReply, FastifyRequest } from "fastify";
+import type { ResolverService } from "../../../service/resolver/index.js";
+import { CapabilitySearchQuerySchema } from "../../../types/routing.js";
 
 export interface HandleCapabilitySearchDeps {
   resolver: ResolverService;

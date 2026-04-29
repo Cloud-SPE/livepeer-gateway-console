@@ -3,9 +3,9 @@
 // Plan 0001 adds chain enrichment (BondingManager pool walk +
 // ServiceRegistry serviceURI) on top.
 
-import { z } from 'zod';
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import type { RoutingService } from '../../../service/routing/index.js';
+import { z } from "zod";
+import type { FastifyReply, FastifyRequest } from "fastify";
+import type { RoutingService } from "../../../service/routing/index.js";
 
 const ListOrchsQuerySchema = z
   .object({
@@ -34,7 +34,8 @@ function filterOrchs<T extends { capabilities: string[]; models: string[] }>(
   query: z.infer<typeof ListOrchsQuerySchema>,
 ): T[] {
   return rows.filter((r) => {
-    if (query.capability && !r.capabilities.includes(query.capability)) return false;
+    if (query.capability && !r.capabilities.includes(query.capability))
+      return false;
     if (query.model && !r.models.includes(query.model)) return false;
     return true;
   });

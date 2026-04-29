@@ -1,11 +1,11 @@
 // Sender-side types: the gateway operator's hot-wallet view (chain balance)
 // and TicketBroker escrow snapshot pulled via PayerDaemon.GetDepositInfo.
 
-import { z } from 'zod';
+import { z } from "zod";
 
-const EthAddressLike = z
-  .string()
-  .regex(/^0x[a-fA-F0-9]{40}$/, { message: 'Expected 0x-prefixed 40-hex address' });
+const EthAddressLike = z.string().regex(/^0x[a-fA-F0-9]{40}$/, {
+  message: "Expected 0x-prefixed 40-hex address",
+});
 
 export const SenderWalletSchema = z.object({
   address: EthAddressLike,

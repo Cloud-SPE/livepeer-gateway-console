@@ -9,26 +9,28 @@
 // Remediation hint embedded in the error message.
 
 function isZodCall(expr) {
-  if (expr.type !== 'CallExpression') return false;
+  if (expr.type !== "CallExpression") return false;
   const callee = expr.callee;
-  if (callee.type !== 'MemberExpression') return false;
-  if (callee.property.type !== 'Identifier') return false;
-  return callee.property.name === 'safeParse' || callee.property.name === 'parse';
+  if (callee.type !== "MemberExpression") return false;
+  if (callee.property.type !== "Identifier") return false;
+  return (
+    callee.property.name === "safeParse" || callee.property.name === "parse"
+  );
 }
 
 const MAX_STATEMENTS_BEFORE_PARSE = 5;
 
-const SKIP_KEYS = new Set(['parent', 'loc', 'range', 'tokens', 'comments']);
+const SKIP_KEYS = new Set(["parent", "loc", "range", "tokens", "comments"]);
 
 function statementParses(stmt) {
   if (!stmt) return false;
   let found = false;
   const seen = new WeakSet();
   function walk(n) {
-    if (found || !n || typeof n !== 'object') return;
+    if (found || !n || typeof n !== "object") return;
     if (seen.has(n)) return;
     seen.add(n);
-    if (n.type === 'CallExpression' && isZodCall(n)) {
+    if (n.type === "CallExpression" && isZodCall(n)) {
       found = true;
       return;
     }
@@ -37,7 +39,7 @@ function statementParses(stmt) {
       const v = n[k];
       if (!v) continue;
       if (Array.isArray(v)) v.forEach(walk);
-      else if (typeof v === 'object' && v.type) walk(v);
+      else if (typeof v === "object" && v.type) walk(v);
     }
   }
   walk(stmt);
@@ -47,8 +49,9 @@ function statementParses(stmt) {
 function parsesEarly(body) {
   let seen = 0;
   for (const s of body.body) {
-    if (s.type === 'EmptyStatement') continue;
-    if (s.type === 'ExpressionStatement' && s.expression.type === 'Literal') continue;
+    if (s.type === "EmptyStatement") continue;
+    if (s.type === "ExpressionStatement" && s.expression.type === "Literal")
+      continue;
     if (statementParses(s)) return true;
     seen++;
     if (seen >= MAX_STATEMENTS_BEFORE_PARSE) break;
@@ -57,33 +60,37 @@ function parsesEarly(body) {
 }
 
 function isHandlerFunction(node) {
-  if (node.type !== 'FunctionDeclaration') return false;
+  if (node.type !== "FunctionDeclaration") return false;
   if (!node.async) return false;
-  if (!node.id || node.id.type !== 'Identifier') return false;
+  if (!node.id || node.id.type !== "Identifier") return false;
   return /^handle[A-Z]/.test(node.id.name);
 }
 
 export default {
   meta: {
-    type: 'problem',
+    type: "problem",
     docs: {
       description:
-        'HTTP handler functions (`async function handleX(...)`) must begin with a Zod .parse() or .safeParse() call — Zod at every boundary.',
+        "HTTP handler functions (`async function handleX(...)`) must begin with a Zod .parse() or .safeParse() call — Zod at every boundary.",
     },
     schema: [],
     messages: {
       missing:
-        'Handler `{{name}}` does not start with a Zod .parse() or .safeParse() call. Remediation: import the schema from `src/types/` (create one if missing — see types-shape rule) and add `const input = SomethingSchema.parse(req.body)` (or `.parse(req.params)`, `.parse(req.query)`) as the first statement. The handler should never touch raw request data.',
+        "Handler `{{name}}` does not start with a Zod .parse() or .safeParse() call. Remediation: import the schema from `src/types/` (create one if missing — see types-shape rule) and add `const input = SomethingSchema.parse(req.body)` (or `.parse(req.params)`, `.parse(req.query)`) as the first statement. The handler should never touch raw request data.",
     },
   },
   create(context) {
     const filename = context.filename ?? context.getFilename();
-    if (!filename.includes('/src/runtime/http/')) return {};
+    if (!filename.includes("/src/runtime/http/")) return {};
     return {
       FunctionDeclaration(node) {
         if (!isHandlerFunction(node)) return;
         if (parsesEarly(node.body)) return;
-        context.report({ node: node.id, messageId: 'missing', data: { name: node.id.name } });
+        context.report({
+          node: node.id,
+          messageId: "missing",
+          data: { name: node.id.name },
+        });
       },
     };
   },

@@ -28,22 +28,22 @@ services:
       - default
       - ingress
     labels:
-      - 'traefik.enable=true'
-      - 'traefik.docker.network=ingress'
-      - 'traefik.http.routers.livepeer-gateway-console.rule=Host(`${GATEWAY_CONSOLE_PUBLIC_HOST:?set GATEWAY_CONSOLE_PUBLIC_HOST (e.g. gateway.your-domain.example)}`)'
-      - 'traefik.http.routers.livepeer-gateway-console.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}'
-      - 'traefik.http.routers.livepeer-gateway-console.tls=true'
-      - 'traefik.http.routers.livepeer-gateway-console.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}'
-      - 'traefik.http.services.livepeer-gateway-console.loadbalancer.server.port=8080'
+      - "traefik.enable=true"
+      - "traefik.docker.network=ingress"
+      - "traefik.http.routers.livepeer-gateway-console.rule=Host(`${GATEWAY_CONSOLE_PUBLIC_HOST:?set GATEWAY_CONSOLE_PUBLIC_HOST (e.g. gateway.your-domain.example)}`)"
+      - "traefik.http.routers.livepeer-gateway-console.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}"
+      - "traefik.http.routers.livepeer-gateway-console.tls=true"
+      - "traefik.http.routers.livepeer-gateway-console.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}"
+      - "traefik.http.services.livepeer-gateway-console.loadbalancer.server.port=8080"
     logging:
       driver: json-file
       options:
-        max-size: '10m'
-        max-file: '5'
+        max-size: "10m"
+        max-file: "5"
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: "1"
           memory: 512m
 
 networks:

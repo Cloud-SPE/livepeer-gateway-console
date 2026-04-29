@@ -11,13 +11,13 @@
 // Plan 0001 they come from chain via ChainReader (§4) configured with a
 // SENDER_ADDRESS env var.
 
-import { credentials, Metadata } from '@grpc/grpc-js';
-import type { CallOptions, ClientUnaryCall, ServiceError } from '@grpc/grpc-js';
+import { credentials, Metadata } from "@grpc/grpc-js";
+import type { CallOptions, ClientUnaryCall, ServiceError } from "@grpc/grpc-js";
 import {
   PayerDaemonClient as PayerDaemonGrpcClient,
   type GetDepositInfoRequest,
   type GetDepositInfoResponse,
-} from './gen/livepeer/payments/v1/payer_daemon.js';
+} from "./gen/livepeer/payments/v1/payer_daemon.js";
 
 export interface DepositInfo {
   /** TicketBroker deposit in wei, decimal string (BigInt-safe over JSON). */
@@ -100,8 +100,8 @@ export function createPayerDaemonClient(
 }
 
 function bigEndianBytesToDecimal(buf: Buffer): string {
-  if (buf.length === 0) return '0';
-  return BigInt(`0x${buf.toString('hex')}`).toString(10);
+  if (buf.length === 0) return "0";
+  return BigInt(`0x${buf.toString("hex")}`).toString(10);
 }
 
 function errorMessage(err: unknown): string {

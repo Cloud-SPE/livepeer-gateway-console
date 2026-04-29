@@ -23,7 +23,7 @@ services:
     build:
       context: .
     environment:
-      LISTEN_ADDR: '0.0.0.0:8080'
+      LISTEN_ADDR: "0.0.0.0:8080"
 
       # Bearer token for /api/* (>= 32 chars).
       ADMIN_TOKEN: ${ADMIN_TOKEN:?set ADMIN_TOKEN (>= 32 chars)}
@@ -53,12 +53,12 @@ services:
       - sender-sock:/var/run/livepeer/sender
     ports:
       # Bind to localhost only — operator's reverse proxy fronts this in prod.
-      - '127.0.0.1:8080:8080'
+      - "127.0.0.1:8080:8080"
     healthcheck:
       test:
-        - 'CMD'
-        - '/nodejs/bin/node'
-        - '-e'
+        - "CMD"
+        - "/nodejs/bin/node"
+        - "-e"
         - "require('http').get('http://127.0.0.1:8080/healthz',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
       interval: 10s
       timeout: 5s

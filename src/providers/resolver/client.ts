@@ -3,9 +3,9 @@
 // The `gen/` directory is populated by `npm run proto:gen:registry`
 // from `../livepeer-modules-project/service-registry-daemon/proto`.
 
-import { credentials, Metadata, status as grpcStatus } from '@grpc/grpc-js';
-import type { CallOptions, ClientUnaryCall, ServiceError } from '@grpc/grpc-js';
-import { Empty } from './gen/google/protobuf/empty.js';
+import { credentials, Metadata, status as grpcStatus } from "@grpc/grpc-js";
+import type { CallOptions, ClientUnaryCall, ServiceError } from "@grpc/grpc-js";
+import { Empty } from "./gen/google/protobuf/empty.js";
 import {
   ResolverClient as ResolverGrpcClient,
   type AuditEvent,
@@ -20,17 +20,21 @@ import {
   type AuditLogResult,
   type HealthResult,
   type ListKnownResult,
-} from './gen/livepeer/registry/v1/resolver.js';
+} from "./gen/livepeer/registry/v1/resolver.js";
 import {
   FreshnessStatus,
   ResolveMode,
   SignatureStatus,
   type Node as ProtoNode,
-} from './gen/livepeer/registry/v1/types.js';
+} from "./gen/livepeer/registry/v1/types.js";
 
-export type FreshnessLabel = 'fresh' | 'stale-recoverable' | 'stale-failing' | 'unknown';
-export type SignatureLabel = 'verified' | 'unsigned' | 'legacy' | 'unknown';
-export type ResolveModeLabel = 'well-known' | 'csv' | 'legacy' | 'unspecified';
+export type FreshnessLabel =
+  | "fresh"
+  | "stale-recoverable"
+  | "stale-failing"
+  | "unknown";
+export type SignatureLabel = "verified" | "unsigned" | "legacy" | "unknown";
+export type ResolveModeLabel = "well-known" | "csv" | "legacy" | "unspecified";
 
 export interface KnownOrch {
   address: string;
@@ -115,7 +119,9 @@ export interface ResolverClientOptions {
   callDeadlineMs?: number;
 }
 
-export function createResolverClient(options: ResolverClientOptions): ResolverClient {
+export function createResolverClient(
+  options: ResolverClientOptions,
+): ResolverClient {
   const deadlineMs = options.callDeadlineMs ?? 2000;
   const target = `unix:${options.socketPath}`;
   const grpc = new ResolverGrpcClient(target, credentials.createInsecure());
@@ -167,8 +173,8 @@ export function createResolverClient(options: ResolverClientOptions): ResolverCl
     async select(query) {
       const req: SelectRequest = {
         capability: query.capability,
-        model: query.model ?? '',
-        tier: query.tier ?? '',
+        model: query.model ?? "",
+        tier: query.tier ?? "",
         minWeight: 0,
         geoLat: 0,
         geoLon: 0,
@@ -183,7 +189,7 @@ export function createResolverClient(options: ResolverClientOptions): ResolverCl
       const top = nodes[0];
       return {
         orchAddress: top ? top.operatorAddress || top.id : null,
-        reason: nodes.length === 0 ? 'no node matched' : 'top-weighted',
+        reason: nodes.length === 0 ? "no node matched" : "top-weighted",
         nodes,
       };
     },
@@ -201,7 +207,7 @@ export function createResolverClient(options: ResolverClientOptions): ResolverCl
 
     async getAuditLog(opts) {
       const req: GetAuditLogRequest = {
-        ethAddress: opts?.ethAddress ?? '',
+        ethAddress: opts?.ethAddress ?? "",
         limit: opts?.limit ?? 100,
         ...(opts?.since !== undefined ? { since: new Date(opts.since) } : {}),
       };
@@ -291,47 +297,47 @@ function mapAuditEvent(e: AuditEvent): ResolverAuditEntry {
 function mapResolveMode(m: ResolveMode): ResolveModeLabel {
   switch (m) {
     case ResolveMode.RESOLVE_MODE_WELL_KNOWN:
-      return 'well-known';
+      return "well-known";
     case ResolveMode.RESOLVE_MODE_CSV:
-      return 'csv';
+      return "csv";
     case ResolveMode.RESOLVE_MODE_LEGACY:
-      return 'legacy';
+      return "legacy";
     default:
-      return 'unspecified';
+      return "unspecified";
   }
 }
 
 function mapFreshness(f: FreshnessStatus): FreshnessLabel {
   switch (f) {
     case FreshnessStatus.FRESHNESS_FRESH:
-      return 'fresh';
+      return "fresh";
     case FreshnessStatus.FRESHNESS_STALE_RECOVERABLE:
-      return 'stale-recoverable';
+      return "stale-recoverable";
     case FreshnessStatus.FRESHNESS_STALE_FAILING:
-      return 'stale-failing';
+      return "stale-failing";
     default:
-      return 'unknown';
+      return "unknown";
   }
 }
 
 function mapSignature(s: SignatureStatus): SignatureLabel {
   switch (s) {
     case SignatureStatus.SIGNATURE_STATUS_VERIFIED:
-      return 'verified';
+      return "verified";
     case SignatureStatus.SIGNATURE_STATUS_UNSIGNED:
-      return 'unsigned';
+      return "unsigned";
     case SignatureStatus.SIGNATURE_STATUS_LEGACY:
-      return 'legacy';
+      return "legacy";
     default:
-      return 'unknown';
+      return "unknown";
   }
 }
 
 function isStatus(err: unknown, code: number): boolean {
   return (
-    typeof err === 'object' &&
+    typeof err === "object" &&
     err !== null &&
-    'code' in err &&
+    "code" in err &&
     (err as { code: unknown }).code === code
   );
 }

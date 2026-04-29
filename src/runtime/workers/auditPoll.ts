@@ -11,11 +11,11 @@
 // Failures do NOT advance the watermark, so the next tick retries
 // from the same point.
 
-import type { ResolverClient } from '../../providers/resolver/client.js';
-import type { Logger } from '../../providers/logger/pino.js';
-import type { Db } from '../../repo/db.js';
-import { routingObservationsRepo } from '../../repo/index.js';
-import type { RoutingObservationInsert } from '../../repo/schema.js';
+import type { ResolverClient } from "../../providers/resolver/client.js";
+import type { Logger } from "../../providers/logger/pino.js";
+import type { Db } from "../../repo/db.js";
+import { routingObservationsRepo } from "../../repo/index.js";
+import type { RoutingObservationInsert } from "../../repo/schema.js";
 
 export interface AuditPollWorker {
   start(): void;
@@ -36,13 +36,18 @@ export interface AuditPollWorkerOptions {
   fetchLimit?: number;
 }
 
-export function createAuditPollWorker(opts: AuditPollWorkerOptions): AuditPollWorker {
+export function createAuditPollWorker(
+  opts: AuditPollWorkerOptions,
+): AuditPollWorker {
   const fetchLimit = opts.fetchLimit ?? 1000;
   let watermarkMs: number | null = null;
   let timer: NodeJS.Timeout | null = null;
   let inFlight = false;
 
-  async function tick(): Promise<{ inserted: number; watermark: number | null }> {
+  async function tick(): Promise<{
+    inserted: number;
+    watermark: number | null;
+  }> {
     if (inFlight) return { inserted: 0, watermark: watermarkMs };
     inFlight = true;
     try {
@@ -70,7 +75,7 @@ export function createAuditPollWorker(opts: AuditPollWorkerOptions): AuditPollWo
       return { inserted: rows.length, watermark: watermarkMs };
     } catch (err) {
       // Don't poison the watermark; next tick will retry from where we left off.
-      opts.logger.warn('auditPoll tick failed', {
+      opts.logger.warn("auditPoll tick failed", {
         error: err instanceof Error ? err.message : String(err),
         watermark: watermarkMs,
       });
@@ -84,7 +89,7 @@ export function createAuditPollWorker(opts: AuditPollWorkerOptions): AuditPollWo
     start() {
       if (timer !== null) return;
       if (opts.intervalMs <= 0) {
-        opts.logger.info('auditPoll disabled (interval=0)', {});
+        opts.logger.info("auditPoll disabled (interval=0)", {});
         return;
       }
       timer = setInterval(() => {
@@ -94,13 +99,13 @@ export function createAuditPollWorker(opts: AuditPollWorkerOptions): AuditPollWo
       }, opts.intervalMs);
       // Don't keep the event loop alive for the worker alone.
       timer.unref?.();
-      opts.logger.info('auditPoll started', { intervalMs: opts.intervalMs });
+      opts.logger.info("auditPoll started", { intervalMs: opts.intervalMs });
     },
     stop() {
       if (timer === null) return;
       clearInterval(timer);
       timer = null;
-      opts.logger.info('auditPoll stopped', {});
+      opts.logger.info("auditPoll stopped", {});
     },
     runOnce: tick,
     watermark: () => watermarkMs,
@@ -116,11 +121,15 @@ function eventToObservation(e: {
 }): RoutingObservationInsert {
   return {
     observedAt: e.occurredAt,
-    orchAddress: (e.orchAddress ?? '').toLowerCase(),
+    orchAddress: (e.orchAddress ?? "").toLowerCase(),
     capability: null,
     model: null,
     signatureStatus: null,
     freshnessStatus: null,
-    detailsJson: JSON.stringify({ kind: e.kind, mode: e.mode, detail: e.detail }),
+    detailsJson: JSON.stringify({
+      kind: e.kind,
+      mode: e.mode,
+      detail: e.detail,
+    }),
   };
 }

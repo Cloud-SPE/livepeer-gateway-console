@@ -156,6 +156,7 @@ bootstrap.
 Reason: §7 calls for a 0 → 75 ratchet. Achieved at 96.98% statements
 / 76.44% branches / 97.22% funcs / 96.98% lines after excluding four
 file groups:
+
 - `src/runtime/http/server.ts` — composition root that wires every
   service into Fastify routes. Verified by integration in real
   deployments; unit testing it would mean booting the whole stack.
@@ -190,7 +191,7 @@ ServiceRegistry serviceURI reads. The cache is plumbed through
 inside `providers/chain/viem.ts`. Keeps the provider thin and pure
 (one viem call → one chain read), and lets the service compose the
 right caching boundary for its own access pattern. Failed reads are
-*not* cached so a single flaky RPC doesn't poison the next 30 seconds
+_not_ cached so a single flaky RPC doesn't poison the next 30 seconds
 of dashboard hits.
 
 ### 2026-04-28 — `getReserveInfo` chain call → `getSenderInfo`
@@ -213,7 +214,8 @@ only call `GetDepositInfo` from the daemon"). Provider now exposes
 only `getDepositInfo()` + a `ping()` backed by it (PayerDaemon has no
 Health RPC). `service/sender/getWallet()` throws
 `SenderWalletNotConfiguredError` until §4 wires `SENDER_ADDRESS` env
-+ `ChainReader.getBalance`. `getEscrow()` continues to work today.
+
+- `ChainReader.getBalance`. `getEscrow()` continues to work today.
 
 ### 2026-04-28 — Resolver provider `KnownOrch` reshaped to match proto
 

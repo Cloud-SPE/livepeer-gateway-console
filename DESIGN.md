@@ -60,41 +60,41 @@ backend over HTTP only and may not import from `src/`.
 
 ## Domains
 
-| Domain               | Purpose                                                          |
-| -------------------- | ---------------------------------------------------------------- |
-| `service/auth`       | Bearer-token validation against `ADMIN_TOKEN`                    |
-| `service/audit`      | Read + append the console's own bearer-action audit log          |
-| `service/routing`    | Orch roster (resolver `ListKnown` + chain enrich), per-orch detail (`ResolveByAddress`), routing-history pull from `routing_observations` |
-| `service/sender`     | Sender wallet balance (chain) + escrow (`PayerDaemon.GetDepositInfo`) |
-| `service/resolver`   | Capability search (`Resolver.Select`), audit-log pull (`Resolver.GetAuditLog`), Refresh actions (`Resolver.Refresh`) |
+| Domain             | Purpose                                                                                                                                   |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `service/auth`     | Bearer-token validation against `ADMIN_TOKEN`                                                                                             |
+| `service/audit`    | Read + append the console's own bearer-action audit log                                                                                   |
+| `service/routing`  | Orch roster (resolver `ListKnown` + chain enrich), per-orch detail (`ResolveByAddress`), routing-history pull from `routing_observations` |
+| `service/sender`   | Sender wallet balance (chain) + escrow (`PayerDaemon.GetDepositInfo`)                                                                     |
+| `service/resolver` | Capability search (`Resolver.Select`), audit-log pull (`Resolver.GetAuditLog`), Refresh actions (`Resolver.Refresh`)                      |
 
 ## Runtime surfaces
 
-| Path                                       | Auth      | Purpose                                                |
-| ------------------------------------------ | --------- | ------------------------------------------------------ |
-| `GET /healthz`                             | none      | Liveness for proxies                                   |
-| `GET /api/health`                          | bearer    | Console self-status; pings both daemon sockets         |
-| `GET /api/orchs`                           | bearer    | Routing dashboard roster (resolver `ListKnown` + chain enrich) |
-| `GET /api/orchs/:address`                  | bearer    | Per-orch drilldown (resolver `ResolveByAddress` + slice of `routing_observations`) |
-| `GET /api/capabilities/search`             | bearer    | Capability/model search via `Resolver.Select`          |
-| `GET /api/sender/wallet`                   | bearer    | Hot-wallet address + chain balance                     |
-| `GET /api/sender/escrow`                   | bearer    | TicketBroker deposit + reserve via `PayerDaemon.GetDepositInfo` |
-| `GET /api/resolver/audit-log`              | bearer    | Resolver-side audit log via `Resolver.GetAuditLog`     |
-| `GET /api/audit-log`                       | bearer    | Console's own bearer-action log                        |
-| `POST /api/resolver/refresh`               | bearer    | `Resolver.Refresh(*, force=true)` — confirm modal      |
-| `POST /api/resolver/refresh/:address`      | bearer    | `Resolver.Refresh(addr, force=true)` — idempotent      |
-| `GET /admin/console/*`                     | none      | The Lit/Vite SPA static bundle                         |
+| Path                                  | Auth   | Purpose                                                                            |
+| ------------------------------------- | ------ | ---------------------------------------------------------------------------------- |
+| `GET /healthz`                        | none   | Liveness for proxies                                                               |
+| `GET /api/health`                     | bearer | Console self-status; pings both daemon sockets                                     |
+| `GET /api/orchs`                      | bearer | Routing dashboard roster (resolver `ListKnown` + chain enrich)                     |
+| `GET /api/orchs/:address`             | bearer | Per-orch drilldown (resolver `ResolveByAddress` + slice of `routing_observations`) |
+| `GET /api/capabilities/search`        | bearer | Capability/model search via `Resolver.Select`                                      |
+| `GET /api/sender/wallet`              | bearer | Hot-wallet address + chain balance                                                 |
+| `GET /api/sender/escrow`              | bearer | TicketBroker deposit + reserve via `PayerDaemon.GetDepositInfo`                    |
+| `GET /api/resolver/audit-log`         | bearer | Resolver-side audit log via `Resolver.GetAuditLog`                                 |
+| `GET /api/audit-log`                  | bearer | Console's own bearer-action log                                                    |
+| `POST /api/resolver/refresh`          | bearer | `Resolver.Refresh(*, force=true)` — confirm modal                                  |
+| `POST /api/resolver/refresh/:address` | bearer | `Resolver.Refresh(addr, force=true)` — idempotent                                  |
+| `GET /admin/console/*`                | none   | The Lit/Vite SPA static bundle                                                     |
 
 ## Providers
 
-| Provider           | Interface role                                          | Default impl                |
-| ------------------ | ------------------------------------------------------- | --------------------------- |
-| `Database`         | SQLite handle (single `state.db` file)                  | `better-sqlite3` + Drizzle  |
-| `ChainReader`      | Read-only chain calls (BondingManager pool walk, TicketBroker reserve, ServiceRegistry serviceURI) | `viem` |
-| `ResolverClient`   | gRPC client for service-registry-daemon (resolver mode) | `@grpc/grpc-js` over unix socket |
-| `PayerDaemonClient`| gRPC client for payment-daemon (sender mode)            | `@grpc/grpc-js` over unix socket |
-| `Logger`           | Structured log                                          | `pino`                      |
-| `HttpServer`       | Fastify instance + plugin registration                  | `fastify` ^4                |
+| Provider            | Interface role                                                                                     | Default impl                     |
+| ------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------- |
+| `Database`          | SQLite handle (single `state.db` file)                                                             | `better-sqlite3` + Drizzle       |
+| `ChainReader`       | Read-only chain calls (BondingManager pool walk, TicketBroker reserve, ServiceRegistry serviceURI) | `viem`                           |
+| `ResolverClient`    | gRPC client for service-registry-daemon (resolver mode)                                            | `@grpc/grpc-js` over unix socket |
+| `PayerDaemonClient` | gRPC client for payment-daemon (sender mode)                                                       | `@grpc/grpc-js` over unix socket |
+| `Logger`            | Structured log                                                                                     | `pino`                           |
+| `HttpServer`        | Fastify instance + plugin registration                                                             | `fastify` ^4                     |
 
 ## State model
 
@@ -119,7 +119,7 @@ Outbound HTTPS to `CHAIN_RPC` (Arbitrum One by default):
   BondingManager.
 - `BondingManager.getFirstTranscoderInPool` /
   `getNextTranscoderInPool` / `getDelegator` — pool walk for the active set
-  + stake info on the routing dashboard.
+  - stake info on the routing dashboard.
 - `Controller.getContract(keccak256("TicketBroker"))` →
   `getReserveInfo(senderAddress)` — sender escrow view.
 - `ServiceRegistry.getServiceURI(orchAddress)` — per-orch row's manifest URL

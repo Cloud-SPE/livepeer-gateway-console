@@ -22,8 +22,8 @@ export function createApi(cfg) {
     const init = {
       method,
       headers: {
-        'content-type': 'application/json',
-        accept: 'application/json',
+        "content-type": "application/json",
+        accept: "application/json",
         ...cfg.getAuthHeaders(),
       },
     };
@@ -32,25 +32,29 @@ export function createApi(cfg) {
     try {
       res = await fetch(url, init);
     } catch (err) {
-      throw new ApiError('network_error', 0, err instanceof Error ? err.message : 'fetch failed');
+      throw new ApiError(
+        "network_error",
+        0,
+        err instanceof Error ? err.message : "fetch failed",
+      );
     }
 
     if (res.status === 401) {
       cfg.onUnauthorized();
-      throw new ApiError('unauthorized', 401, 'unauthorized');
+      throw new ApiError("unauthorized", 401, "unauthorized");
     }
     if (res.status === 204) return null;
 
-    const contentType = res.headers.get('content-type') ?? '';
-    const isJson = contentType.includes('application/json');
+    const contentType = res.headers.get("content-type") ?? "";
+    const isJson = contentType.includes("application/json");
     const payload = isJson ? await res.json().catch(() => null) : null;
 
     if (!res.ok) {
       const message =
-        payload && typeof payload === 'object' && 'error' in payload
+        payload && typeof payload === "object" && "error" in payload
           ? extractErrorMessage(payload.error)
           : `http_${res.status}`;
-      throw new ApiError('http_error', res.status, message, payload);
+      throw new ApiError("http_error", res.status, message, payload);
     }
 
     return cfg.parseResponse(method, path, payload);
@@ -60,19 +64,19 @@ export function createApi(cfg) {
     request,
     /** @param {string} path */
     get(path) {
-      return request('GET', path);
+      return request("GET", path);
     },
     /** @param {string} path @param {unknown} body */
     post(path, body) {
-      return request('POST', path, body);
+      return request("POST", path, body);
     },
     /** @param {string} path @param {unknown} body */
     put(path, body) {
-      return request('PUT', path, body);
+      return request("PUT", path, body);
     },
     /** @param {string} path */
     del(path) {
-      return request('DELETE', path);
+      return request("DELETE", path);
     },
   };
 }
@@ -86,7 +90,7 @@ export class ApiError extends Error {
    */
   constructor(code, status, message, body = null) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.code = code;
     this.status = status;
     this.body = body;
@@ -94,8 +98,13 @@ export class ApiError extends Error {
 }
 
 function extractErrorMessage(err) {
-  if (err && typeof err === 'object' && 'message' in err && typeof err.message === 'string') {
+  if (
+    err &&
+    typeof err === "object" &&
+    "message" in err &&
+    typeof err.message === "string"
+  ) {
     return err.message;
   }
-  return 'request_failed';
+  return "request_failed";
 }

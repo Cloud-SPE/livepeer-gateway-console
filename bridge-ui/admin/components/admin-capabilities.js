@@ -1,6 +1,6 @@
-import { LitElement, html } from 'lit';
-import { searchCapabilities } from '../lib/api.js';
-import { shortAddress } from '../lib/format.js';
+import { LitElement, html } from "lit";
+import { searchCapabilities } from "../lib/api.js";
+import { shortAddress } from "../lib/format.js";
 
 /**
  * Capability search — `Resolver.Select` preview. Operator picks
@@ -16,10 +16,10 @@ export class AdminCapabilities extends LitElement {
 
   constructor() {
     super();
-    this._form = { capability: '', model: '', tier: '' };
+    this._form = { capability: "", model: "", tier: "" };
     this._result = null;
     this._loading = false;
-    this._error = '';
+    this._error = "";
   }
 
   createRenderRoot() {
@@ -30,11 +30,11 @@ export class AdminCapabilities extends LitElement {
     e.preventDefault();
     if (this._loading) return;
     if (!this._form.capability.trim()) {
-      this._error = 'capability is required';
+      this._error = "capability is required";
       return;
     }
     this._loading = true;
-    this._error = '';
+    this._error = "";
     this._result = null;
     try {
       const query = {
@@ -93,12 +93,14 @@ export class AdminCapabilities extends LitElement {
           />
         </div>
         <button type="submit" ?disabled=${this._loading}>
-          ${this._loading ? 'Searching…' : 'Select'}
+          ${this._loading ? "Searching…" : "Select"}
         </button>
-        ${this._error ? html`<div class="error" role="alert">${this._error}</div>` : ''}
+        ${this._error
+          ? html`<div class="error" role="alert">${this._error}</div>`
+          : ""}
       </form>
 
-      ${this._result ? this._renderResult() : ''}
+      ${this._result ? this._renderResult() : ""}
     `;
   }
 
@@ -141,27 +143,33 @@ export class AdminCapabilities extends LitElement {
                   ${r.nodes.map(
                     (n) => html`
                       <tr>
-                        <td><code>${shortAddress(n.operatorAddress || n.id)}</code></td>
-                        <td>${n.url}</td>
-                        <td>${n.region || '—'}</td>
-                        <td>${n.capabilities?.join(', ') || '—'}</td>
-                        <td>${n.models?.join(', ') || '—'}</td>
                         <td>
-                          <span class="pill pill-${n.signatureStatus}">${n.signatureStatus}</span>
+                          <code
+                            >${shortAddress(n.operatorAddress || n.id)}</code
+                          >
+                        </td>
+                        <td>${n.url}</td>
+                        <td>${n.region || "—"}</td>
+                        <td>${n.capabilities?.join(", ") || "—"}</td>
+                        <td>${n.models?.join(", ") || "—"}</td>
+                        <td>
+                          <span class="pill pill-${n.signatureStatus}"
+                            >${n.signatureStatus}</span
+                          >
                         </td>
                         <td>${n.weight}</td>
-                        <td>${n.tierAllowed?.join(', ') || '—'}</td>
+                        <td>${n.tierAllowed?.join(", ") || "—"}</td>
                       </tr>
                     `,
                   )}
                 </tbody>
               </table>
             `
-          : ''}
+          : ""}
       </section>
     `;
   }
 }
 
-if (!customElements.get('admin-capabilities'))
-  customElements.define('admin-capabilities', AdminCapabilities);
+if (!customElements.get("admin-capabilities"))
+  customElements.define("admin-capabilities", AdminCapabilities);

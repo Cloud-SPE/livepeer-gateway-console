@@ -7,41 +7,44 @@
 // the per-orch drilldown panels query this for routing-history charts
 // without round-tripping the resolver socket on every page render.
 
-import { sql } from 'drizzle-orm';
-import { sqliteTable, text, integer, index } from 'drizzle-orm/sqlite-core';
+import { sql } from "drizzle-orm";
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 
 export const auditEvents = sqliteTable(
-  'audit_events',
+  "audit_events",
   {
-    id: integer('id').primaryKey({ autoIncrement: true }),
-    occurredAt: integer('occurred_at')
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    occurredAt: integer("occurred_at")
       .notNull()
       .default(sql`(unixepoch() * 1000)`),
-    actor: text('actor').notNull(),
-    action: text('action').notNull(),
-    target: text('target'),
-    ok: integer('ok').notNull(),
-    message: text('message'),
+    actor: text("actor").notNull(),
+    action: text("action").notNull(),
+    target: text("target"),
+    ok: integer("ok").notNull(),
+    message: text("message"),
   },
   (t) => ({
-    occurredAtIdx: index('idx_audit_occurred_at').on(t.occurredAt),
+    occurredAtIdx: index("idx_audit_occurred_at").on(t.occurredAt),
   }),
 );
 
 export const routingObservations = sqliteTable(
-  'routing_observations',
+  "routing_observations",
   {
-    id: integer('id').primaryKey({ autoIncrement: true }),
-    observedAt: integer('observed_at').notNull(),
-    orchAddress: text('orch_address').notNull(),
-    capability: text('capability'),
-    model: text('model'),
-    signatureStatus: text('signature_status'),
-    freshnessStatus: text('freshness_status'),
-    detailsJson: text('details_json'),
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    observedAt: integer("observed_at").notNull(),
+    orchAddress: text("orch_address").notNull(),
+    capability: text("capability"),
+    model: text("model"),
+    signatureStatus: text("signature_status"),
+    freshnessStatus: text("freshness_status"),
+    detailsJson: text("details_json"),
   },
   (t) => ({
-    orchObservedIdx: index('idx_routing_observations_orch').on(t.orchAddress, t.observedAt),
+    orchObservedIdx: index("idx_routing_observations_orch").on(
+      t.orchAddress,
+      t.observedAt,
+    ),
   }),
 );
 

@@ -5,16 +5,16 @@
 // attempt appends an audit_events row attributed to req.actor so the
 // console's own bearer-action log shows who hit Refresh and when.
 
-import { z } from 'zod';
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import type { AuditService } from '../../../service/audit/index.js';
-import type { ResolverService } from '../../../service/resolver/index.js';
+import { z } from "zod";
+import type { FastifyReply, FastifyRequest } from "fastify";
+import type { AuditService } from "../../../service/audit/index.js";
+import type { ResolverService } from "../../../service/resolver/index.js";
 
 const ParamsSchema = z
   .object({
-    address: z
-      .string()
-      .regex(/^0x[a-fA-F0-9]{40}$/, { message: 'Expected 0x-prefixed 40-hex address' }),
+    address: z.string().regex(/^0x[a-fA-F0-9]{40}$/, {
+      message: "Expected 0x-prefixed 40-hex address",
+    }),
   })
   .strict();
 
@@ -33,7 +33,7 @@ export async function handleResolverRefresh(
   deps: HandleResolverRefreshDeps,
 ): Promise<void> {
   EmptyBodySchema.parse(req.body);
-  await runRefresh(req, reply, deps, { target: '*' });
+  await runRefresh(req, reply, deps, { target: "*" });
 }
 
 export async function handleResolverRefreshOne(
@@ -52,11 +52,11 @@ async function runRefresh(
   ctx: { target: string },
 ): Promise<void> {
   try {
-    const callTarget = ctx.target === '*' ? {} : { address: ctx.target };
+    const callTarget = ctx.target === "*" ? {} : { address: ctx.target };
     await deps.resolver.refresh(callTarget);
     await deps.audit.append({
       actor: req.actor,
-      action: 'resolver.refresh',
+      action: "resolver.refresh",
       target: ctx.target,
       ok: true,
       message: null,
@@ -66,7 +66,7 @@ async function runRefresh(
     const message = err instanceof Error ? err.message : String(err);
     await deps.audit.append({
       actor: req.actor,
-      action: 'resolver.refresh',
+      action: "resolver.refresh",
       target: ctx.target,
       ok: false,
       message,

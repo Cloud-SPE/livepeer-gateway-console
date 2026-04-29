@@ -1,15 +1,15 @@
-import { createApi } from '../../shared/lib/api-base.js';
-import { GATEWAY_EVENTS, emit } from '../../shared/lib/events.js';
-import { clearSession, getActor, getToken } from './session.js';
+import { createApi } from "../../shared/lib/api-base.js";
+import { GATEWAY_EVENTS, emit } from "../../shared/lib/events.js";
+import { clearSession, getActor, getToken } from "./session.js";
 
 const api = createApi({
-  baseUrl: '',
+  baseUrl: "",
   getAuthHeaders() {
     const t = getToken();
     const a = getActor();
     const headers = {};
     if (t) headers.authorization = `Bearer ${t}`;
-    if (a) headers['x-actor'] = a;
+    if (a) headers["x-actor"] = a;
     return headers;
   },
   onUnauthorized() {
@@ -24,9 +24,9 @@ const api = createApi({
 // --- routing dashboard ---
 export function listOrchs(filter = {}) {
   const q = new URLSearchParams();
-  if (filter.capability) q.set('capability', filter.capability);
-  if (filter.model) q.set('model', filter.model);
-  const suffix = q.toString() ? `?${q}` : '';
+  if (filter.capability) q.set("capability", filter.capability);
+  if (filter.model) q.set("model", filter.model);
+  const suffix = q.toString() ? `?${q}` : "";
   return api.get(`/api/orchs${suffix}`);
 }
 
@@ -38,24 +38,24 @@ export function getOrch(address) {
 /** @param {{ capability: string, model?: string, tier?: string }} query */
 export function searchCapabilities(query) {
   const q = new URLSearchParams();
-  q.set('capability', query.capability);
-  if (query.model) q.set('model', query.model);
-  if (query.tier) q.set('tier', query.tier);
+  q.set("capability", query.capability);
+  if (query.model) q.set("model", query.model);
+  if (query.tier) q.set("tier", query.tier);
   return api.get(`/api/capabilities/search?${q}`);
 }
 
 // --- sender ---
 export function getSenderWallet() {
-  return api.get('/api/sender/wallet');
+  return api.get("/api/sender/wallet");
 }
 
 export function getSenderEscrow() {
-  return api.get('/api/sender/escrow');
+  return api.get("/api/sender/escrow");
 }
 
 // --- resolver actions ---
 export function refreshResolver() {
-  return api.post('/api/resolver/refresh', {});
+  return api.post("/api/resolver/refresh", {});
 }
 
 /** @param {string} address */
@@ -66,9 +66,9 @@ export function refreshResolverByAddress(address) {
 /** @param {{ since?: number, limit?: number }} [opts] */
 export function getResolverAuditLog(opts = {}) {
   const q = new URLSearchParams();
-  if (opts.since !== undefined) q.set('since', String(opts.since));
-  if (opts.limit !== undefined) q.set('limit', String(opts.limit));
-  const suffix = q.toString() ? `?${q}` : '';
+  if (opts.since !== undefined) q.set("since", String(opts.since));
+  if (opts.limit !== undefined) q.set("limit", String(opts.limit));
+  const suffix = q.toString() ? `?${q}` : "";
   return api.get(`/api/resolver/audit-log${suffix}`);
 }
 
@@ -76,13 +76,13 @@ export function getResolverAuditLog(opts = {}) {
 /** @param {{ limit?: number, before?: number }} [opts] */
 export function listAuditLog(opts = {}) {
   const q = new URLSearchParams();
-  if (opts.limit !== undefined) q.set('limit', String(opts.limit));
-  if (opts.before !== undefined) q.set('before', String(opts.before));
-  const suffix = q.toString() ? `?${q}` : '';
+  if (opts.limit !== undefined) q.set("limit", String(opts.limit));
+  if (opts.before !== undefined) q.set("before", String(opts.before));
+  const suffix = q.toString() ? `?${q}` : "";
   return api.get(`/api/audit-log${suffix}`);
 }
 
 // --- health (used at sign-in) ---
 export function getHealth() {
-  return api.get('/api/health');
+  return api.get("/api/health");
 }

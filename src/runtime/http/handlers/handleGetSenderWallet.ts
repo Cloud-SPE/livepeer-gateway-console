@@ -3,12 +3,12 @@
 // 503 with `wallet_not_configured` when SENDER_ADDRESS env is unset.
 // (Auth still applies — this is /api/* like everything else.)
 
-import { z } from 'zod';
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import { z } from "zod";
+import type { FastifyReply, FastifyRequest } from "fastify";
 import {
   SenderWalletNotConfiguredError,
   type SenderService,
-} from '../../../service/sender/index.js';
+} from "../../../service/sender/index.js";
 
 const QuerySchema = z.object({}).strict();
 
@@ -27,9 +27,9 @@ export async function handleGetSenderWallet(
     await reply.send(wallet);
   } catch (err) {
     if (err instanceof SenderWalletNotConfiguredError) {
-      await reply
-        .code(503)
-        .send({ error: { code: 'wallet_not_configured', message: err.message } });
+      await reply.code(503).send({
+        error: { code: "wallet_not_configured", message: err.message },
+      });
       return;
     }
     throw err;

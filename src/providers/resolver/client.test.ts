@@ -2,18 +2,18 @@
 // bound to a tmp unix socket. Exercises every method the provider exposes
 // plus the per-call deadline path.
 
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   Server,
   ServerCredentials,
   status as grpcStatus,
   type sendUnaryData,
   type ServerUnaryCall,
-} from '@grpc/grpc-js';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { Empty } from './gen/google/protobuf/empty.js';
+} from "@grpc/grpc-js";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { Empty } from "./gen/google/protobuf/empty.js";
 import {
   ResolverService,
   type AuditLogResult,
@@ -26,18 +26,18 @@ import {
   type ResolveResult,
   type SelectRequest,
   type SelectResult,
-} from './gen/livepeer/registry/v1/resolver.js';
+} from "./gen/livepeer/registry/v1/resolver.js";
 import {
   FreshnessStatus,
   ResolveMode,
   SignatureStatus,
-} from './gen/livepeer/registry/v1/types.js';
-import { createResolverClient, type ResolverClient } from './client.js';
+} from "./gen/livepeer/registry/v1/types.js";
+import { createResolverClient, type ResolverClient } from "./client.js";
 
-const ORCH_A = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-const ORCH_B = '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
-const SLOW_ORCH = '0xcccccccccccccccccccccccccccccccccccccccc';
-const MISSING_ORCH = '0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddead';
+const ORCH_A = "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+const ORCH_B = "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+const SLOW_ORCH = "0xcccccccccccccccccccccccccccccccccccccccc";
+const MISSING_ORCH = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddead";
 
 interface FakeServer {
   socketPath: string;
@@ -50,102 +50,113 @@ let client: ResolverClient;
 let tmpDir: string;
 
 beforeAll(async () => {
-  tmpDir = mkdtempSync(join(tmpdir(), 'resolver-test-'));
-  const socketPath = join(tmpDir, 'resolver.sock');
+  tmpDir = mkdtempSync(join(tmpdir(), "resolver-test-"));
+  const socketPath = join(tmpDir, "resolver.sock");
   fake = await startFakeServer(socketPath);
   client = createResolverClient({ socketPath, callDeadlineMs: 250 });
 });
 
 afterAll(async () => {
   client.close();
-  await new Promise<void>((resolve) => fake.server.tryShutdown(() => resolve()));
+  await new Promise<void>((resolve) =>
+    fake.server.tryShutdown(() => resolve()),
+  );
   rmSync(tmpDir, { recursive: true, force: true });
 });
 
-describe('ResolverClient', () => {
-  it('ping() returns ok when Health RPC succeeds', async () => {
+describe("ResolverClient", () => {
+  it("ping() returns ok when Health RPC succeeds", async () => {
     const res = await client.ping();
     expect(res).toEqual({ ok: true });
   });
 
-  it('listKnown() returns mapped entries', async () => {
+  it("listKnown() returns mapped entries", async () => {
     const entries = await client.listKnown();
     expect(entries).toHaveLength(2);
     expect(entries[0]).toMatchObject({
       address: ORCH_A,
-      mode: 'well-known',
-      freshnessStatus: 'fresh',
+      mode: "well-known",
+      freshnessStatus: "fresh",
     });
-    expect(entries[0]?.cachedAt).toBeTypeOf('number');
+    expect(entries[0]?.cachedAt).toBeTypeOf("number");
     expect(entries[1]).toMatchObject({
       address: ORCH_B,
-      mode: 'csv',
-      freshnessStatus: 'stale-recoverable',
+      mode: "csv",
+      freshnessStatus: "stale-recoverable",
     });
   });
 
-  it('resolveByAddress() returns mapped ResolvedOrch with node capabilities/models', async () => {
+  it("resolveByAddress() returns mapped ResolvedOrch with node capabilities/models", async () => {
     const r = await client.resolveByAddress(ORCH_A);
     expect(r).not.toBeNull();
     expect(r?.address).toBe(ORCH_A);
-    expect(r?.resolvedUri).toBe('https://orch-a.example/');
-    expect(r?.mode).toBe('well-known');
-    expect(r?.freshnessStatus).toBe('fresh');
+    expect(r?.resolvedUri).toBe("https://orch-a.example/");
+    expect(r?.mode).toBe("well-known");
+    expect(r?.freshnessStatus).toBe("fresh");
     expect(r?.nodes).toHaveLength(1);
     expect(r?.nodes[0]).toMatchObject({
-      capabilities: ['transcode', 'whisper'],
-      models: ['whisper-large'],
-      signatureStatus: 'verified',
+      capabilities: ["transcode", "whisper"],
+      models: ["whisper-large"],
+      signatureStatus: "verified",
       operatorAddress: ORCH_A,
     });
   });
 
-  it('resolveByAddress() returns null on NOT_FOUND', async () => {
+  it("resolveByAddress() returns null on NOT_FOUND", async () => {
     const r = await client.resolveByAddress(MISSING_ORCH);
     expect(r).toBeNull();
   });
 
-  it('select() returns top-weighted node + reason', async () => {
-    const r = await client.select({ capability: 'whisper', model: 'whisper-large' });
+  it("select() returns top-weighted node + reason", async () => {
+    const r = await client.select({
+      capability: "whisper",
+      model: "whisper-large",
+    });
     expect(r.orchAddress).toBe(ORCH_A);
-    expect(r.reason).toBe('top-weighted');
+    expect(r.reason).toBe("top-weighted");
     expect(r.nodes).toHaveLength(1);
   });
 
-  it('select() returns null orchAddress when no node matches', async () => {
-    const r = await client.select({ capability: 'unobtainium' });
+  it("select() returns null orchAddress when no node matches", async () => {
+    const r = await client.select({ capability: "unobtainium" });
     expect(r.orchAddress).toBeNull();
-    expect(r.reason).toBe('no node matched');
+    expect(r.reason).toBe("no node matched");
     expect(r.nodes).toHaveLength(0);
   });
 
-  it('refresh() wildcard records the request', async () => {
+  it("refresh() wildcard records the request", async () => {
     fake.refreshCalls.length = 0;
-    await client.refresh('*', { force: true });
+    await client.refresh("*", { force: true });
     expect(fake.refreshCalls).toHaveLength(1);
-    expect(fake.refreshCalls[0]).toMatchObject({ ethAddress: '*', force: true });
+    expect(fake.refreshCalls[0]).toMatchObject({
+      ethAddress: "*",
+      force: true,
+    });
   });
 
-  it('refresh() per-address records the request', async () => {
+  it("refresh() per-address records the request", async () => {
     fake.refreshCalls.length = 0;
     await client.refresh(ORCH_B);
     expect(fake.refreshCalls).toHaveLength(1);
-    expect(fake.refreshCalls[0]).toMatchObject({ ethAddress: ORCH_B, force: false });
+    expect(fake.refreshCalls[0]).toMatchObject({
+      ethAddress: ORCH_B,
+      force: false,
+    });
   });
 
-  it('getAuditLog() maps proto AuditEvent → ResolverAuditEntry', async () => {
+  it("getAuditLog() maps proto AuditEvent → ResolverAuditEntry", async () => {
     const events = await client.getAuditLog({ limit: 10 });
     expect(events).toHaveLength(1);
     expect(events[0]).toMatchObject({
       orchAddress: ORCH_A,
-      kind: 'select',
-      mode: 'well-known',
-      detail: 'picked top-weighted',
+      kind: "select",
+      mode: "well-known",
+      detail: "picked top-weighted",
     });
     expect(events[0]?.occurredAt).toBeGreaterThan(0);
   });
 
-  it('per-call deadline triggers DeadlineExceeded', async () => {
+  it("per-call deadline triggers DeadlineExceeded", async () => {
     await expect(client.resolveByAddress(SLOW_ORCH)).rejects.toMatchObject({
       code: grpcStatus.DEADLINE_EXCEEDED,
     });
@@ -158,9 +169,12 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
   const refreshCalls: RefreshRequest[] = [];
   const server = new Server();
   server.addService(ResolverService, {
-    health(_call: ServerUnaryCall<Empty, HealthResult>, cb: sendUnaryData<HealthResult>) {
+    health(
+      _call: ServerUnaryCall<Empty, HealthResult>,
+      cb: sendUnaryData<HealthResult>,
+    ) {
       cb(null, {
-        mode: 'resolver',
+        mode: "resolver",
         chainOk: true,
         manifestFetcherOk: true,
         cacheSize: 2,
@@ -177,13 +191,13 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
             ethAddress: ORCH_A,
             mode: ResolveMode.RESOLVE_MODE_WELL_KNOWN,
             freshnessStatus: FreshnessStatus.FRESHNESS_FRESH,
-            cachedAt: new Date('2026-04-28T12:00:00Z'),
+            cachedAt: new Date("2026-04-28T12:00:00Z"),
           },
           {
             ethAddress: ORCH_B,
             mode: ResolveMode.RESOLVE_MODE_CSV,
             freshnessStatus: FreshnessStatus.FRESHNESS_STALE_RECOVERABLE,
-            cachedAt: new Date('2026-04-28T11:50:00Z'),
+            cachedAt: new Date("2026-04-28T11:50:00Z"),
           },
         ],
       });
@@ -194,7 +208,10 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
     ) {
       const addr = call.request.ethAddress;
       if (addr === MISSING_ORCH) {
-        cb({ code: grpcStatus.NOT_FOUND, details: 'no such orch' } as never, null);
+        cb(
+          { code: grpcStatus.NOT_FOUND, details: "no such orch" } as never,
+          null,
+        );
         return;
       }
       if (addr === SLOW_ORCH) {
@@ -204,29 +221,29 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
       }
       cb(null, {
         ethAddress: addr,
-        resolvedUri: 'https://orch-a.example/',
+        resolvedUri: "https://orch-a.example/",
         mode: ResolveMode.RESOLVE_MODE_WELL_KNOWN,
         nodes: [
           {
             id: addr,
-            url: 'https://orch-a.example/inference',
+            url: "https://orch-a.example/inference",
             lat: 0,
             lon: 0,
-            region: 'us-east',
+            region: "us-east",
             capabilities: [
               {
-                name: 'transcode',
-                workUnit: 'pixel',
+                name: "transcode",
+                workUnit: "pixel",
                 models: [],
                 extraJson: Buffer.alloc(0),
               },
               {
-                name: 'whisper',
-                workUnit: 'second',
+                name: "whisper",
+                workUnit: "second",
                 models: [
                   {
-                    id: 'whisper-large',
-                    pricePerWorkUnitWei: '1000',
+                    id: "whisper-large",
+                    pricePerWorkUnitWei: "1000",
                     warm: true,
                     constraintsJson: Buffer.alloc(0),
                   },
@@ -238,7 +255,7 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
             signatureStatus: SignatureStatus.SIGNATURE_STATUS_VERIFIED,
             operatorAddress: addr,
             enabled: true,
-            tierAllowed: ['tier-0'],
+            tierAllowed: ["tier-0"],
             weight: 100,
           },
         ],
@@ -252,7 +269,7 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
       call: ServerUnaryCall<SelectRequest, SelectResult>,
       cb: sendUnaryData<SelectResult>,
     ) {
-      if (call.request.capability === 'unobtainium') {
+      if (call.request.capability === "unobtainium") {
         cb(null, { nodes: [] });
         return;
       }
@@ -260,10 +277,10 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
         nodes: [
           {
             id: ORCH_A,
-            url: 'https://orch-a.example/inference',
+            url: "https://orch-a.example/inference",
             lat: 0,
             lon: 0,
-            region: 'us-east',
+            region: "us-east",
             capabilities: [],
             source: 1,
             signatureStatus: SignatureStatus.SIGNATURE_STATUS_VERIFIED,
@@ -275,7 +292,10 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
         ],
       });
     },
-    refresh(call: ServerUnaryCall<RefreshRequest, Empty>, cb: sendUnaryData<Empty>) {
+    refresh(
+      call: ServerUnaryCall<RefreshRequest, Empty>,
+      cb: sendUnaryData<Empty>,
+    ) {
       refreshCalls.push(call.request);
       cb(null, {});
     },
@@ -288,9 +308,9 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
           {
             at: new Date(),
             ethAddress: ORCH_A,
-            kind: 'select',
+            kind: "select",
             mode: ResolveMode.RESOLVE_MODE_WELL_KNOWN,
-            detail: 'picked top-weighted',
+            detail: "picked top-weighted",
           },
         ],
       });
@@ -298,10 +318,14 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
   });
 
   await new Promise<number>((resolve, reject) => {
-    server.bindAsync(`unix:${socketPath}`, ServerCredentials.createInsecure(), (err, port) => {
-      if (err) reject(err);
-      else resolve(port);
-    });
+    server.bindAsync(
+      `unix:${socketPath}`,
+      ServerCredentials.createInsecure(),
+      (err, port) => {
+        if (err) reject(err);
+        else resolve(port);
+      },
+    );
   });
 
   return { socketPath, server, refreshCalls };
@@ -310,7 +334,7 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
 function emptyResolveResult(addr: string): ResolveResult {
   return {
     ethAddress: addr,
-    resolvedUri: '',
+    resolvedUri: "",
     mode: ResolveMode.RESOLVE_MODE_UNSPECIFIED,
     nodes: [],
     freshnessStatus: FreshnessStatus.FRESHNESS_UNSPECIFIED,

@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
 // Coverage gate: 75% across lines/branches/functions/statements (org standard,
 // inherited from sibling consoles per livepeer-modules-project plan 0011 §A).
@@ -6,35 +6,35 @@ import { defineConfig } from 'vitest/config';
 // real handler + service tests land.
 export default defineConfig({
   test: {
-    include: ['src/**/*.test.ts', 'bridge-ui/**/*.test.js'],
+    include: ["src/**/*.test.ts", "bridge-ui/**/*.test.js"],
     // Default to node-env; bridge-ui SPA tests opt into happy-dom per-file
     // via `// @vitest-environment happy-dom`. Keeps backend tests fast.
-    environment: 'node',
+    environment: "node",
     globals: false,
-    reporters: 'default',
+    reporters: "default",
     testTimeout: 60_000,
     hookTimeout: 120_000,
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'html', 'lcov'],
-      include: ['src/**/*.ts'],
+      provider: "v8",
+      reporter: ["text", "html", "lcov"],
+      include: ["src/**/*.ts"],
       exclude: [
-        'src/**/*.test.ts',
-        'src/**/index.ts',
-        'src/main.ts',
-        'src/scripts/**',
-        'src/providers/payerDaemon/gen/**',
-        'src/providers/resolver/gen/**',
+        "src/**/*.test.ts",
+        "src/**/index.ts",
+        "src/main.ts",
+        "src/scripts/**",
+        "src/providers/payerDaemon/gen/**",
+        "src/providers/resolver/gen/**",
         // Pure composition-root + thin library wrappers; verified by
         // integration in real deployments, not by unit tests. See
         // Plan 0001 §7 decisions-log for the exclusion rationale.
-        'src/runtime/http/server.ts',
-        'src/runtime/http/fastify-augmentation.ts',
-        'src/providers/http/fastify.ts',
-        'src/providers/logger/pino.ts',
+        "src/runtime/http/server.ts",
+        "src/runtime/http/fastify-augmentation.ts",
+        "src/providers/http/fastify.ts",
+        "src/providers/logger/pino.ts",
         // Zod-schema-only files; their runtime behavior is exercised
         // by every handler's .parse() call rather than directly.
-        'src/types/**',
+        "src/types/**",
       ],
       thresholds: {
         lines: 75,

@@ -1,7 +1,7 @@
 // Pino logger provider. The rest of the codebase imports the `Logger`
 // interface from here and never touches `pino` directly.
 
-import pino from 'pino';
+import pino from "pino";
 
 export interface Logger {
   info(msg: string, ctx?: Record<string, unknown>): void;
@@ -11,16 +11,19 @@ export interface Logger {
 }
 
 export interface LoggerOptions {
-  level: 'debug' | 'info' | 'warn' | 'error';
-  format: 'json' | 'text';
+  level: "debug" | "info" | "warn" | "error";
+  format: "json" | "text";
 }
 
 export function createLogger(options: LoggerOptions): Logger {
   // exactOptionalPropertyTypes: don't pass `transport: undefined`; build the
   // options object so the key is omitted entirely in JSON-format mode.
   const pinoOptions: pino.LoggerOptions = { level: options.level };
-  if (options.format === 'text') {
-    pinoOptions.transport = { target: 'pino-pretty', options: { colorize: true } };
+  if (options.format === "text") {
+    pinoOptions.transport = {
+      target: "pino-pretty",
+      options: { colorize: true },
+    };
   }
   const base = pino(pinoOptions);
   return {

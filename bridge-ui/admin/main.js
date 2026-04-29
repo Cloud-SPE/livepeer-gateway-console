@@ -1,1 +1,1 @@
-import './components/admin-app.js';
+import "./components/admin-app.js";

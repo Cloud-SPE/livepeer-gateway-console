@@ -7,21 +7,21 @@
 // doesn't hammer the RPC. Cache window is configured at construction
 // (env: `CHAIN_READ_TTL_SEC`, default 30s).
 
-import type { Address } from 'viem';
+import type { Address } from "viem";
 import type {
   BondingPoolEntry,
   ChainReader,
-} from '../../providers/chain/viem.js';
+} from "../../providers/chain/viem.js";
 import type {
   FreshnessLabel,
   ResolvedNode,
   ResolvedOrch,
   ResolverClient,
   SignatureLabel,
-} from '../../providers/resolver/client.js';
-import type { Db } from '../../repo/db.js';
-import { routingObservationsRepo } from '../../repo/index.js';
-import type { RoutingObservation, OrchRosterRow } from '../../types/routing.js';
+} from "../../providers/resolver/client.js";
+import type { Db } from "../../repo/db.js";
+import { routingObservationsRepo } from "../../repo/index.js";
+import type { RoutingObservation, OrchRosterRow } from "../../types/routing.js";
 
 export interface RoutingService {
   listOrchs(): Promise<OrchRosterRow[]>;
@@ -30,7 +30,10 @@ export interface RoutingService {
     recentObservations: RoutingObservation[];
   }>;
   /** Per-orch routing-history slice, drawn from the local mirror. */
-  listObservations(address: string, limit?: number): Promise<RoutingObservation[]>;
+  listObservations(
+    address: string,
+    limit?: number,
+  ): Promise<RoutingObservation[]>;
 }
 
 export interface RoutingServiceDeps {
@@ -49,17 +52,17 @@ export function createRoutingService(deps: RoutingServiceDeps): RoutingService {
   const cache = createTtlCache(deps.chainReadTtlMs, now);
 
   const getBondingManager = async (): Promise<Address> =>
-    cache.getOrLoad('bondingManager', () =>
+    cache.getOrLoad("bondingManager", () =>
       deps.chain.resolveBondingManager(deps.controllerAddress),
     );
 
   const getServiceRegistry = async (): Promise<Address> =>
-    cache.getOrLoad('serviceRegistry', () =>
+    cache.getOrLoad("serviceRegistry", () =>
       deps.chain.resolveServiceRegistry(deps.controllerAddress),
     );
 
   const getPoolStakeMap = async (): Promise<Map<string, string>> =>
-    cache.getOrLoad('poolStakeMap', async () => {
+    cache.getOrLoad("poolStakeMap", async () => {
       const bm = await getBondingManager();
       const entries = await deps.chain.bondingManagerListPool(bm);
       return poolEntriesToStakeMap(entries);
@@ -93,7 +96,7 @@ export function createRoutingService(deps: RoutingServiceDeps): RoutingService {
           serviceUri: serviceUris[i] ?? null,
           capabilities: [],
           models: [],
-          signatureStatus: 'unknown',
+          signatureStatus: "unknown",
           freshnessStatus: narrowFreshness(k.freshnessStatus),
           activePoolMember: stakeWei !== undefined,
           totalStakeWei: stakeWei ?? null,
@@ -103,12 +106,13 @@ export function createRoutingService(deps: RoutingServiceDeps): RoutingService {
     },
 
     async getOrch(address) {
-      const [resolved, observationsRaw, stakeMap, serviceUri] = await Promise.all([
-        deps.resolver.resolveByAddress(address),
-        routingObservationsRepo.listRecentForOrch(deps.db, address),
-        getPoolStakeMap(),
-        getServiceUri(address as Address),
-      ]);
+      const [resolved, observationsRaw, stakeMap, serviceUri] =
+        await Promise.all([
+          deps.resolver.resolveByAddress(address),
+          routingObservationsRepo.listRecentForOrch(deps.db, address),
+          getPoolStakeMap(),
+          getServiceUri(address as Address),
+        ]);
       const recentObservations = observationsRaw.map(rowToObservation);
       if (!resolved) return { orch: null, recentObservations };
       const stakeWei = stakeMap.get(resolved.address.toLowerCase());
@@ -123,7 +127,11 @@ export function createRoutingService(deps: RoutingServiceDeps): RoutingService {
 
     async listObservations(address, limit) {
       const opts = limit !== undefined ? { limit } : {};
-      const rows = await routingObservationsRepo.listRecentForOrch(deps.db, address, opts);
+      const rows = await routingObservationsRepo.listRecentForOrch(
+        deps.db,
+        address,
+        opts,
+      );
       return rows.map(rowToObservation);
     },
   };
@@ -136,7 +144,10 @@ interface RosterEnrichment {
   lastObservedAt: number | null;
 }
 
-function rosterRowFromResolved(r: ResolvedOrch, e: RosterEnrichment): OrchRosterRow {
+function rosterRowFromResolved(
+  r: ResolvedOrch,
+  e: RosterEnrichment,
+): OrchRosterRow {
   const top: ResolvedNode | undefined = r.nodes[0];
   const capabilities = dedupe(r.nodes.flatMap((n) => [...n.capabilities]));
   const models = dedupe(r.nodes.flatMap((n) => [...n.models]));
@@ -146,7 +157,7 @@ function rosterRowFromResolved(r: ResolvedOrch, e: RosterEnrichment): OrchRoster
     serviceUri: e.serviceUri ?? (r.resolvedUri || null),
     capabilities,
     models,
-    signatureStatus: top ? narrowSignature(top.signatureStatus) : 'unknown',
+    signatureStatus: top ? narrowSignature(top.signatureStatus) : "unknown",
     freshnessStatus: narrowFreshness(r.freshnessStatus),
     activePoolMember: e.activePoolMember,
     totalStakeWei: e.totalStakeWei,
@@ -154,7 +165,9 @@ function rosterRowFromResolved(r: ResolvedOrch, e: RosterEnrichment): OrchRoster
   };
 }
 
-function poolEntriesToStakeMap(entries: BondingPoolEntry[]): Map<string, string> {
+function poolEntriesToStakeMap(
+  entries: BondingPoolEntry[],
+): Map<string, string> {
   const map = new Map<string, string>();
   for (const e of entries) {
     map.set(e.address.toLowerCase(), e.totalStakeWei);
@@ -162,26 +175,28 @@ function poolEntriesToStakeMap(entries: BondingPoolEntry[]): Map<string, string>
   return map;
 }
 
-function narrowFreshness(label: FreshnessLabel): 'fresh' | 'stale' | 'unknown' {
+function narrowFreshness(label: FreshnessLabel): "fresh" | "stale" | "unknown" {
   switch (label) {
-    case 'fresh':
-      return 'fresh';
-    case 'stale-recoverable':
-    case 'stale-failing':
-      return 'stale';
+    case "fresh":
+      return "fresh";
+    case "stale-recoverable":
+    case "stale-failing":
+      return "stale";
     default:
-      return 'unknown';
+      return "unknown";
   }
 }
 
-function narrowSignature(label: SignatureLabel): 'signed' | 'unsigned' | 'unknown' {
+function narrowSignature(
+  label: SignatureLabel,
+): "signed" | "unsigned" | "unknown" {
   switch (label) {
-    case 'verified':
-      return 'signed';
-    case 'unsigned':
-      return 'unsigned';
+    case "verified":
+      return "signed";
+    case "unsigned":
+      return "unsigned";
     default:
-      return 'unknown';
+      return "unknown";
   }
 }
 
@@ -218,7 +233,12 @@ interface TtlCache {
 }
 
 function createTtlCache(ttlMs: number, now: () => number): TtlCache {
-  type Entry = { expiresAt: number; promise: Promise<unknown>; settledValue?: unknown; settled: boolean };
+  type Entry = {
+    expiresAt: number;
+    promise: Promise<unknown>;
+    settledValue?: unknown;
+    settled: boolean;
+  };
   const store = new Map<string, Entry>();
   return {
     async getOrLoad<T>(key: string, loader: () => Promise<T>): Promise<T> {

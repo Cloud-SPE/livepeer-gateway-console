@@ -3,11 +3,11 @@
 // the bootstrap-time wiring; per-repo Plan 0001 swaps the stub clients
 // for real @grpc/grpc-js channels and tightens the response shape.
 
-import { z } from 'zod';
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import type { PayerDaemonClient } from '../../../providers/payerDaemon/client.js';
-import type { ResolverClient } from '../../../providers/resolver/client.js';
-import { checkUnixSocket } from '../../../utils/socketCheck.js';
+import { z } from "zod";
+import type { FastifyReply, FastifyRequest } from "fastify";
+import type { PayerDaemonClient } from "../../../providers/payerDaemon/client.js";
+import type { ResolverClient } from "../../../providers/resolver/client.js";
+import { checkUnixSocket } from "../../../utils/socketCheck.js";
 
 const HealthQuerySchema = z.object({}).strict();
 

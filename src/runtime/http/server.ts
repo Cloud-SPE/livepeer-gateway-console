@@ -10,16 +10,16 @@
 // is a deliberate divergence from livepeer-orch-coordinator's public
 // /manifest.json — the gateway console has no equivalent.
 
-import { existsSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { ZodError } from 'zod';
+import { existsSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { ZodError } from "zod";
 import {
   createFastifyServer,
   fastifyStatic,
   type HttpServer,
   type FastifyInstance,
-} from '../../providers/http/fastify.js';
+} from "../../providers/http/fastify.js";
 import {
   createAuthService,
   InvalidAdminTokenError,
@@ -28,29 +28,41 @@ import {
   MissingActorError,
   parseActor,
   type AuthService,
-} from '../../service/auth/index.js';
-import './fastify-augmentation.js';
-import type { ChainReader } from '../../providers/chain/viem.js';
-import type { PayerDaemonClient } from '../../providers/payerDaemon/client.js';
-import type { ResolverClient } from '../../providers/resolver/client.js';
-import { createAuditService, type AuditService } from '../../service/audit/index.js';
-import { createResolverService, type ResolverService } from '../../service/resolver/index.js';
-import { createRoutingService, type RoutingService } from '../../service/routing/index.js';
-import { createSenderService, type SenderService } from '../../service/sender/index.js';
-import type { Db } from '../../repo/db.js';
-import type { Address } from 'viem';
-import { handleCapabilitySearch } from './handlers/handleCapabilitySearch.js';
-import { handleGetOrch } from './handlers/handleGetOrch.js';
-import { handleGetSenderEscrow } from './handlers/handleGetSenderEscrow.js';
-import { handleGetSenderWallet } from './handlers/handleGetSenderWallet.js';
-import { handleHealth } from './handlers/handleHealth.js';
-import { handleListAuditLog } from './handlers/handleListAuditLog.js';
-import { handleListOrchs } from './handlers/handleListOrchs.js';
-import { handleListResolverAuditLog } from './handlers/handleListResolverAuditLog.js';
+} from "../../service/auth/index.js";
+import "./fastify-augmentation.js";
+import type { ChainReader } from "../../providers/chain/viem.js";
+import type { PayerDaemonClient } from "../../providers/payerDaemon/client.js";
+import type { ResolverClient } from "../../providers/resolver/client.js";
+import {
+  createAuditService,
+  type AuditService,
+} from "../../service/audit/index.js";
+import {
+  createResolverService,
+  type ResolverService,
+} from "../../service/resolver/index.js";
+import {
+  createRoutingService,
+  type RoutingService,
+} from "../../service/routing/index.js";
+import {
+  createSenderService,
+  type SenderService,
+} from "../../service/sender/index.js";
+import type { Db } from "../../repo/db.js";
+import type { Address } from "viem";
+import { handleCapabilitySearch } from "./handlers/handleCapabilitySearch.js";
+import { handleGetOrch } from "./handlers/handleGetOrch.js";
+import { handleGetSenderEscrow } from "./handlers/handleGetSenderEscrow.js";
+import { handleGetSenderWallet } from "./handlers/handleGetSenderWallet.js";
+import { handleHealth } from "./handlers/handleHealth.js";
+import { handleListAuditLog } from "./handlers/handleListAuditLog.js";
+import { handleListOrchs } from "./handlers/handleListOrchs.js";
+import { handleListResolverAuditLog } from "./handlers/handleListResolverAuditLog.js";
 import {
   handleResolverRefresh,
   handleResolverRefreshOne,
-} from './handlers/handleResolverRefresh.js';
+} from "./handlers/handleResolverRefresh.js";
 
 export interface ServerDeps {
   db: Db;
@@ -80,7 +92,7 @@ export interface ServerHandle {
 
 export async function createServer(deps: ServerDeps): Promise<ServerHandle> {
   const http = await createFastifyServer({ logger: deps.logger ?? true });
-  http.app.decorateRequest('actor', '');
+  http.app.decorateRequest("actor", "");
   registerErrorHandler(http.app);
   const auth = createAuthService({ adminToken: deps.adminToken });
   const routing = createRoutingService({
@@ -122,7 +134,7 @@ function registerErrorHandler(app: FastifyInstance): void {
     if (err instanceof ZodError) {
       return reply.code(400).send({
         error: {
-          code: 'invalid_input',
+          code: "invalid_input",
           issues: err.issues.map((i) => ({
             path: i.path,
             code: i.code,
@@ -138,7 +150,7 @@ function registerErrorHandler(app: FastifyInstance): void {
 // --- public, no auth ----------------------------------------------------
 
 function registerPublicRoutes(app: FastifyInstance): void {
-  app.get('/healthz', async (_req, reply) => {
+  app.get("/healthz", async (_req, reply) => {
     return reply.send({ ok: true });
   });
 }
@@ -161,31 +173,33 @@ function registerApiRoutes(
   auth: AuthService,
   deps: ApiDeps,
 ): void {
-  app.addHook('onRequest', async (req, reply) => {
-    if (!req.url.startsWith('/api/')) return;
+  app.addHook("onRequest", async (req, reply) => {
+    if (!req.url.startsWith("/api/")) return;
     try {
       auth.authenticate(headerString(req.headers.authorization));
-      req.actor = parseActor(headerString(req.headers['x-actor']));
+      req.actor = parseActor(headerString(req.headers["x-actor"]));
     } catch (err) {
       if (err instanceof MalformedAuthorizationError) {
-        return reply
-          .code(401)
-          .send({ error: { code: 'malformed_authorization', message: err.message } });
+        return reply.code(401).send({
+          error: { code: "malformed_authorization", message: err.message },
+        });
       }
       if (err instanceof InvalidAdminTokenError) {
-        return reply.code(401).send({ error: { code: 'invalid_admin_token' } });
+        return reply.code(401).send({ error: { code: "invalid_admin_token" } });
       }
       if (err instanceof MissingActorError) {
-        return reply.code(400).send({ error: { code: 'missing_actor' } });
+        return reply.code(400).send({ error: { code: "missing_actor" } });
       }
       if (err instanceof MalformedActorError) {
-        return reply.code(400).send({ error: { code: 'malformed_actor', message: err.message } });
+        return reply
+          .code(400)
+          .send({ error: { code: "malformed_actor", message: err.message } });
       }
       throw err;
     }
   });
 
-  app.get('/api/health', (req, reply) =>
+  app.get("/api/health", (req, reply) =>
     handleHealth(req, reply, {
       resolver: deps.resolver,
       payer: deps.payer,
@@ -193,34 +207,34 @@ function registerApiRoutes(
       senderSocketPath: deps.senderSocketPath,
     }),
   );
-  app.get('/api/orchs', (req, reply) =>
+  app.get("/api/orchs", (req, reply) =>
     handleListOrchs(req, reply, { routing: deps.routing }),
   );
-  app.get('/api/orchs/:address', (req, reply) =>
+  app.get("/api/orchs/:address", (req, reply) =>
     handleGetOrch(req, reply, { routing: deps.routing }),
   );
-  app.get('/api/capabilities/search', (req, reply) =>
+  app.get("/api/capabilities/search", (req, reply) =>
     handleCapabilitySearch(req, reply, { resolver: deps.resolverService }),
   );
-  app.get('/api/sender/wallet', (req, reply) =>
+  app.get("/api/sender/wallet", (req, reply) =>
     handleGetSenderWallet(req, reply, { sender: deps.sender }),
   );
-  app.get('/api/sender/escrow', (req, reply) =>
+  app.get("/api/sender/escrow", (req, reply) =>
     handleGetSenderEscrow(req, reply, { sender: deps.sender }),
   );
-  app.get('/api/audit-log', (req, reply) =>
+  app.get("/api/audit-log", (req, reply) =>
     handleListAuditLog(req, reply, { audit: deps.audit }),
   );
-  app.get('/api/resolver/audit-log', (req, reply) =>
+  app.get("/api/resolver/audit-log", (req, reply) =>
     handleListResolverAuditLog(req, reply, { resolver: deps.resolverService }),
   );
-  app.post('/api/resolver/refresh', (req, reply) =>
+  app.post("/api/resolver/refresh", (req, reply) =>
     handleResolverRefresh(req, reply, {
       resolver: deps.resolverService,
       audit: deps.audit,
     }),
   );
-  app.post('/api/resolver/refresh/:address', (req, reply) =>
+  app.post("/api/resolver/refresh/:address", (req, reply) =>
     handleResolverRefreshOne(req, reply, {
       resolver: deps.resolverService,
       audit: deps.audit,
@@ -236,20 +250,25 @@ async function registerSpaStatic(app: FastifyInstance): Promise<void> {
   // is copied by the Dockerfile to /app/bridge-ui/admin/dist.
   const here = dirname(fileURLToPath(import.meta.url));
   // dist/runtime/http/server.js  ->  ../../../bridge-ui/admin/dist
-  const spaRoot = resolve(here, '..', '..', '..', 'bridge-ui', 'admin', 'dist');
+  const spaRoot = resolve(here, "..", "..", "..", "bridge-ui", "admin", "dist");
   if (!existsSync(spaRoot)) {
     // Bootstrap-time the SPA might not be built yet (e.g. running tests).
     // Don't crash the server; just skip mount.
-    app.log.warn({ spaRoot }, 'admin SPA assets not found; skipping /admin/console mount');
+    app.log.warn(
+      { spaRoot },
+      "admin SPA assets not found; skipping /admin/console mount",
+    );
     return;
   }
   await app.register(fastifyStatic, {
     root: spaRoot,
-    prefix: '/admin/console/',
+    prefix: "/admin/console/",
     decorateReply: false,
   });
 }
 
-function headerString(value: string | string[] | undefined): string | undefined {
-  return typeof value === 'string' ? value : undefined;
+function headerString(
+  value: string | string[] | undefined,
+): string | undefined {
+  return typeof value === "string" ? value : undefined;
 }

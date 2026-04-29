@@ -40,9 +40,7 @@ export interface GetQuoteResponse {
    * covers the whole model set without re-keying RecipientRandHash per
    * model.
    */
-  ticketParams?:
-    | TicketParams
-    | undefined;
+  ticketParams?: TicketParams | undefined;
   /**
    * Per-model pricing. Ordered by model name for deterministic comparison
    * on the bridge's quote-refresh cycle. Empty iff the daemon has no
@@ -69,8 +67,7 @@ export interface ModelPrice {
   priceInfo?: PriceInfo | undefined;
 }
 
-export interface ListCapabilitiesRequest {
-}
+export interface ListCapabilitiesRequest {}
 
 export interface ListCapabilitiesResponse {
   /**
@@ -171,8 +168,7 @@ export interface PayeeDaemonCloseSessionRequest {
   workId: string;
 }
 
-export interface PayeeDaemonCloseSessionResponse {
-}
+export interface PayeeDaemonCloseSessionResponse {}
 
 export interface ListPendingRedemptionsRequest {
   /** Optional: filter to tickets queued on or after this Unix epoch seconds. */
@@ -216,7 +212,9 @@ export enum GetRedemptionStatusResponse_Status {
   UNRECOGNIZED = -1,
 }
 
-export function getRedemptionStatusResponse_StatusFromJSON(object: any): GetRedemptionStatusResponse_Status {
+export function getRedemptionStatusResponse_StatusFromJSON(
+  object: any,
+): GetRedemptionStatusResponse_Status {
   switch (object) {
     case 0:
     case "STATUS_UNSPECIFIED":
@@ -240,7 +238,9 @@ export function getRedemptionStatusResponse_StatusFromJSON(object: any): GetRede
   }
 }
 
-export function getRedemptionStatusResponse_StatusToJSON(object: GetRedemptionStatusResponse_Status): string {
+export function getRedemptionStatusResponse_StatusToJSON(
+  object: GetRedemptionStatusResponse_Status,
+): string {
   switch (object) {
     case GetRedemptionStatusResponse_Status.STATUS_UNSPECIFIED:
       return "STATUS_UNSPECIFIED";
@@ -263,7 +263,10 @@ function createBaseGetQuoteRequest(): GetQuoteRequest {
 }
 
 export const GetQuoteRequest: MessageFns<GetQuoteRequest> = {
-  encode(message: GetQuoteRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetQuoteRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.sender.length !== 0) {
       writer.uint32(10).bytes(message.sender);
     }
@@ -274,7 +277,8 @@ export const GetQuoteRequest: MessageFns<GetQuoteRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GetQuoteRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetQuoteRequest();
     while (reader.pos < end) {
@@ -307,8 +311,12 @@ export const GetQuoteRequest: MessageFns<GetQuoteRequest> = {
 
   fromJSON(object: any): GetQuoteRequest {
     return {
-      sender: isSet(object.sender) ? Buffer.from(bytesFromBase64(object.sender)) : Buffer.alloc(0),
-      capability: isSet(object.capability) ? globalThis.String(object.capability) : "",
+      sender: isSet(object.sender)
+        ? Buffer.from(bytesFromBase64(object.sender))
+        : Buffer.alloc(0),
+      capability: isSet(object.capability)
+        ? globalThis.String(object.capability)
+        : "",
     };
   },
 
@@ -323,10 +331,14 @@ export const GetQuoteRequest: MessageFns<GetQuoteRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetQuoteRequest>, I>>(base?: I): GetQuoteRequest {
+  create<I extends Exact<DeepPartial<GetQuoteRequest>, I>>(
+    base?: I,
+  ): GetQuoteRequest {
     return GetQuoteRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetQuoteRequest>, I>>(object: I): GetQuoteRequest {
+  fromPartial<I extends Exact<DeepPartial<GetQuoteRequest>, I>>(
+    object: I,
+  ): GetQuoteRequest {
     const message = createBaseGetQuoteRequest();
     message.sender = object.sender ?? Buffer.alloc(0);
     message.capability = object.capability ?? "";
@@ -339,9 +351,15 @@ function createBaseGetQuoteResponse(): GetQuoteResponse {
 }
 
 export const GetQuoteResponse: MessageFns<GetQuoteResponse> = {
-  encode(message: GetQuoteResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetQuoteResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.ticketParams !== undefined) {
-      TicketParams.encode(message.ticketParams, writer.uint32(10).fork()).join();
+      TicketParams.encode(
+        message.ticketParams,
+        writer.uint32(10).fork(),
+      ).join();
     }
     for (const v of message.modelPrices) {
       ModelPrice.encode(v!, writer.uint32(18).fork()).join();
@@ -350,7 +368,8 @@ export const GetQuoteResponse: MessageFns<GetQuoteResponse> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GetQuoteResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetQuoteResponse();
     while (reader.pos < end) {
@@ -386,13 +405,13 @@ export const GetQuoteResponse: MessageFns<GetQuoteResponse> = {
       ticketParams: isSet(object.ticketParams)
         ? TicketParams.fromJSON(object.ticketParams)
         : isSet(object.ticket_params)
-        ? TicketParams.fromJSON(object.ticket_params)
-        : undefined,
+          ? TicketParams.fromJSON(object.ticket_params)
+          : undefined,
       modelPrices: globalThis.Array.isArray(object?.modelPrices)
         ? object.modelPrices.map((e: any) => ModelPrice.fromJSON(e))
         : globalThis.Array.isArray(object?.model_prices)
-        ? object.model_prices.map((e: any) => ModelPrice.fromJSON(e))
-        : [],
+          ? object.model_prices.map((e: any) => ModelPrice.fromJSON(e))
+          : [],
     };
   },
 
@@ -407,15 +426,21 @@ export const GetQuoteResponse: MessageFns<GetQuoteResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetQuoteResponse>, I>>(base?: I): GetQuoteResponse {
+  create<I extends Exact<DeepPartial<GetQuoteResponse>, I>>(
+    base?: I,
+  ): GetQuoteResponse {
     return GetQuoteResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetQuoteResponse>, I>>(object: I): GetQuoteResponse {
+  fromPartial<I extends Exact<DeepPartial<GetQuoteResponse>, I>>(
+    object: I,
+  ): GetQuoteResponse {
     const message = createBaseGetQuoteResponse();
-    message.ticketParams = (object.ticketParams !== undefined && object.ticketParams !== null)
-      ? TicketParams.fromPartial(object.ticketParams)
-      : undefined;
-    message.modelPrices = object.modelPrices?.map((e) => ModelPrice.fromPartial(e)) || [];
+    message.ticketParams =
+      object.ticketParams !== undefined && object.ticketParams !== null
+        ? TicketParams.fromPartial(object.ticketParams)
+        : undefined;
+    message.modelPrices =
+      object.modelPrices?.map((e) => ModelPrice.fromPartial(e)) || [];
     return message;
   },
 };
@@ -425,7 +450,10 @@ function createBaseModelPrice(): ModelPrice {
 }
 
 export const ModelPrice: MessageFns<ModelPrice> = {
-  encode(message: ModelPrice, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ModelPrice,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.model !== "") {
       writer.uint32(10).string(message.model);
     }
@@ -436,7 +464,8 @@ export const ModelPrice: MessageFns<ModelPrice> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ModelPrice {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseModelPrice();
     while (reader.pos < end) {
@@ -473,8 +502,8 @@ export const ModelPrice: MessageFns<ModelPrice> = {
       priceInfo: isSet(object.priceInfo)
         ? PriceInfo.fromJSON(object.priceInfo)
         : isSet(object.price_info)
-        ? PriceInfo.fromJSON(object.price_info)
-        : undefined,
+          ? PriceInfo.fromJSON(object.price_info)
+          : undefined,
     };
   },
 
@@ -492,12 +521,15 @@ export const ModelPrice: MessageFns<ModelPrice> = {
   create<I extends Exact<DeepPartial<ModelPrice>, I>>(base?: I): ModelPrice {
     return ModelPrice.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ModelPrice>, I>>(object: I): ModelPrice {
+  fromPartial<I extends Exact<DeepPartial<ModelPrice>, I>>(
+    object: I,
+  ): ModelPrice {
     const message = createBaseModelPrice();
     message.model = object.model ?? "";
-    message.priceInfo = (object.priceInfo !== undefined && object.priceInfo !== null)
-      ? PriceInfo.fromPartial(object.priceInfo)
-      : undefined;
+    message.priceInfo =
+      object.priceInfo !== undefined && object.priceInfo !== null
+        ? PriceInfo.fromPartial(object.priceInfo)
+        : undefined;
     return message;
   },
 };
@@ -507,12 +539,19 @@ function createBaseListCapabilitiesRequest(): ListCapabilitiesRequest {
 }
 
 export const ListCapabilitiesRequest: MessageFns<ListCapabilitiesRequest> = {
-  encode(_: ListCapabilitiesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    _: ListCapabilitiesRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListCapabilitiesRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ListCapabilitiesRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListCapabilitiesRequest();
     while (reader.pos < end) {
@@ -536,10 +575,14 @@ export const ListCapabilitiesRequest: MessageFns<ListCapabilitiesRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListCapabilitiesRequest>, I>>(base?: I): ListCapabilitiesRequest {
+  create<I extends Exact<DeepPartial<ListCapabilitiesRequest>, I>>(
+    base?: I,
+  ): ListCapabilitiesRequest {
     return ListCapabilitiesRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListCapabilitiesRequest>, I>>(_: I): ListCapabilitiesRequest {
+  fromPartial<I extends Exact<DeepPartial<ListCapabilitiesRequest>, I>>(
+    _: I,
+  ): ListCapabilitiesRequest {
     const message = createBaseListCapabilitiesRequest();
     return message;
   },
@@ -550,15 +593,22 @@ function createBaseListCapabilitiesResponse(): ListCapabilitiesResponse {
 }
 
 export const ListCapabilitiesResponse: MessageFns<ListCapabilitiesResponse> = {
-  encode(message: ListCapabilitiesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListCapabilitiesResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.capabilities) {
       CapabilityEntry.encode(v!, writer.uint32(18).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListCapabilitiesResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ListCapabilitiesResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListCapabilitiesResponse();
     while (reader.pos < end) {
@@ -569,7 +619,9 @@ export const ListCapabilitiesResponse: MessageFns<ListCapabilitiesResponse> = {
             break;
           }
 
-          message.capabilities.push(CapabilityEntry.decode(reader, reader.uint32()));
+          message.capabilities.push(
+            CapabilityEntry.decode(reader, reader.uint32()),
+          );
           continue;
         }
       }
@@ -592,17 +644,24 @@ export const ListCapabilitiesResponse: MessageFns<ListCapabilitiesResponse> = {
   toJSON(message: ListCapabilitiesResponse): unknown {
     const obj: any = {};
     if (message.capabilities?.length) {
-      obj.capabilities = message.capabilities.map((e) => CapabilityEntry.toJSON(e));
+      obj.capabilities = message.capabilities.map((e) =>
+        CapabilityEntry.toJSON(e),
+      );
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListCapabilitiesResponse>, I>>(base?: I): ListCapabilitiesResponse {
+  create<I extends Exact<DeepPartial<ListCapabilitiesResponse>, I>>(
+    base?: I,
+  ): ListCapabilitiesResponse {
     return ListCapabilitiesResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListCapabilitiesResponse>, I>>(object: I): ListCapabilitiesResponse {
+  fromPartial<I extends Exact<DeepPartial<ListCapabilitiesResponse>, I>>(
+    object: I,
+  ): ListCapabilitiesResponse {
     const message = createBaseListCapabilitiesResponse();
-    message.capabilities = object.capabilities?.map((e) => CapabilityEntry.fromPartial(e)) || [];
+    message.capabilities =
+      object.capabilities?.map((e) => CapabilityEntry.fromPartial(e)) || [];
     return message;
   },
 };
@@ -612,7 +671,10 @@ function createBaseCapabilityEntry(): CapabilityEntry {
 }
 
 export const CapabilityEntry: MessageFns<CapabilityEntry> = {
-  encode(message: CapabilityEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CapabilityEntry,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.capability !== "") {
       writer.uint32(10).string(message.capability);
     }
@@ -626,7 +688,8 @@ export const CapabilityEntry: MessageFns<CapabilityEntry> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): CapabilityEntry {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCapabilityEntry();
     while (reader.pos < end) {
@@ -667,13 +730,17 @@ export const CapabilityEntry: MessageFns<CapabilityEntry> = {
 
   fromJSON(object: any): CapabilityEntry {
     return {
-      capability: isSet(object.capability) ? globalThis.String(object.capability) : "",
+      capability: isSet(object.capability)
+        ? globalThis.String(object.capability)
+        : "",
       workUnit: isSet(object.workUnit)
         ? globalThis.String(object.workUnit)
         : isSet(object.work_unit)
-        ? globalThis.String(object.work_unit)
-        : "",
-      models: globalThis.Array.isArray(object?.models) ? object.models.map((e: any) => ModelPrice.fromJSON(e)) : [],
+          ? globalThis.String(object.work_unit)
+          : "",
+      models: globalThis.Array.isArray(object?.models)
+        ? object.models.map((e: any) => ModelPrice.fromJSON(e))
+        : [],
     };
   },
 
@@ -691,10 +758,14 @@ export const CapabilityEntry: MessageFns<CapabilityEntry> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CapabilityEntry>, I>>(base?: I): CapabilityEntry {
+  create<I extends Exact<DeepPartial<CapabilityEntry>, I>>(
+    base?: I,
+  ): CapabilityEntry {
     return CapabilityEntry.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CapabilityEntry>, I>>(object: I): CapabilityEntry {
+  fromPartial<I extends Exact<DeepPartial<CapabilityEntry>, I>>(
+    object: I,
+  ): CapabilityEntry {
     const message = createBaseCapabilityEntry();
     message.capability = object.capability ?? "";
     message.workUnit = object.workUnit ?? "";
@@ -708,7 +779,10 @@ function createBaseProcessPaymentRequest(): ProcessPaymentRequest {
 }
 
 export const ProcessPaymentRequest: MessageFns<ProcessPaymentRequest> = {
-  encode(message: ProcessPaymentRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ProcessPaymentRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.paymentBytes.length !== 0) {
       writer.uint32(10).bytes(message.paymentBytes);
     }
@@ -718,8 +792,12 @@ export const ProcessPaymentRequest: MessageFns<ProcessPaymentRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ProcessPaymentRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ProcessPaymentRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseProcessPaymentRequest();
     while (reader.pos < end) {
@@ -755,13 +833,13 @@ export const ProcessPaymentRequest: MessageFns<ProcessPaymentRequest> = {
       paymentBytes: isSet(object.paymentBytes)
         ? Buffer.from(bytesFromBase64(object.paymentBytes))
         : isSet(object.payment_bytes)
-        ? Buffer.from(bytesFromBase64(object.payment_bytes))
-        : Buffer.alloc(0),
+          ? Buffer.from(bytesFromBase64(object.payment_bytes))
+          : Buffer.alloc(0),
       workId: isSet(object.workId)
         ? globalThis.String(object.workId)
         : isSet(object.work_id)
-        ? globalThis.String(object.work_id)
-        : "",
+          ? globalThis.String(object.work_id)
+          : "",
     };
   },
 
@@ -776,10 +854,14 @@ export const ProcessPaymentRequest: MessageFns<ProcessPaymentRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ProcessPaymentRequest>, I>>(base?: I): ProcessPaymentRequest {
+  create<I extends Exact<DeepPartial<ProcessPaymentRequest>, I>>(
+    base?: I,
+  ): ProcessPaymentRequest {
     return ProcessPaymentRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ProcessPaymentRequest>, I>>(object: I): ProcessPaymentRequest {
+  fromPartial<I extends Exact<DeepPartial<ProcessPaymentRequest>, I>>(
+    object: I,
+  ): ProcessPaymentRequest {
     const message = createBaseProcessPaymentRequest();
     message.paymentBytes = object.paymentBytes ?? Buffer.alloc(0);
     message.workId = object.workId ?? "";
@@ -788,11 +870,19 @@ export const ProcessPaymentRequest: MessageFns<ProcessPaymentRequest> = {
 };
 
 function createBaseProcessPaymentResponse(): ProcessPaymentResponse {
-  return { sender: Buffer.alloc(0), creditedEv: Buffer.alloc(0), balance: Buffer.alloc(0), winnersQueued: 0 };
+  return {
+    sender: Buffer.alloc(0),
+    creditedEv: Buffer.alloc(0),
+    balance: Buffer.alloc(0),
+    winnersQueued: 0,
+  };
 }
 
 export const ProcessPaymentResponse: MessageFns<ProcessPaymentResponse> = {
-  encode(message: ProcessPaymentResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ProcessPaymentResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.sender.length !== 0) {
       writer.uint32(10).bytes(message.sender);
     }
@@ -808,8 +898,12 @@ export const ProcessPaymentResponse: MessageFns<ProcessPaymentResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ProcessPaymentResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ProcessPaymentResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseProcessPaymentResponse();
     while (reader.pos < end) {
@@ -858,18 +952,22 @@ export const ProcessPaymentResponse: MessageFns<ProcessPaymentResponse> = {
 
   fromJSON(object: any): ProcessPaymentResponse {
     return {
-      sender: isSet(object.sender) ? Buffer.from(bytesFromBase64(object.sender)) : Buffer.alloc(0),
+      sender: isSet(object.sender)
+        ? Buffer.from(bytesFromBase64(object.sender))
+        : Buffer.alloc(0),
       creditedEv: isSet(object.creditedEv)
         ? Buffer.from(bytesFromBase64(object.creditedEv))
         : isSet(object.credited_ev)
-        ? Buffer.from(bytesFromBase64(object.credited_ev))
+          ? Buffer.from(bytesFromBase64(object.credited_ev))
+          : Buffer.alloc(0),
+      balance: isSet(object.balance)
+        ? Buffer.from(bytesFromBase64(object.balance))
         : Buffer.alloc(0),
-      balance: isSet(object.balance) ? Buffer.from(bytesFromBase64(object.balance)) : Buffer.alloc(0),
       winnersQueued: isSet(object.winnersQueued)
         ? globalThis.Number(object.winnersQueued)
         : isSet(object.winners_queued)
-        ? globalThis.Number(object.winners_queued)
-        : 0,
+          ? globalThis.Number(object.winners_queued)
+          : 0,
     };
   },
 
@@ -890,10 +988,14 @@ export const ProcessPaymentResponse: MessageFns<ProcessPaymentResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ProcessPaymentResponse>, I>>(base?: I): ProcessPaymentResponse {
+  create<I extends Exact<DeepPartial<ProcessPaymentResponse>, I>>(
+    base?: I,
+  ): ProcessPaymentResponse {
     return ProcessPaymentResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ProcessPaymentResponse>, I>>(object: I): ProcessPaymentResponse {
+  fromPartial<I extends Exact<DeepPartial<ProcessPaymentResponse>, I>>(
+    object: I,
+  ): ProcessPaymentResponse {
     const message = createBaseProcessPaymentResponse();
     message.sender = object.sender ?? Buffer.alloc(0);
     message.creditedEv = object.creditedEv ?? Buffer.alloc(0);
@@ -908,7 +1010,10 @@ function createBaseDebitBalanceRequest(): DebitBalanceRequest {
 }
 
 export const DebitBalanceRequest: MessageFns<DebitBalanceRequest> = {
-  encode(message: DebitBalanceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: DebitBalanceRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.sender.length !== 0) {
       writer.uint32(10).bytes(message.sender);
     }
@@ -917,15 +1022,21 @@ export const DebitBalanceRequest: MessageFns<DebitBalanceRequest> = {
     }
     if (message.workUnits !== 0n) {
       if (BigInt.asIntN(64, message.workUnits) !== message.workUnits) {
-        throw new globalThis.Error("value provided for field message.workUnits of type int64 too large");
+        throw new globalThis.Error(
+          "value provided for field message.workUnits of type int64 too large",
+        );
       }
       writer.uint32(24).int64(message.workUnits);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DebitBalanceRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): DebitBalanceRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDebitBalanceRequest();
     while (reader.pos < end) {
@@ -966,17 +1077,19 @@ export const DebitBalanceRequest: MessageFns<DebitBalanceRequest> = {
 
   fromJSON(object: any): DebitBalanceRequest {
     return {
-      sender: isSet(object.sender) ? Buffer.from(bytesFromBase64(object.sender)) : Buffer.alloc(0),
+      sender: isSet(object.sender)
+        ? Buffer.from(bytesFromBase64(object.sender))
+        : Buffer.alloc(0),
       workId: isSet(object.workId)
         ? globalThis.String(object.workId)
         : isSet(object.work_id)
-        ? globalThis.String(object.work_id)
-        : "",
+          ? globalThis.String(object.work_id)
+          : "",
       workUnits: isSet(object.workUnits)
         ? BigInt(object.workUnits)
         : isSet(object.work_units)
-        ? BigInt(object.work_units)
-        : 0n,
+          ? BigInt(object.work_units)
+          : 0n,
     };
   },
 
@@ -994,10 +1107,14 @@ export const DebitBalanceRequest: MessageFns<DebitBalanceRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<DebitBalanceRequest>, I>>(base?: I): DebitBalanceRequest {
+  create<I extends Exact<DeepPartial<DebitBalanceRequest>, I>>(
+    base?: I,
+  ): DebitBalanceRequest {
     return DebitBalanceRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DebitBalanceRequest>, I>>(object: I): DebitBalanceRequest {
+  fromPartial<I extends Exact<DeepPartial<DebitBalanceRequest>, I>>(
+    object: I,
+  ): DebitBalanceRequest {
     const message = createBaseDebitBalanceRequest();
     message.sender = object.sender ?? Buffer.alloc(0);
     message.workId = object.workId ?? "";
@@ -1011,15 +1128,22 @@ function createBaseDebitBalanceResponse(): DebitBalanceResponse {
 }
 
 export const DebitBalanceResponse: MessageFns<DebitBalanceResponse> = {
-  encode(message: DebitBalanceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: DebitBalanceResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.balance.length !== 0) {
       writer.uint32(10).bytes(message.balance);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DebitBalanceResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): DebitBalanceResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseDebitBalanceResponse();
     while (reader.pos < end) {
@@ -1043,7 +1167,11 @@ export const DebitBalanceResponse: MessageFns<DebitBalanceResponse> = {
   },
 
   fromJSON(object: any): DebitBalanceResponse {
-    return { balance: isSet(object.balance) ? Buffer.from(bytesFromBase64(object.balance)) : Buffer.alloc(0) };
+    return {
+      balance: isSet(object.balance)
+        ? Buffer.from(bytesFromBase64(object.balance))
+        : Buffer.alloc(0),
+    };
   },
 
   toJSON(message: DebitBalanceResponse): unknown {
@@ -1054,10 +1182,14 @@ export const DebitBalanceResponse: MessageFns<DebitBalanceResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<DebitBalanceResponse>, I>>(base?: I): DebitBalanceResponse {
+  create<I extends Exact<DeepPartial<DebitBalanceResponse>, I>>(
+    base?: I,
+  ): DebitBalanceResponse {
     return DebitBalanceResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DebitBalanceResponse>, I>>(object: I): DebitBalanceResponse {
+  fromPartial<I extends Exact<DeepPartial<DebitBalanceResponse>, I>>(
+    object: I,
+  ): DebitBalanceResponse {
     const message = createBaseDebitBalanceResponse();
     message.balance = object.balance ?? Buffer.alloc(0);
     return message;
@@ -1069,7 +1201,10 @@ function createBaseSufficientBalanceRequest(): SufficientBalanceRequest {
 }
 
 export const SufficientBalanceRequest: MessageFns<SufficientBalanceRequest> = {
-  encode(message: SufficientBalanceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: SufficientBalanceRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.sender.length !== 0) {
       writer.uint32(10).bytes(message.sender);
     }
@@ -1078,15 +1213,21 @@ export const SufficientBalanceRequest: MessageFns<SufficientBalanceRequest> = {
     }
     if (message.minWorkUnits !== 0n) {
       if (BigInt.asIntN(64, message.minWorkUnits) !== message.minWorkUnits) {
-        throw new globalThis.Error("value provided for field message.minWorkUnits of type int64 too large");
+        throw new globalThis.Error(
+          "value provided for field message.minWorkUnits of type int64 too large",
+        );
       }
       writer.uint32(24).int64(message.minWorkUnits);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SufficientBalanceRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): SufficientBalanceRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseSufficientBalanceRequest();
     while (reader.pos < end) {
@@ -1127,17 +1268,19 @@ export const SufficientBalanceRequest: MessageFns<SufficientBalanceRequest> = {
 
   fromJSON(object: any): SufficientBalanceRequest {
     return {
-      sender: isSet(object.sender) ? Buffer.from(bytesFromBase64(object.sender)) : Buffer.alloc(0),
+      sender: isSet(object.sender)
+        ? Buffer.from(bytesFromBase64(object.sender))
+        : Buffer.alloc(0),
       workId: isSet(object.workId)
         ? globalThis.String(object.workId)
         : isSet(object.work_id)
-        ? globalThis.String(object.work_id)
-        : "",
+          ? globalThis.String(object.work_id)
+          : "",
       minWorkUnits: isSet(object.minWorkUnits)
         ? BigInt(object.minWorkUnits)
         : isSet(object.min_work_units)
-        ? BigInt(object.min_work_units)
-        : 0n,
+          ? BigInt(object.min_work_units)
+          : 0n,
     };
   },
 
@@ -1155,10 +1298,14 @@ export const SufficientBalanceRequest: MessageFns<SufficientBalanceRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SufficientBalanceRequest>, I>>(base?: I): SufficientBalanceRequest {
+  create<I extends Exact<DeepPartial<SufficientBalanceRequest>, I>>(
+    base?: I,
+  ): SufficientBalanceRequest {
     return SufficientBalanceRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SufficientBalanceRequest>, I>>(object: I): SufficientBalanceRequest {
+  fromPartial<I extends Exact<DeepPartial<SufficientBalanceRequest>, I>>(
+    object: I,
+  ): SufficientBalanceRequest {
     const message = createBaseSufficientBalanceRequest();
     message.sender = object.sender ?? Buffer.alloc(0);
     message.workId = object.workId ?? "";
@@ -1171,84 +1318,103 @@ function createBaseSufficientBalanceResponse(): SufficientBalanceResponse {
   return { sufficient: false, balance: Buffer.alloc(0) };
 }
 
-export const SufficientBalanceResponse: MessageFns<SufficientBalanceResponse> = {
-  encode(message: SufficientBalanceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.sufficient !== false) {
-      writer.uint32(8).bool(message.sufficient);
-    }
-    if (message.balance.length !== 0) {
-      writer.uint32(18).bytes(message.balance);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): SufficientBalanceResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSufficientBalanceResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.sufficient = reader.bool();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.balance = Buffer.from(reader.bytes());
-          continue;
-        }
+export const SufficientBalanceResponse: MessageFns<SufficientBalanceResponse> =
+  {
+    encode(
+      message: SufficientBalanceResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.sufficient !== false) {
+        writer.uint32(8).bool(message.sufficient);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.balance.length !== 0) {
+        writer.uint32(18).bytes(message.balance);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return writer;
+    },
 
-  fromJSON(object: any): SufficientBalanceResponse {
-    return {
-      sufficient: isSet(object.sufficient) ? globalThis.Boolean(object.sufficient) : false,
-      balance: isSet(object.balance) ? Buffer.from(bytesFromBase64(object.balance)) : Buffer.alloc(0),
-    };
-  },
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): SufficientBalanceResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSufficientBalanceResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
 
-  toJSON(message: SufficientBalanceResponse): unknown {
-    const obj: any = {};
-    if (message.sufficient !== false) {
-      obj.sufficient = message.sufficient;
-    }
-    if (message.balance.length !== 0) {
-      obj.balance = base64FromBytes(message.balance);
-    }
-    return obj;
-  },
+            message.sufficient = reader.bool();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
 
-  create<I extends Exact<DeepPartial<SufficientBalanceResponse>, I>>(base?: I): SufficientBalanceResponse {
-    return SufficientBalanceResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<SufficientBalanceResponse>, I>>(object: I): SufficientBalanceResponse {
-    const message = createBaseSufficientBalanceResponse();
-    message.sufficient = object.sufficient ?? false;
-    message.balance = object.balance ?? Buffer.alloc(0);
-    return message;
-  },
-};
+            message.balance = Buffer.from(reader.bytes());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): SufficientBalanceResponse {
+      return {
+        sufficient: isSet(object.sufficient)
+          ? globalThis.Boolean(object.sufficient)
+          : false,
+        balance: isSet(object.balance)
+          ? Buffer.from(bytesFromBase64(object.balance))
+          : Buffer.alloc(0),
+      };
+    },
+
+    toJSON(message: SufficientBalanceResponse): unknown {
+      const obj: any = {};
+      if (message.sufficient !== false) {
+        obj.sufficient = message.sufficient;
+      }
+      if (message.balance.length !== 0) {
+        obj.balance = base64FromBytes(message.balance);
+      }
+      return obj;
+    },
+
+    create<I extends Exact<DeepPartial<SufficientBalanceResponse>, I>>(
+      base?: I,
+    ): SufficientBalanceResponse {
+      return SufficientBalanceResponse.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<SufficientBalanceResponse>, I>>(
+      object: I,
+    ): SufficientBalanceResponse {
+      const message = createBaseSufficientBalanceResponse();
+      message.sufficient = object.sufficient ?? false;
+      message.balance = object.balance ?? Buffer.alloc(0);
+      return message;
+    },
+  };
 
 function createBaseGetBalanceRequest(): GetBalanceRequest {
   return { sender: Buffer.alloc(0), workId: "" };
 }
 
 export const GetBalanceRequest: MessageFns<GetBalanceRequest> = {
-  encode(message: GetBalanceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetBalanceRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.sender.length !== 0) {
       writer.uint32(10).bytes(message.sender);
     }
@@ -1259,7 +1425,8 @@ export const GetBalanceRequest: MessageFns<GetBalanceRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GetBalanceRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetBalanceRequest();
     while (reader.pos < end) {
@@ -1292,12 +1459,14 @@ export const GetBalanceRequest: MessageFns<GetBalanceRequest> = {
 
   fromJSON(object: any): GetBalanceRequest {
     return {
-      sender: isSet(object.sender) ? Buffer.from(bytesFromBase64(object.sender)) : Buffer.alloc(0),
+      sender: isSet(object.sender)
+        ? Buffer.from(bytesFromBase64(object.sender))
+        : Buffer.alloc(0),
       workId: isSet(object.workId)
         ? globalThis.String(object.workId)
         : isSet(object.work_id)
-        ? globalThis.String(object.work_id)
-        : "",
+          ? globalThis.String(object.work_id)
+          : "",
     };
   },
 
@@ -1312,10 +1481,14 @@ export const GetBalanceRequest: MessageFns<GetBalanceRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetBalanceRequest>, I>>(base?: I): GetBalanceRequest {
+  create<I extends Exact<DeepPartial<GetBalanceRequest>, I>>(
+    base?: I,
+  ): GetBalanceRequest {
     return GetBalanceRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetBalanceRequest>, I>>(object: I): GetBalanceRequest {
+  fromPartial<I extends Exact<DeepPartial<GetBalanceRequest>, I>>(
+    object: I,
+  ): GetBalanceRequest {
     const message = createBaseGetBalanceRequest();
     message.sender = object.sender ?? Buffer.alloc(0);
     message.workId = object.workId ?? "";
@@ -1328,15 +1501,22 @@ function createBaseGetBalanceResponse(): GetBalanceResponse {
 }
 
 export const GetBalanceResponse: MessageFns<GetBalanceResponse> = {
-  encode(message: GetBalanceResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetBalanceResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.balance.length !== 0) {
       writer.uint32(10).bytes(message.balance);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetBalanceResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetBalanceResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetBalanceResponse();
     while (reader.pos < end) {
@@ -1360,7 +1540,11 @@ export const GetBalanceResponse: MessageFns<GetBalanceResponse> = {
   },
 
   fromJSON(object: any): GetBalanceResponse {
-    return { balance: isSet(object.balance) ? Buffer.from(bytesFromBase64(object.balance)) : Buffer.alloc(0) };
+    return {
+      balance: isSet(object.balance)
+        ? Buffer.from(bytesFromBase64(object.balance))
+        : Buffer.alloc(0),
+    };
   },
 
   toJSON(message: GetBalanceResponse): unknown {
@@ -1371,10 +1555,14 @@ export const GetBalanceResponse: MessageFns<GetBalanceResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetBalanceResponse>, I>>(base?: I): GetBalanceResponse {
+  create<I extends Exact<DeepPartial<GetBalanceResponse>, I>>(
+    base?: I,
+  ): GetBalanceResponse {
     return GetBalanceResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetBalanceResponse>, I>>(object: I): GetBalanceResponse {
+  fromPartial<I extends Exact<DeepPartial<GetBalanceResponse>, I>>(
+    object: I,
+  ): GetBalanceResponse {
     const message = createBaseGetBalanceResponse();
     message.balance = object.balance ?? Buffer.alloc(0);
     return message;
@@ -1385,253 +1573,304 @@ function createBasePayeeDaemonCloseSessionRequest(): PayeeDaemonCloseSessionRequ
   return { sender: Buffer.alloc(0), workId: "" };
 }
 
-export const PayeeDaemonCloseSessionRequest: MessageFns<PayeeDaemonCloseSessionRequest> = {
-  encode(message: PayeeDaemonCloseSessionRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.sender.length !== 0) {
-      writer.uint32(10).bytes(message.sender);
-    }
-    if (message.workId !== "") {
-      writer.uint32(18).string(message.workId);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): PayeeDaemonCloseSessionRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePayeeDaemonCloseSessionRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.sender = Buffer.from(reader.bytes());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.workId = reader.string();
-          continue;
-        }
+export const PayeeDaemonCloseSessionRequest: MessageFns<PayeeDaemonCloseSessionRequest> =
+  {
+    encode(
+      message: PayeeDaemonCloseSessionRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.sender.length !== 0) {
+        writer.uint32(10).bytes(message.sender);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.workId !== "") {
+        writer.uint32(18).string(message.workId);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return writer;
+    },
 
-  fromJSON(object: any): PayeeDaemonCloseSessionRequest {
-    return {
-      sender: isSet(object.sender) ? Buffer.from(bytesFromBase64(object.sender)) : Buffer.alloc(0),
-      workId: isSet(object.workId)
-        ? globalThis.String(object.workId)
-        : isSet(object.work_id)
-        ? globalThis.String(object.work_id)
-        : "",
-    };
-  },
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): PayeeDaemonCloseSessionRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePayeeDaemonCloseSessionRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
 
-  toJSON(message: PayeeDaemonCloseSessionRequest): unknown {
-    const obj: any = {};
-    if (message.sender.length !== 0) {
-      obj.sender = base64FromBytes(message.sender);
-    }
-    if (message.workId !== "") {
-      obj.workId = message.workId;
-    }
-    return obj;
-  },
+            message.sender = Buffer.from(reader.bytes());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
 
-  create<I extends Exact<DeepPartial<PayeeDaemonCloseSessionRequest>, I>>(base?: I): PayeeDaemonCloseSessionRequest {
-    return PayeeDaemonCloseSessionRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<PayeeDaemonCloseSessionRequest>, I>>(
-    object: I,
-  ): PayeeDaemonCloseSessionRequest {
-    const message = createBasePayeeDaemonCloseSessionRequest();
-    message.sender = object.sender ?? Buffer.alloc(0);
-    message.workId = object.workId ?? "";
-    return message;
-  },
-};
+            message.workId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): PayeeDaemonCloseSessionRequest {
+      return {
+        sender: isSet(object.sender)
+          ? Buffer.from(bytesFromBase64(object.sender))
+          : Buffer.alloc(0),
+        workId: isSet(object.workId)
+          ? globalThis.String(object.workId)
+          : isSet(object.work_id)
+            ? globalThis.String(object.work_id)
+            : "",
+      };
+    },
+
+    toJSON(message: PayeeDaemonCloseSessionRequest): unknown {
+      const obj: any = {};
+      if (message.sender.length !== 0) {
+        obj.sender = base64FromBytes(message.sender);
+      }
+      if (message.workId !== "") {
+        obj.workId = message.workId;
+      }
+      return obj;
+    },
+
+    create<I extends Exact<DeepPartial<PayeeDaemonCloseSessionRequest>, I>>(
+      base?: I,
+    ): PayeeDaemonCloseSessionRequest {
+      return PayeeDaemonCloseSessionRequest.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<
+      I extends Exact<DeepPartial<PayeeDaemonCloseSessionRequest>, I>,
+    >(object: I): PayeeDaemonCloseSessionRequest {
+      const message = createBasePayeeDaemonCloseSessionRequest();
+      message.sender = object.sender ?? Buffer.alloc(0);
+      message.workId = object.workId ?? "";
+      return message;
+    },
+  };
 
 function createBasePayeeDaemonCloseSessionResponse(): PayeeDaemonCloseSessionResponse {
   return {};
 }
 
-export const PayeeDaemonCloseSessionResponse: MessageFns<PayeeDaemonCloseSessionResponse> = {
-  encode(_: PayeeDaemonCloseSessionResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    return writer;
-  },
+export const PayeeDaemonCloseSessionResponse: MessageFns<PayeeDaemonCloseSessionResponse> =
+  {
+    encode(
+      _: PayeeDaemonCloseSessionResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PayeeDaemonCloseSessionResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePayeeDaemonCloseSessionResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): PayeeDaemonCloseSessionResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePayeeDaemonCloseSessionResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return message;
+    },
 
-  fromJSON(_: any): PayeeDaemonCloseSessionResponse {
-    return {};
-  },
+    fromJSON(_: any): PayeeDaemonCloseSessionResponse {
+      return {};
+    },
 
-  toJSON(_: PayeeDaemonCloseSessionResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
+    toJSON(_: PayeeDaemonCloseSessionResponse): unknown {
+      const obj: any = {};
+      return obj;
+    },
 
-  create<I extends Exact<DeepPartial<PayeeDaemonCloseSessionResponse>, I>>(base?: I): PayeeDaemonCloseSessionResponse {
-    return PayeeDaemonCloseSessionResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<PayeeDaemonCloseSessionResponse>, I>>(_: I): PayeeDaemonCloseSessionResponse {
-    const message = createBasePayeeDaemonCloseSessionResponse();
-    return message;
-  },
-};
+    create<I extends Exact<DeepPartial<PayeeDaemonCloseSessionResponse>, I>>(
+      base?: I,
+    ): PayeeDaemonCloseSessionResponse {
+      return PayeeDaemonCloseSessionResponse.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<
+      I extends Exact<DeepPartial<PayeeDaemonCloseSessionResponse>, I>,
+    >(_: I): PayeeDaemonCloseSessionResponse {
+      const message = createBasePayeeDaemonCloseSessionResponse();
+      return message;
+    },
+  };
 
 function createBaseListPendingRedemptionsRequest(): ListPendingRedemptionsRequest {
   return { since: 0n };
 }
 
-export const ListPendingRedemptionsRequest: MessageFns<ListPendingRedemptionsRequest> = {
-  encode(message: ListPendingRedemptionsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.since !== 0n) {
-      if (BigInt.asIntN(64, message.since) !== message.since) {
-        throw new globalThis.Error("value provided for field message.since of type int64 too large");
-      }
-      writer.uint32(8).int64(message.since);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ListPendingRedemptionsRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseListPendingRedemptionsRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.since = reader.int64() as bigint;
-          continue;
+export const ListPendingRedemptionsRequest: MessageFns<ListPendingRedemptionsRequest> =
+  {
+    encode(
+      message: ListPendingRedemptionsRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.since !== 0n) {
+        if (BigInt.asIntN(64, message.since) !== message.since) {
+          throw new globalThis.Error(
+            "value provided for field message.since of type int64 too large",
+          );
         }
+        writer.uint32(8).int64(message.since);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): ListPendingRedemptionsRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListPendingRedemptionsRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.since = reader.int64() as bigint;
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return message;
+    },
 
-  fromJSON(object: any): ListPendingRedemptionsRequest {
-    return { since: isSet(object.since) ? BigInt(object.since) : 0n };
-  },
+    fromJSON(object: any): ListPendingRedemptionsRequest {
+      return { since: isSet(object.since) ? BigInt(object.since) : 0n };
+    },
 
-  toJSON(message: ListPendingRedemptionsRequest): unknown {
-    const obj: any = {};
-    if (message.since !== 0n) {
-      obj.since = message.since.toString();
-    }
-    return obj;
-  },
+    toJSON(message: ListPendingRedemptionsRequest): unknown {
+      const obj: any = {};
+      if (message.since !== 0n) {
+        obj.since = message.since.toString();
+      }
+      return obj;
+    },
 
-  create<I extends Exact<DeepPartial<ListPendingRedemptionsRequest>, I>>(base?: I): ListPendingRedemptionsRequest {
-    return ListPendingRedemptionsRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<ListPendingRedemptionsRequest>, I>>(
-    object: I,
-  ): ListPendingRedemptionsRequest {
-    const message = createBaseListPendingRedemptionsRequest();
-    message.since = object.since ?? 0n;
-    return message;
-  },
-};
+    create<I extends Exact<DeepPartial<ListPendingRedemptionsRequest>, I>>(
+      base?: I,
+    ): ListPendingRedemptionsRequest {
+      return ListPendingRedemptionsRequest.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<ListPendingRedemptionsRequest>, I>>(
+      object: I,
+    ): ListPendingRedemptionsRequest {
+      const message = createBaseListPendingRedemptionsRequest();
+      message.since = object.since ?? 0n;
+      return message;
+    },
+  };
 
 function createBaseListPendingRedemptionsResponse(): ListPendingRedemptionsResponse {
   return { redemptions: [] };
 }
 
-export const ListPendingRedemptionsResponse: MessageFns<ListPendingRedemptionsResponse> = {
-  encode(message: ListPendingRedemptionsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.redemptions) {
-      PendingRedemption.encode(v!, writer.uint32(10).fork()).join();
-    }
-    return writer;
-  },
+export const ListPendingRedemptionsResponse: MessageFns<ListPendingRedemptionsResponse> =
+  {
+    encode(
+      message: ListPendingRedemptionsResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      for (const v of message.redemptions) {
+        PendingRedemption.encode(v!, writer.uint32(10).fork()).join();
+      }
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListPendingRedemptionsResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseListPendingRedemptionsResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): ListPendingRedemptionsResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListPendingRedemptionsResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.redemptions.push(
+              PendingRedemption.decode(reader, reader.uint32()),
+            );
+            continue;
           }
-
-          message.redemptions.push(PendingRedemption.decode(reader, reader.uint32()));
-          continue;
         }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      return message;
+    },
+
+    fromJSON(object: any): ListPendingRedemptionsResponse {
+      return {
+        redemptions: globalThis.Array.isArray(object?.redemptions)
+          ? object.redemptions.map((e: any) => PendingRedemption.fromJSON(e))
+          : [],
+      };
+    },
+
+    toJSON(message: ListPendingRedemptionsResponse): unknown {
+      const obj: any = {};
+      if (message.redemptions?.length) {
+        obj.redemptions = message.redemptions.map((e) =>
+          PendingRedemption.toJSON(e),
+        );
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return obj;
+    },
 
-  fromJSON(object: any): ListPendingRedemptionsResponse {
-    return {
-      redemptions: globalThis.Array.isArray(object?.redemptions)
-        ? object.redemptions.map((e: any) => PendingRedemption.fromJSON(e))
-        : [],
-    };
-  },
-
-  toJSON(message: ListPendingRedemptionsResponse): unknown {
-    const obj: any = {};
-    if (message.redemptions?.length) {
-      obj.redemptions = message.redemptions.map((e) => PendingRedemption.toJSON(e));
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<ListPendingRedemptionsResponse>, I>>(base?: I): ListPendingRedemptionsResponse {
-    return ListPendingRedemptionsResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<ListPendingRedemptionsResponse>, I>>(
-    object: I,
-  ): ListPendingRedemptionsResponse {
-    const message = createBaseListPendingRedemptionsResponse();
-    message.redemptions = object.redemptions?.map((e) => PendingRedemption.fromPartial(e)) || [];
-    return message;
-  },
-};
+    create<I extends Exact<DeepPartial<ListPendingRedemptionsResponse>, I>>(
+      base?: I,
+    ): ListPendingRedemptionsResponse {
+      return ListPendingRedemptionsResponse.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<
+      I extends Exact<DeepPartial<ListPendingRedemptionsResponse>, I>,
+    >(object: I): ListPendingRedemptionsResponse {
+      const message = createBaseListPendingRedemptionsResponse();
+      message.redemptions =
+        object.redemptions?.map((e) => PendingRedemption.fromPartial(e)) || [];
+      return message;
+    },
+  };
 
 function createBasePendingRedemption(): PendingRedemption {
   return {
@@ -1644,7 +1883,10 @@ function createBasePendingRedemption(): PendingRedemption {
 }
 
 export const PendingRedemption: MessageFns<PendingRedemption> = {
-  encode(message: PendingRedemption, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: PendingRedemption,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.ticketHash.length !== 0) {
       writer.uint32(10).bytes(message.ticketHash);
     }
@@ -1656,7 +1898,9 @@ export const PendingRedemption: MessageFns<PendingRedemption> = {
     }
     if (message.queuedAt !== 0n) {
       if (BigInt.asIntN(64, message.queuedAt) !== message.queuedAt) {
-        throw new globalThis.Error("value provided for field message.queuedAt of type int64 too large");
+        throw new globalThis.Error(
+          "value provided for field message.queuedAt of type int64 too large",
+        );
       }
       writer.uint32(32).int64(message.queuedAt);
     }
@@ -1667,7 +1911,8 @@ export const PendingRedemption: MessageFns<PendingRedemption> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): PendingRedemption {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBasePendingRedemption();
     while (reader.pos < end) {
@@ -1727,19 +1972,21 @@ export const PendingRedemption: MessageFns<PendingRedemption> = {
       ticketHash: isSet(object.ticketHash)
         ? Buffer.from(bytesFromBase64(object.ticketHash))
         : isSet(object.ticket_hash)
-        ? Buffer.from(bytesFromBase64(object.ticket_hash))
+          ? Buffer.from(bytesFromBase64(object.ticket_hash))
+          : Buffer.alloc(0),
+      sender: isSet(object.sender)
+        ? Buffer.from(bytesFromBase64(object.sender))
         : Buffer.alloc(0),
-      sender: isSet(object.sender) ? Buffer.from(bytesFromBase64(object.sender)) : Buffer.alloc(0),
       faceValue: isSet(object.faceValue)
         ? Buffer.from(bytesFromBase64(object.faceValue))
         : isSet(object.face_value)
-        ? Buffer.from(bytesFromBase64(object.face_value))
-        : Buffer.alloc(0),
+          ? Buffer.from(bytesFromBase64(object.face_value))
+          : Buffer.alloc(0),
       queuedAt: isSet(object.queuedAt)
         ? BigInt(object.queuedAt)
         : isSet(object.queued_at)
-        ? BigInt(object.queued_at)
-        : 0n,
+          ? BigInt(object.queued_at)
+          : 0n,
       attempts: isSet(object.attempts) ? globalThis.Number(object.attempts) : 0,
     };
   },
@@ -1764,10 +2011,14 @@ export const PendingRedemption: MessageFns<PendingRedemption> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<PendingRedemption>, I>>(base?: I): PendingRedemption {
+  create<I extends Exact<DeepPartial<PendingRedemption>, I>>(
+    base?: I,
+  ): PendingRedemption {
     return PendingRedemption.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PendingRedemption>, I>>(object: I): PendingRedemption {
+  fromPartial<I extends Exact<DeepPartial<PendingRedemption>, I>>(
+    object: I,
+  ): PendingRedemption {
     const message = createBasePendingRedemption();
     message.ticketHash = object.ticketHash ?? Buffer.alloc(0);
     message.sender = object.sender ?? Buffer.alloc(0);
@@ -1782,161 +2033,187 @@ function createBaseGetRedemptionStatusRequest(): GetRedemptionStatusRequest {
   return { ticketHash: Buffer.alloc(0) };
 }
 
-export const GetRedemptionStatusRequest: MessageFns<GetRedemptionStatusRequest> = {
-  encode(message: GetRedemptionStatusRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.ticketHash.length !== 0) {
-      writer.uint32(10).bytes(message.ticketHash);
-    }
-    return writer;
-  },
+export const GetRedemptionStatusRequest: MessageFns<GetRedemptionStatusRequest> =
+  {
+    encode(
+      message: GetRedemptionStatusRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.ticketHash.length !== 0) {
+        writer.uint32(10).bytes(message.ticketHash);
+      }
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetRedemptionStatusRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetRedemptionStatusRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetRedemptionStatusRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetRedemptionStatusRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.ticketHash = Buffer.from(reader.bytes());
+            continue;
           }
-
-          message.ticketHash = Buffer.from(reader.bytes());
-          continue;
         }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      return message;
+    },
+
+    fromJSON(object: any): GetRedemptionStatusRequest {
+      return {
+        ticketHash: isSet(object.ticketHash)
+          ? Buffer.from(bytesFromBase64(object.ticketHash))
+          : isSet(object.ticket_hash)
+            ? Buffer.from(bytesFromBase64(object.ticket_hash))
+            : Buffer.alloc(0),
+      };
+    },
+
+    toJSON(message: GetRedemptionStatusRequest): unknown {
+      const obj: any = {};
+      if (message.ticketHash.length !== 0) {
+        obj.ticketHash = base64FromBytes(message.ticketHash);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return obj;
+    },
 
-  fromJSON(object: any): GetRedemptionStatusRequest {
-    return {
-      ticketHash: isSet(object.ticketHash)
-        ? Buffer.from(bytesFromBase64(object.ticketHash))
-        : isSet(object.ticket_hash)
-        ? Buffer.from(bytesFromBase64(object.ticket_hash))
-        : Buffer.alloc(0),
-    };
-  },
-
-  toJSON(message: GetRedemptionStatusRequest): unknown {
-    const obj: any = {};
-    if (message.ticketHash.length !== 0) {
-      obj.ticketHash = base64FromBytes(message.ticketHash);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<GetRedemptionStatusRequest>, I>>(base?: I): GetRedemptionStatusRequest {
-    return GetRedemptionStatusRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<GetRedemptionStatusRequest>, I>>(object: I): GetRedemptionStatusRequest {
-    const message = createBaseGetRedemptionStatusRequest();
-    message.ticketHash = object.ticketHash ?? Buffer.alloc(0);
-    return message;
-  },
-};
+    create<I extends Exact<DeepPartial<GetRedemptionStatusRequest>, I>>(
+      base?: I,
+    ): GetRedemptionStatusRequest {
+      return GetRedemptionStatusRequest.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<GetRedemptionStatusRequest>, I>>(
+      object: I,
+    ): GetRedemptionStatusRequest {
+      const message = createBaseGetRedemptionStatusRequest();
+      message.ticketHash = object.ticketHash ?? Buffer.alloc(0);
+      return message;
+    },
+  };
 
 function createBaseGetRedemptionStatusResponse(): GetRedemptionStatusResponse {
   return { status: 0, txHash: Buffer.alloc(0), error: "" };
 }
 
-export const GetRedemptionStatusResponse: MessageFns<GetRedemptionStatusResponse> = {
-  encode(message: GetRedemptionStatusResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.status !== 0) {
-      writer.uint32(8).int32(message.status);
-    }
-    if (message.txHash.length !== 0) {
-      writer.uint32(18).bytes(message.txHash);
-    }
-    if (message.error !== "") {
-      writer.uint32(26).string(message.error);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetRedemptionStatusResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetRedemptionStatusResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.status = reader.int32() as any;
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.txHash = Buffer.from(reader.bytes());
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.error = reader.string();
-          continue;
-        }
+export const GetRedemptionStatusResponse: MessageFns<GetRedemptionStatusResponse> =
+  {
+    encode(
+      message: GetRedemptionStatusResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.status !== 0) {
+        writer.uint32(8).int32(message.status);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.txHash.length !== 0) {
+        writer.uint32(18).bytes(message.txHash);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      if (message.error !== "") {
+        writer.uint32(26).string(message.error);
+      }
+      return writer;
+    },
 
-  fromJSON(object: any): GetRedemptionStatusResponse {
-    return {
-      status: isSet(object.status) ? getRedemptionStatusResponse_StatusFromJSON(object.status) : 0,
-      txHash: isSet(object.txHash)
-        ? Buffer.from(bytesFromBase64(object.txHash))
-        : isSet(object.tx_hash)
-        ? Buffer.from(bytesFromBase64(object.tx_hash))
-        : Buffer.alloc(0),
-      error: isSet(object.error) ? globalThis.String(object.error) : "",
-    };
-  },
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): GetRedemptionStatusResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetRedemptionStatusResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
 
-  toJSON(message: GetRedemptionStatusResponse): unknown {
-    const obj: any = {};
-    if (message.status !== 0) {
-      obj.status = getRedemptionStatusResponse_StatusToJSON(message.status);
-    }
-    if (message.txHash.length !== 0) {
-      obj.txHash = base64FromBytes(message.txHash);
-    }
-    if (message.error !== "") {
-      obj.error = message.error;
-    }
-    return obj;
-  },
+            message.status = reader.int32() as any;
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
 
-  create<I extends Exact<DeepPartial<GetRedemptionStatusResponse>, I>>(base?: I): GetRedemptionStatusResponse {
-    return GetRedemptionStatusResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<GetRedemptionStatusResponse>, I>>(object: I): GetRedemptionStatusResponse {
-    const message = createBaseGetRedemptionStatusResponse();
-    message.status = object.status ?? 0;
-    message.txHash = object.txHash ?? Buffer.alloc(0);
-    message.error = object.error ?? "";
-    return message;
-  },
-};
+            message.txHash = Buffer.from(reader.bytes());
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.error = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): GetRedemptionStatusResponse {
+      return {
+        status: isSet(object.status)
+          ? getRedemptionStatusResponse_StatusFromJSON(object.status)
+          : 0,
+        txHash: isSet(object.txHash)
+          ? Buffer.from(bytesFromBase64(object.txHash))
+          : isSet(object.tx_hash)
+            ? Buffer.from(bytesFromBase64(object.tx_hash))
+            : Buffer.alloc(0),
+        error: isSet(object.error) ? globalThis.String(object.error) : "",
+      };
+    },
+
+    toJSON(message: GetRedemptionStatusResponse): unknown {
+      const obj: any = {};
+      if (message.status !== 0) {
+        obj.status = getRedemptionStatusResponse_StatusToJSON(message.status);
+      }
+      if (message.txHash.length !== 0) {
+        obj.txHash = base64FromBytes(message.txHash);
+      }
+      if (message.error !== "") {
+        obj.error = message.error;
+      }
+      return obj;
+    },
+
+    create<I extends Exact<DeepPartial<GetRedemptionStatusResponse>, I>>(
+      base?: I,
+    ): GetRedemptionStatusResponse {
+      return GetRedemptionStatusResponse.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<GetRedemptionStatusResponse>, I>>(
+      object: I,
+    ): GetRedemptionStatusResponse {
+      const message = createBaseGetRedemptionStatusResponse();
+      message.status = object.status ?? 0;
+      message.txHash = object.txHash ?? Buffer.alloc(0);
+      message.error = object.error ?? "";
+      return message;
+    },
+  };
 
 export type PayeeDaemonService = typeof PayeeDaemonService;
 export const PayeeDaemonService = {
@@ -1951,10 +2228,14 @@ export const PayeeDaemonService = {
     path: "/livepeer.payments.v1.PayeeDaemon/GetQuote" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: GetQuoteRequest): Buffer => Buffer.from(GetQuoteRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetQuoteRequest => GetQuoteRequest.decode(value),
-    responseSerialize: (value: GetQuoteResponse): Buffer => Buffer.from(GetQuoteResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetQuoteResponse => GetQuoteResponse.decode(value),
+    requestSerialize: (value: GetQuoteRequest): Buffer =>
+      Buffer.from(GetQuoteRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetQuoteRequest =>
+      GetQuoteRequest.decode(value),
+    responseSerialize: (value: GetQuoteResponse): Buffer =>
+      Buffer.from(GetQuoteResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetQuoteResponse =>
+      GetQuoteResponse.decode(value),
   },
   /**
    * Return the daemon's full configured capability catalog. Drives the
@@ -1966,10 +2247,12 @@ export const PayeeDaemonService = {
     responseStream: false as const,
     requestSerialize: (value: ListCapabilitiesRequest): Buffer =>
       Buffer.from(ListCapabilitiesRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ListCapabilitiesRequest => ListCapabilitiesRequest.decode(value),
+    requestDeserialize: (value: Buffer): ListCapabilitiesRequest =>
+      ListCapabilitiesRequest.decode(value),
     responseSerialize: (value: ListCapabilitiesResponse): Buffer =>
       Buffer.from(ListCapabilitiesResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ListCapabilitiesResponse => ListCapabilitiesResponse.decode(value),
+    responseDeserialize: (value: Buffer): ListCapabilitiesResponse =>
+      ListCapabilitiesResponse.decode(value),
   },
   /**
    * Validate an incoming payment blob, credit the sender's balance by the
@@ -1981,10 +2264,12 @@ export const PayeeDaemonService = {
     responseStream: false as const,
     requestSerialize: (value: ProcessPaymentRequest): Buffer =>
       Buffer.from(ProcessPaymentRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ProcessPaymentRequest => ProcessPaymentRequest.decode(value),
+    requestDeserialize: (value: Buffer): ProcessPaymentRequest =>
+      ProcessPaymentRequest.decode(value),
     responseSerialize: (value: ProcessPaymentResponse): Buffer =>
       Buffer.from(ProcessPaymentResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ProcessPaymentResponse => ProcessPaymentResponse.decode(value),
+    responseDeserialize: (value: Buffer): ProcessPaymentResponse =>
+      ProcessPaymentResponse.decode(value),
   },
   /**
    * Debit work units from a (sender, work_id) balance after the payee has
@@ -1994,11 +2279,14 @@ export const PayeeDaemonService = {
     path: "/livepeer.payments.v1.PayeeDaemon/DebitBalance" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: DebitBalanceRequest): Buffer => Buffer.from(DebitBalanceRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): DebitBalanceRequest => DebitBalanceRequest.decode(value),
+    requestSerialize: (value: DebitBalanceRequest): Buffer =>
+      Buffer.from(DebitBalanceRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): DebitBalanceRequest =>
+      DebitBalanceRequest.decode(value),
     responseSerialize: (value: DebitBalanceResponse): Buffer =>
       Buffer.from(DebitBalanceResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): DebitBalanceResponse => DebitBalanceResponse.decode(value),
+    responseDeserialize: (value: Buffer): DebitBalanceResponse =>
+      DebitBalanceResponse.decode(value),
   },
   /**
    * Check whether a (sender, work_id) balance covers a minimum number of
@@ -2010,20 +2298,26 @@ export const PayeeDaemonService = {
     responseStream: false as const,
     requestSerialize: (value: SufficientBalanceRequest): Buffer =>
       Buffer.from(SufficientBalanceRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): SufficientBalanceRequest => SufficientBalanceRequest.decode(value),
+    requestDeserialize: (value: Buffer): SufficientBalanceRequest =>
+      SufficientBalanceRequest.decode(value),
     responseSerialize: (value: SufficientBalanceResponse): Buffer =>
       Buffer.from(SufficientBalanceResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): SufficientBalanceResponse => SufficientBalanceResponse.decode(value),
+    responseDeserialize: (value: Buffer): SufficientBalanceResponse =>
+      SufficientBalanceResponse.decode(value),
   },
   /** Get the current balance for a (sender, work_id) pair. */
   getBalance: {
     path: "/livepeer.payments.v1.PayeeDaemon/GetBalance" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: GetBalanceRequest): Buffer => Buffer.from(GetBalanceRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetBalanceRequest => GetBalanceRequest.decode(value),
-    responseSerialize: (value: GetBalanceResponse): Buffer => Buffer.from(GetBalanceResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetBalanceResponse => GetBalanceResponse.decode(value),
+    requestSerialize: (value: GetBalanceRequest): Buffer =>
+      Buffer.from(GetBalanceRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetBalanceRequest =>
+      GetBalanceRequest.decode(value),
+    responseSerialize: (value: GetBalanceResponse): Buffer =>
+      Buffer.from(GetBalanceResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetBalanceResponse =>
+      GetBalanceResponse.decode(value),
   },
   /**
    * Close and garbage-collect a work session. Any residual credit is
@@ -2035,7 +2329,8 @@ export const PayeeDaemonService = {
     responseStream: false as const,
     requestSerialize: (value: PayeeDaemonCloseSessionRequest): Buffer =>
       Buffer.from(PayeeDaemonCloseSessionRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): PayeeDaemonCloseSessionRequest => PayeeDaemonCloseSessionRequest.decode(value),
+    requestDeserialize: (value: Buffer): PayeeDaemonCloseSessionRequest =>
+      PayeeDaemonCloseSessionRequest.decode(value),
     responseSerialize: (value: PayeeDaemonCloseSessionResponse): Buffer =>
       Buffer.from(PayeeDaemonCloseSessionResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): PayeeDaemonCloseSessionResponse =>
@@ -2051,7 +2346,8 @@ export const PayeeDaemonService = {
     responseStream: false as const,
     requestSerialize: (value: ListPendingRedemptionsRequest): Buffer =>
       Buffer.from(ListPendingRedemptionsRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ListPendingRedemptionsRequest => ListPendingRedemptionsRequest.decode(value),
+    requestDeserialize: (value: Buffer): ListPendingRedemptionsRequest =>
+      ListPendingRedemptionsRequest.decode(value),
     responseSerialize: (value: ListPendingRedemptionsResponse): Buffer =>
       Buffer.from(ListPendingRedemptionsResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): ListPendingRedemptionsResponse =>
@@ -2067,10 +2363,12 @@ export const PayeeDaemonService = {
     responseStream: false as const,
     requestSerialize: (value: GetRedemptionStatusRequest): Buffer =>
       Buffer.from(GetRedemptionStatusRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetRedemptionStatusRequest => GetRedemptionStatusRequest.decode(value),
+    requestDeserialize: (value: Buffer): GetRedemptionStatusRequest =>
+      GetRedemptionStatusRequest.decode(value),
     responseSerialize: (value: GetRedemptionStatusResponse): Buffer =>
       Buffer.from(GetRedemptionStatusResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetRedemptionStatusResponse => GetRedemptionStatusResponse.decode(value),
+    responseDeserialize: (value: Buffer): GetRedemptionStatusResponse =>
+      GetRedemptionStatusResponse.decode(value),
   },
 } as const;
 
@@ -2087,12 +2385,18 @@ export interface PayeeDaemonServer extends UntypedServiceImplementation {
    * Return the daemon's full configured capability catalog. Drives the
    * worker's /capabilities HTTP response.
    */
-  listCapabilities: handleUnaryCall<ListCapabilitiesRequest, ListCapabilitiesResponse>;
+  listCapabilities: handleUnaryCall<
+    ListCapabilitiesRequest,
+    ListCapabilitiesResponse
+  >;
   /**
    * Validate an incoming payment blob, credit the sender's balance by the
    * payment's expected value, and queue any winning tickets for redemption.
    */
-  processPayment: handleUnaryCall<ProcessPaymentRequest, ProcessPaymentResponse>;
+  processPayment: handleUnaryCall<
+    ProcessPaymentRequest,
+    ProcessPaymentResponse
+  >;
   /**
    * Debit work units from a (sender, work_id) balance after the payee has
    * actually done the work. Returns the new balance.
@@ -2102,24 +2406,36 @@ export interface PayeeDaemonServer extends UntypedServiceImplementation {
    * Check whether a (sender, work_id) balance covers a minimum number of
    * work units, without debiting.
    */
-  sufficientBalance: handleUnaryCall<SufficientBalanceRequest, SufficientBalanceResponse>;
+  sufficientBalance: handleUnaryCall<
+    SufficientBalanceRequest,
+    SufficientBalanceResponse
+  >;
   /** Get the current balance for a (sender, work_id) pair. */
   getBalance: handleUnaryCall<GetBalanceRequest, GetBalanceResponse>;
   /**
    * Close and garbage-collect a work session. Any residual credit is
    * forfeited.
    */
-  closeSession: handleUnaryCall<PayeeDaemonCloseSessionRequest, PayeeDaemonCloseSessionResponse>;
+  closeSession: handleUnaryCall<
+    PayeeDaemonCloseSessionRequest,
+    PayeeDaemonCloseSessionResponse
+  >;
   /**
    * Admin / observability: list winning tickets currently queued for
    * on-chain redemption.
    */
-  listPendingRedemptions: handleUnaryCall<ListPendingRedemptionsRequest, ListPendingRedemptionsResponse>;
+  listPendingRedemptions: handleUnaryCall<
+    ListPendingRedemptionsRequest,
+    ListPendingRedemptionsResponse
+  >;
   /**
    * Admin / observability: return the on-chain redemption status of a
    * previously-identified winning ticket.
    */
-  getRedemptionStatus: handleUnaryCall<GetRedemptionStatusRequest, GetRedemptionStatusResponse>;
+  getRedemptionStatus: handleUnaryCall<
+    GetRedemptionStatusRequest,
+    GetRedemptionStatusResponse
+  >;
 }
 
 export interface PayeeDaemonClient extends Client {
@@ -2151,18 +2467,27 @@ export interface PayeeDaemonClient extends Client {
    */
   listCapabilities(
     request: ListCapabilitiesRequest,
-    callback: (error: ServiceError | null, response: ListCapabilitiesResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ListCapabilitiesResponse,
+    ) => void,
   ): ClientUnaryCall;
   listCapabilities(
     request: ListCapabilitiesRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: ListCapabilitiesResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ListCapabilitiesResponse,
+    ) => void,
   ): ClientUnaryCall;
   listCapabilities(
     request: ListCapabilitiesRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: ListCapabilitiesResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ListCapabilitiesResponse,
+    ) => void,
   ): ClientUnaryCall;
   /**
    * Validate an incoming payment blob, credit the sender's balance by the
@@ -2170,18 +2495,27 @@ export interface PayeeDaemonClient extends Client {
    */
   processPayment(
     request: ProcessPaymentRequest,
-    callback: (error: ServiceError | null, response: ProcessPaymentResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ProcessPaymentResponse,
+    ) => void,
   ): ClientUnaryCall;
   processPayment(
     request: ProcessPaymentRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: ProcessPaymentResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ProcessPaymentResponse,
+    ) => void,
   ): ClientUnaryCall;
   processPayment(
     request: ProcessPaymentRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: ProcessPaymentResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ProcessPaymentResponse,
+    ) => void,
   ): ClientUnaryCall;
   /**
    * Debit work units from a (sender, work_id) balance after the payee has
@@ -2189,18 +2523,27 @@ export interface PayeeDaemonClient extends Client {
    */
   debitBalance(
     request: DebitBalanceRequest,
-    callback: (error: ServiceError | null, response: DebitBalanceResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: DebitBalanceResponse,
+    ) => void,
   ): ClientUnaryCall;
   debitBalance(
     request: DebitBalanceRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: DebitBalanceResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: DebitBalanceResponse,
+    ) => void,
   ): ClientUnaryCall;
   debitBalance(
     request: DebitBalanceRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: DebitBalanceResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: DebitBalanceResponse,
+    ) => void,
   ): ClientUnaryCall;
   /**
    * Check whether a (sender, work_id) balance covers a minimum number of
@@ -2208,34 +2551,52 @@ export interface PayeeDaemonClient extends Client {
    */
   sufficientBalance(
     request: SufficientBalanceRequest,
-    callback: (error: ServiceError | null, response: SufficientBalanceResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: SufficientBalanceResponse,
+    ) => void,
   ): ClientUnaryCall;
   sufficientBalance(
     request: SufficientBalanceRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: SufficientBalanceResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: SufficientBalanceResponse,
+    ) => void,
   ): ClientUnaryCall;
   sufficientBalance(
     request: SufficientBalanceRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: SufficientBalanceResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: SufficientBalanceResponse,
+    ) => void,
   ): ClientUnaryCall;
   /** Get the current balance for a (sender, work_id) pair. */
   getBalance(
     request: GetBalanceRequest,
-    callback: (error: ServiceError | null, response: GetBalanceResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetBalanceResponse,
+    ) => void,
   ): ClientUnaryCall;
   getBalance(
     request: GetBalanceRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: GetBalanceResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetBalanceResponse,
+    ) => void,
   ): ClientUnaryCall;
   getBalance(
     request: GetBalanceRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: GetBalanceResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetBalanceResponse,
+    ) => void,
   ): ClientUnaryCall;
   /**
    * Close and garbage-collect a work session. Any residual credit is
@@ -2243,18 +2604,27 @@ export interface PayeeDaemonClient extends Client {
    */
   closeSession(
     request: PayeeDaemonCloseSessionRequest,
-    callback: (error: ServiceError | null, response: PayeeDaemonCloseSessionResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: PayeeDaemonCloseSessionResponse,
+    ) => void,
   ): ClientUnaryCall;
   closeSession(
     request: PayeeDaemonCloseSessionRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: PayeeDaemonCloseSessionResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: PayeeDaemonCloseSessionResponse,
+    ) => void,
   ): ClientUnaryCall;
   closeSession(
     request: PayeeDaemonCloseSessionRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: PayeeDaemonCloseSessionResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: PayeeDaemonCloseSessionResponse,
+    ) => void,
   ): ClientUnaryCall;
   /**
    * Admin / observability: list winning tickets currently queued for
@@ -2262,18 +2632,27 @@ export interface PayeeDaemonClient extends Client {
    */
   listPendingRedemptions(
     request: ListPendingRedemptionsRequest,
-    callback: (error: ServiceError | null, response: ListPendingRedemptionsResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ListPendingRedemptionsResponse,
+    ) => void,
   ): ClientUnaryCall;
   listPendingRedemptions(
     request: ListPendingRedemptionsRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: ListPendingRedemptionsResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ListPendingRedemptionsResponse,
+    ) => void,
   ): ClientUnaryCall;
   listPendingRedemptions(
     request: ListPendingRedemptionsRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: ListPendingRedemptionsResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: ListPendingRedemptionsResponse,
+    ) => void,
   ): ClientUnaryCall;
   /**
    * Admin / observability: return the on-chain redemption status of a
@@ -2281,18 +2660,27 @@ export interface PayeeDaemonClient extends Client {
    */
   getRedemptionStatus(
     request: GetRedemptionStatusRequest,
-    callback: (error: ServiceError | null, response: GetRedemptionStatusResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetRedemptionStatusResponse,
+    ) => void,
   ): ClientUnaryCall;
   getRedemptionStatus(
     request: GetRedemptionStatusRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: GetRedemptionStatusResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetRedemptionStatusResponse,
+    ) => void,
   ): ClientUnaryCall;
   getRedemptionStatus(
     request: GetRedemptionStatusRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: GetRedemptionStatusResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetRedemptionStatusResponse,
+    ) => void,
   ): ClientUnaryCall;
 }
 
@@ -2300,7 +2688,11 @@ export const PayeeDaemonClient = makeGenericClientConstructor(
   PayeeDaemonService,
   "livepeer.payments.v1.PayeeDaemon",
 ) as unknown as {
-  new (address: string, credentials: ChannelCredentials, options?: Partial<ClientOptions>): PayeeDaemonClient;
+  new (
+    address: string,
+    credentials: ChannelCredentials,
+    options?: Partial<ClientOptions>,
+  ): PayeeDaemonClient;
   service: typeof PayeeDaemonService;
   serviceName: string;
 };
@@ -2313,17 +2705,32 @@ function base64FromBytes(arr: Uint8Array): string {
   return globalThis.Buffer.from(arr).toString("base64");
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | bigint
+  | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
+      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
+    };
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

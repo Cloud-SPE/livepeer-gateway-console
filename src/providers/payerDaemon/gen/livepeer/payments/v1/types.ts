@@ -108,15 +108,11 @@ export interface Payment {
    * Recipient-controlled ticket parameters. Stays the same across all tickets
    * in this payment.
    */
-  ticketParams?:
-    | TicketParams
-    | undefined;
+  ticketParams?: TicketParams | undefined;
   /** ETH address of the sender. */
   sender: Buffer;
   /** Shared expiration params for all tickets in this payment. */
-  expirationParams?:
-    | TicketExpirationParams
-    | undefined;
+  expirationParams?: TicketExpirationParams | undefined;
   /** Per-ticket sender parameters (nonce + signature). One entry per ticket. */
   ticketSenderParams: TicketSenderParams[];
   /**
@@ -131,16 +127,23 @@ function createBasePriceInfo(): PriceInfo {
 }
 
 export const PriceInfo: MessageFns<PriceInfo> = {
-  encode(message: PriceInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: PriceInfo,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.pricePerUnit !== 0n) {
       if (BigInt.asIntN(64, message.pricePerUnit) !== message.pricePerUnit) {
-        throw new globalThis.Error("value provided for field message.pricePerUnit of type int64 too large");
+        throw new globalThis.Error(
+          "value provided for field message.pricePerUnit of type int64 too large",
+        );
       }
       writer.uint32(8).int64(message.pricePerUnit);
     }
     if (message.pixelsPerUnit !== 0n) {
       if (BigInt.asIntN(64, message.pixelsPerUnit) !== message.pixelsPerUnit) {
-        throw new globalThis.Error("value provided for field message.pixelsPerUnit of type int64 too large");
+        throw new globalThis.Error(
+          "value provided for field message.pixelsPerUnit of type int64 too large",
+        );
       }
       writer.uint32(16).int64(message.pixelsPerUnit);
     }
@@ -154,7 +157,8 @@ export const PriceInfo: MessageFns<PriceInfo> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): PriceInfo {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBasePriceInfo();
     while (reader.pos < end) {
@@ -206,15 +210,19 @@ export const PriceInfo: MessageFns<PriceInfo> = {
       pricePerUnit: isSet(object.pricePerUnit)
         ? BigInt(object.pricePerUnit)
         : isSet(object.price_per_unit)
-        ? BigInt(object.price_per_unit)
-        : 0n,
+          ? BigInt(object.price_per_unit)
+          : 0n,
       pixelsPerUnit: isSet(object.pixelsPerUnit)
         ? BigInt(object.pixelsPerUnit)
         : isSet(object.pixels_per_unit)
-        ? BigInt(object.pixels_per_unit)
-        : 0n,
-      capability: isSet(object.capability) ? globalThis.Number(object.capability) : 0,
-      constraint: isSet(object.constraint) ? globalThis.String(object.constraint) : "",
+          ? BigInt(object.pixels_per_unit)
+          : 0n,
+      capability: isSet(object.capability)
+        ? globalThis.Number(object.capability)
+        : 0,
+      constraint: isSet(object.constraint)
+        ? globalThis.String(object.constraint)
+        : "",
     };
   },
 
@@ -238,7 +246,9 @@ export const PriceInfo: MessageFns<PriceInfo> = {
   create<I extends Exact<DeepPartial<PriceInfo>, I>>(base?: I): PriceInfo {
     return PriceInfo.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PriceInfo>, I>>(object: I): PriceInfo {
+  fromPartial<I extends Exact<DeepPartial<PriceInfo>, I>>(
+    object: I,
+  ): PriceInfo {
     const message = createBasePriceInfo();
     message.pricePerUnit = object.pricePerUnit ?? 0n;
     message.pixelsPerUnit = object.pixelsPerUnit ?? 0n;
@@ -261,7 +271,10 @@ function createBaseTicketParams(): TicketParams {
 }
 
 export const TicketParams: MessageFns<TicketParams> = {
-  encode(message: TicketParams, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: TicketParams,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.recipient.length !== 0) {
       writer.uint32(10).bytes(message.recipient);
     }
@@ -281,13 +294,17 @@ export const TicketParams: MessageFns<TicketParams> = {
       writer.uint32(50).bytes(message.expirationBlock);
     }
     if (message.expirationParams !== undefined) {
-      TicketExpirationParams.encode(message.expirationParams, writer.uint32(58).fork()).join();
+      TicketExpirationParams.encode(
+        message.expirationParams,
+        writer.uint32(58).fork(),
+      ).join();
     }
     return writer;
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): TicketParams {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseTicketParams();
     while (reader.pos < end) {
@@ -346,7 +363,10 @@ export const TicketParams: MessageFns<TicketParams> = {
             break;
           }
 
-          message.expirationParams = TicketExpirationParams.decode(reader, reader.uint32());
+          message.expirationParams = TicketExpirationParams.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
       }
@@ -360,33 +380,37 @@ export const TicketParams: MessageFns<TicketParams> = {
 
   fromJSON(object: any): TicketParams {
     return {
-      recipient: isSet(object.recipient) ? Buffer.from(bytesFromBase64(object.recipient)) : Buffer.alloc(0),
+      recipient: isSet(object.recipient)
+        ? Buffer.from(bytesFromBase64(object.recipient))
+        : Buffer.alloc(0),
       faceValue: isSet(object.faceValue)
         ? Buffer.from(bytesFromBase64(object.faceValue))
         : isSet(object.face_value)
-        ? Buffer.from(bytesFromBase64(object.face_value))
-        : Buffer.alloc(0),
+          ? Buffer.from(bytesFromBase64(object.face_value))
+          : Buffer.alloc(0),
       winProb: isSet(object.winProb)
         ? Buffer.from(bytesFromBase64(object.winProb))
         : isSet(object.win_prob)
-        ? Buffer.from(bytesFromBase64(object.win_prob))
-        : Buffer.alloc(0),
+          ? Buffer.from(bytesFromBase64(object.win_prob))
+          : Buffer.alloc(0),
       recipientRandHash: isSet(object.recipientRandHash)
         ? Buffer.from(bytesFromBase64(object.recipientRandHash))
         : isSet(object.recipient_rand_hash)
-        ? Buffer.from(bytesFromBase64(object.recipient_rand_hash))
+          ? Buffer.from(bytesFromBase64(object.recipient_rand_hash))
+          : Buffer.alloc(0),
+      seed: isSet(object.seed)
+        ? Buffer.from(bytesFromBase64(object.seed))
         : Buffer.alloc(0),
-      seed: isSet(object.seed) ? Buffer.from(bytesFromBase64(object.seed)) : Buffer.alloc(0),
       expirationBlock: isSet(object.expirationBlock)
         ? Buffer.from(bytesFromBase64(object.expirationBlock))
         : isSet(object.expiration_block)
-        ? Buffer.from(bytesFromBase64(object.expiration_block))
-        : Buffer.alloc(0),
+          ? Buffer.from(bytesFromBase64(object.expiration_block))
+          : Buffer.alloc(0),
       expirationParams: isSet(object.expirationParams)
         ? TicketExpirationParams.fromJSON(object.expirationParams)
         : isSet(object.expiration_params)
-        ? TicketExpirationParams.fromJSON(object.expiration_params)
-        : undefined,
+          ? TicketExpirationParams.fromJSON(object.expiration_params)
+          : undefined,
     };
   },
 
@@ -411,15 +435,21 @@ export const TicketParams: MessageFns<TicketParams> = {
       obj.expirationBlock = base64FromBytes(message.expirationBlock);
     }
     if (message.expirationParams !== undefined) {
-      obj.expirationParams = TicketExpirationParams.toJSON(message.expirationParams);
+      obj.expirationParams = TicketExpirationParams.toJSON(
+        message.expirationParams,
+      );
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TicketParams>, I>>(base?: I): TicketParams {
+  create<I extends Exact<DeepPartial<TicketParams>, I>>(
+    base?: I,
+  ): TicketParams {
     return TicketParams.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TicketParams>, I>>(object: I): TicketParams {
+  fromPartial<I extends Exact<DeepPartial<TicketParams>, I>>(
+    object: I,
+  ): TicketParams {
     const message = createBaseTicketParams();
     message.recipient = object.recipient ?? Buffer.alloc(0);
     message.faceValue = object.faceValue ?? Buffer.alloc(0);
@@ -427,9 +457,10 @@ export const TicketParams: MessageFns<TicketParams> = {
     message.recipientRandHash = object.recipientRandHash ?? Buffer.alloc(0);
     message.seed = object.seed ?? Buffer.alloc(0);
     message.expirationBlock = object.expirationBlock ?? Buffer.alloc(0);
-    message.expirationParams = (object.expirationParams !== undefined && object.expirationParams !== null)
-      ? TicketExpirationParams.fromPartial(object.expirationParams)
-      : undefined;
+    message.expirationParams =
+      object.expirationParams !== undefined && object.expirationParams !== null
+        ? TicketExpirationParams.fromPartial(object.expirationParams)
+        : undefined;
     return message;
   },
 };
@@ -439,7 +470,10 @@ function createBaseTicketSenderParams(): TicketSenderParams {
 }
 
 export const TicketSenderParams: MessageFns<TicketSenderParams> = {
-  encode(message: TicketSenderParams, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: TicketSenderParams,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.senderNonce !== 0) {
       writer.uint32(8).uint32(message.senderNonce);
     }
@@ -449,8 +483,12 @@ export const TicketSenderParams: MessageFns<TicketSenderParams> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): TicketSenderParams {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): TicketSenderParams {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseTicketSenderParams();
     while (reader.pos < end) {
@@ -486,9 +524,11 @@ export const TicketSenderParams: MessageFns<TicketSenderParams> = {
       senderNonce: isSet(object.senderNonce)
         ? globalThis.Number(object.senderNonce)
         : isSet(object.sender_nonce)
-        ? globalThis.Number(object.sender_nonce)
-        : 0,
-      sig: isSet(object.sig) ? Buffer.from(bytesFromBase64(object.sig)) : Buffer.alloc(0),
+          ? globalThis.Number(object.sender_nonce)
+          : 0,
+      sig: isSet(object.sig)
+        ? Buffer.from(bytesFromBase64(object.sig))
+        : Buffer.alloc(0),
     };
   },
 
@@ -503,10 +543,14 @@ export const TicketSenderParams: MessageFns<TicketSenderParams> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TicketSenderParams>, I>>(base?: I): TicketSenderParams {
+  create<I extends Exact<DeepPartial<TicketSenderParams>, I>>(
+    base?: I,
+  ): TicketSenderParams {
     return TicketSenderParams.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TicketSenderParams>, I>>(object: I): TicketSenderParams {
+  fromPartial<I extends Exact<DeepPartial<TicketSenderParams>, I>>(
+    object: I,
+  ): TicketSenderParams {
     const message = createBaseTicketSenderParams();
     message.senderNonce = object.senderNonce ?? 0;
     message.sig = object.sig ?? Buffer.alloc(0);
@@ -519,10 +563,15 @@ function createBaseTicketExpirationParams(): TicketExpirationParams {
 }
 
 export const TicketExpirationParams: MessageFns<TicketExpirationParams> = {
-  encode(message: TicketExpirationParams, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: TicketExpirationParams,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.creationRound !== 0n) {
       if (BigInt.asIntN(64, message.creationRound) !== message.creationRound) {
-        throw new globalThis.Error("value provided for field message.creationRound of type int64 too large");
+        throw new globalThis.Error(
+          "value provided for field message.creationRound of type int64 too large",
+        );
       }
       writer.uint32(8).int64(message.creationRound);
     }
@@ -532,8 +581,12 @@ export const TicketExpirationParams: MessageFns<TicketExpirationParams> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): TicketExpirationParams {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): TicketExpirationParams {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseTicketExpirationParams();
     while (reader.pos < end) {
@@ -569,13 +622,13 @@ export const TicketExpirationParams: MessageFns<TicketExpirationParams> = {
       creationRound: isSet(object.creationRound)
         ? BigInt(object.creationRound)
         : isSet(object.creation_round)
-        ? BigInt(object.creation_round)
-        : 0n,
+          ? BigInt(object.creation_round)
+          : 0n,
       creationRoundBlockHash: isSet(object.creationRoundBlockHash)
         ? Buffer.from(bytesFromBase64(object.creationRoundBlockHash))
         : isSet(object.creation_round_block_hash)
-        ? Buffer.from(bytesFromBase64(object.creation_round_block_hash))
-        : Buffer.alloc(0),
+          ? Buffer.from(bytesFromBase64(object.creation_round_block_hash))
+          : Buffer.alloc(0),
     };
   },
 
@@ -585,18 +638,25 @@ export const TicketExpirationParams: MessageFns<TicketExpirationParams> = {
       obj.creationRound = message.creationRound.toString();
     }
     if (message.creationRoundBlockHash.length !== 0) {
-      obj.creationRoundBlockHash = base64FromBytes(message.creationRoundBlockHash);
+      obj.creationRoundBlockHash = base64FromBytes(
+        message.creationRoundBlockHash,
+      );
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TicketExpirationParams>, I>>(base?: I): TicketExpirationParams {
+  create<I extends Exact<DeepPartial<TicketExpirationParams>, I>>(
+    base?: I,
+  ): TicketExpirationParams {
     return TicketExpirationParams.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TicketExpirationParams>, I>>(object: I): TicketExpirationParams {
+  fromPartial<I extends Exact<DeepPartial<TicketExpirationParams>, I>>(
+    object: I,
+  ): TicketExpirationParams {
     const message = createBaseTicketExpirationParams();
     message.creationRound = object.creationRound ?? 0n;
-    message.creationRoundBlockHash = object.creationRoundBlockHash ?? Buffer.alloc(0);
+    message.creationRoundBlockHash =
+      object.creationRoundBlockHash ?? Buffer.alloc(0);
     return message;
   },
 };
@@ -612,15 +672,24 @@ function createBasePayment(): Payment {
 }
 
 export const Payment: MessageFns<Payment> = {
-  encode(message: Payment, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Payment,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.ticketParams !== undefined) {
-      TicketParams.encode(message.ticketParams, writer.uint32(10).fork()).join();
+      TicketParams.encode(
+        message.ticketParams,
+        writer.uint32(10).fork(),
+      ).join();
     }
     if (message.sender.length !== 0) {
       writer.uint32(18).bytes(message.sender);
     }
     if (message.expirationParams !== undefined) {
-      TicketExpirationParams.encode(message.expirationParams, writer.uint32(26).fork()).join();
+      TicketExpirationParams.encode(
+        message.expirationParams,
+        writer.uint32(26).fork(),
+      ).join();
     }
     for (const v of message.ticketSenderParams) {
       TicketSenderParams.encode(v!, writer.uint32(34).fork()).join();
@@ -632,7 +701,8 @@ export const Payment: MessageFns<Payment> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Payment {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBasePayment();
     while (reader.pos < end) {
@@ -659,7 +729,10 @@ export const Payment: MessageFns<Payment> = {
             break;
           }
 
-          message.expirationParams = TicketExpirationParams.decode(reader, reader.uint32());
+          message.expirationParams = TicketExpirationParams.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 4: {
@@ -667,7 +740,9 @@ export const Payment: MessageFns<Payment> = {
             break;
           }
 
-          message.ticketSenderParams.push(TicketSenderParams.decode(reader, reader.uint32()));
+          message.ticketSenderParams.push(
+            TicketSenderParams.decode(reader, reader.uint32()),
+          );
           continue;
         }
         case 5: {
@@ -692,24 +767,30 @@ export const Payment: MessageFns<Payment> = {
       ticketParams: isSet(object.ticketParams)
         ? TicketParams.fromJSON(object.ticketParams)
         : isSet(object.ticket_params)
-        ? TicketParams.fromJSON(object.ticket_params)
-        : undefined,
-      sender: isSet(object.sender) ? Buffer.from(bytesFromBase64(object.sender)) : Buffer.alloc(0),
+          ? TicketParams.fromJSON(object.ticket_params)
+          : undefined,
+      sender: isSet(object.sender)
+        ? Buffer.from(bytesFromBase64(object.sender))
+        : Buffer.alloc(0),
       expirationParams: isSet(object.expirationParams)
         ? TicketExpirationParams.fromJSON(object.expirationParams)
         : isSet(object.expiration_params)
-        ? TicketExpirationParams.fromJSON(object.expiration_params)
-        : undefined,
+          ? TicketExpirationParams.fromJSON(object.expiration_params)
+          : undefined,
       ticketSenderParams: globalThis.Array.isArray(object?.ticketSenderParams)
-        ? object.ticketSenderParams.map((e: any) => TicketSenderParams.fromJSON(e))
+        ? object.ticketSenderParams.map((e: any) =>
+            TicketSenderParams.fromJSON(e),
+          )
         : globalThis.Array.isArray(object?.ticket_sender_params)
-        ? object.ticket_sender_params.map((e: any) => TicketSenderParams.fromJSON(e))
-        : [],
+          ? object.ticket_sender_params.map((e: any) =>
+              TicketSenderParams.fromJSON(e),
+            )
+          : [],
       expectedPrice: isSet(object.expectedPrice)
         ? PriceInfo.fromJSON(object.expectedPrice)
         : isSet(object.expected_price)
-        ? PriceInfo.fromJSON(object.expected_price)
-        : undefined,
+          ? PriceInfo.fromJSON(object.expected_price)
+          : undefined,
     };
   },
 
@@ -722,10 +803,14 @@ export const Payment: MessageFns<Payment> = {
       obj.sender = base64FromBytes(message.sender);
     }
     if (message.expirationParams !== undefined) {
-      obj.expirationParams = TicketExpirationParams.toJSON(message.expirationParams);
+      obj.expirationParams = TicketExpirationParams.toJSON(
+        message.expirationParams,
+      );
     }
     if (message.ticketSenderParams?.length) {
-      obj.ticketSenderParams = message.ticketSenderParams.map((e) => TicketSenderParams.toJSON(e));
+      obj.ticketSenderParams = message.ticketSenderParams.map((e) =>
+        TicketSenderParams.toJSON(e),
+      );
     }
     if (message.expectedPrice !== undefined) {
       obj.expectedPrice = PriceInfo.toJSON(message.expectedPrice);
@@ -738,17 +823,23 @@ export const Payment: MessageFns<Payment> = {
   },
   fromPartial<I extends Exact<DeepPartial<Payment>, I>>(object: I): Payment {
     const message = createBasePayment();
-    message.ticketParams = (object.ticketParams !== undefined && object.ticketParams !== null)
-      ? TicketParams.fromPartial(object.ticketParams)
-      : undefined;
+    message.ticketParams =
+      object.ticketParams !== undefined && object.ticketParams !== null
+        ? TicketParams.fromPartial(object.ticketParams)
+        : undefined;
     message.sender = object.sender ?? Buffer.alloc(0);
-    message.expirationParams = (object.expirationParams !== undefined && object.expirationParams !== null)
-      ? TicketExpirationParams.fromPartial(object.expirationParams)
-      : undefined;
-    message.ticketSenderParams = object.ticketSenderParams?.map((e) => TicketSenderParams.fromPartial(e)) || [];
-    message.expectedPrice = (object.expectedPrice !== undefined && object.expectedPrice !== null)
-      ? PriceInfo.fromPartial(object.expectedPrice)
-      : undefined;
+    message.expirationParams =
+      object.expirationParams !== undefined && object.expirationParams !== null
+        ? TicketExpirationParams.fromPartial(object.expirationParams)
+        : undefined;
+    message.ticketSenderParams =
+      object.ticketSenderParams?.map((e) =>
+        TicketSenderParams.fromPartial(e),
+      ) || [];
+    message.expectedPrice =
+      object.expectedPrice !== undefined && object.expectedPrice !== null
+        ? PriceInfo.fromPartial(object.expectedPrice)
+        : undefined;
     return message;
   },
 };
@@ -761,17 +852,32 @@ function base64FromBytes(arr: Uint8Array): string {
   return globalThis.Buffer.from(arr).toString("base64");
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | bigint
+  | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
+      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
+    };
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

@@ -8,8 +8,8 @@
 /** @returns {string} The current hash path, e.g. "/orchs/0xabc...". */
 export function current() {
   const raw = window.location.hash;
-  if (!raw || raw === '#') return '/';
-  return raw.startsWith('#') ? raw.slice(1) : raw;
+  if (!raw || raw === "#") return "/";
+  return raw.startsWith("#") ? raw.slice(1) : raw;
 }
 
 /**
@@ -22,12 +22,12 @@ export function current() {
  */
 export function onChange(handler) {
   const wrapped = () => handler(current());
-  window.addEventListener('hashchange', wrapped);
+  window.addEventListener("hashchange", wrapped);
   queueMicrotask(() => handler(current()));
-  return () => window.removeEventListener('hashchange', wrapped);
+  return () => window.removeEventListener("hashchange", wrapped);
 }
 
 /** @param {string} path e.g. "/sender" or "/orchs/0xabc..." */
 export function navigate(path) {
-  window.location.hash = path.startsWith('/') ? path : `/${path}`;
+  window.location.hash = path.startsWith("/") ? path : `/${path}`;
 }

@@ -1,9 +1,9 @@
 // GET /api/resolver/audit-log — pulls Resolver.GetAuditLog from the
 // daemon socket and returns the mapped events. Read-only.
 
-import { z } from 'zod';
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import type { ResolverService } from '../../../service/resolver/index.js';
+import { z } from "zod";
+import type { FastifyReply, FastifyRequest } from "fastify";
+import type { ResolverService } from "../../../service/resolver/index.js";
 
 const QuerySchema = z
   .object({
@@ -11,7 +11,9 @@ const QuerySchema = z
     limit: z.coerce.number().int().positive().max(1000).optional(),
     ethAddress: z
       .string()
-      .regex(/^0x[a-fA-F0-9]{40}$/, { message: 'Expected 0x-prefixed 40-hex address' })
+      .regex(/^0x[a-fA-F0-9]{40}$/, {
+        message: "Expected 0x-prefixed 40-hex address",
+      })
       .optional(),
   })
   .strict();

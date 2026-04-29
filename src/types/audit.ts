@@ -1,6 +1,6 @@
 // Audit-log row shape — every operator action through this console.
 
-import { z } from 'zod';
+import { z } from "zod";
 
 export const AuditEventSchema = z.object({
   id: z.number().int().positive(),

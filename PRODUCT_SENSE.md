@@ -66,8 +66,8 @@ is `/healthz` for proxy liveness checks.
 ## What "good" looks like
 
 - An operator opens the dashboard, glances at the orch roster, sees signed
-  + fresh markers across the active set, and clicks an orch to read its
-  recent routing history without thinking about which RPC was made.
+  - fresh markers across the active set, and clicks an orch to read its
+    recent routing history without thinking about which RPC was made.
 - A pool change on-chain hits the dashboard within one round transition,
   or the operator hits `Refresh` and sees the new state in seconds.
 - A capability search ("does anyone serve `whisper-large` in tier 0?") is

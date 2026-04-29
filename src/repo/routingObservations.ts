@@ -3,13 +3,13 @@
 // `Resolver.GetAuditLog` on a configurable cadence; per-repo Plan 0001
 // drives that loop.
 
-import { and, desc, eq } from 'drizzle-orm';
-import type { Db } from './db.js';
+import { and, desc, eq } from "drizzle-orm";
+import type { Db } from "./db.js";
 import {
   routingObservations,
   type RoutingObservationInsert,
   type RoutingObservationRow,
-} from './schema.js';
+} from "./schema.js";
 
 export async function appendBatch(
   db: Db,

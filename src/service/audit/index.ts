@@ -3,13 +3,16 @@
 // action that mutates daemon state (currently only the two Refresh
 // paths).
 
-import type { Db } from '../../repo/db.js';
-import { auditEventsRepo } from '../../repo/index.js';
-import type { AuditEventRow } from '../../repo/schema.js';
-import type { AppendAuditEventInput, AuditEvent } from '../../types/audit.js';
+import type { Db } from "../../repo/db.js";
+import { auditEventsRepo } from "../../repo/index.js";
+import type { AuditEventRow } from "../../repo/schema.js";
+import type { AppendAuditEventInput, AuditEvent } from "../../types/audit.js";
 
 export interface AuditService {
-  listRecent(options?: { limit?: number; before?: number }): Promise<AuditEvent[]>;
+  listRecent(options?: {
+    limit?: number;
+    before?: number;
+  }): Promise<AuditEvent[]>;
   append(input: AppendAuditEventInput): Promise<void>;
 }
 

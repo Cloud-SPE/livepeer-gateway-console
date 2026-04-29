@@ -24,9 +24,7 @@ export const protobufPackage = "livepeer.payments.v1";
 
 export interface StartSessionRequest {
   /** Ticket parameters as returned by the payee's `GetQuote`. */
-  ticketParams?:
-    | TicketParams
-    | undefined;
+  ticketParams?: TicketParams | undefined;
   /** Optional caller-chosen label used only in the daemon's audit log. */
   label: string;
   /**
@@ -83,11 +81,9 @@ export interface PayerDaemonCloseSessionRequest {
   workId: string;
 }
 
-export interface PayerDaemonCloseSessionResponse {
-}
+export interface PayerDaemonCloseSessionResponse {}
 
-export interface GetDepositInfoRequest {
-}
+export interface GetDepositInfoRequest {}
 
 export interface GetDepositInfoResponse {
   /** Current on-chain deposit (wei, big-endian bytes). */
@@ -106,9 +102,15 @@ function createBaseStartSessionRequest(): StartSessionRequest {
 }
 
 export const StartSessionRequest: MessageFns<StartSessionRequest> = {
-  encode(message: StartSessionRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: StartSessionRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.ticketParams !== undefined) {
-      TicketParams.encode(message.ticketParams, writer.uint32(10).fork()).join();
+      TicketParams.encode(
+        message.ticketParams,
+        writer.uint32(10).fork(),
+      ).join();
     }
     if (message.label !== "") {
       writer.uint32(18).string(message.label);
@@ -119,8 +121,12 @@ export const StartSessionRequest: MessageFns<StartSessionRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): StartSessionRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): StartSessionRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseStartSessionRequest();
     while (reader.pos < end) {
@@ -164,14 +170,14 @@ export const StartSessionRequest: MessageFns<StartSessionRequest> = {
       ticketParams: isSet(object.ticketParams)
         ? TicketParams.fromJSON(object.ticketParams)
         : isSet(object.ticket_params)
-        ? TicketParams.fromJSON(object.ticket_params)
-        : undefined,
+          ? TicketParams.fromJSON(object.ticket_params)
+          : undefined,
       label: isSet(object.label) ? globalThis.String(object.label) : "",
       priceInfo: isSet(object.priceInfo)
         ? PriceInfo.fromJSON(object.priceInfo)
         : isSet(object.price_info)
-        ? PriceInfo.fromJSON(object.price_info)
-        : undefined,
+          ? PriceInfo.fromJSON(object.price_info)
+          : undefined,
     };
   },
 
@@ -189,18 +195,24 @@ export const StartSessionRequest: MessageFns<StartSessionRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<StartSessionRequest>, I>>(base?: I): StartSessionRequest {
+  create<I extends Exact<DeepPartial<StartSessionRequest>, I>>(
+    base?: I,
+  ): StartSessionRequest {
     return StartSessionRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<StartSessionRequest>, I>>(object: I): StartSessionRequest {
+  fromPartial<I extends Exact<DeepPartial<StartSessionRequest>, I>>(
+    object: I,
+  ): StartSessionRequest {
     const message = createBaseStartSessionRequest();
-    message.ticketParams = (object.ticketParams !== undefined && object.ticketParams !== null)
-      ? TicketParams.fromPartial(object.ticketParams)
-      : undefined;
+    message.ticketParams =
+      object.ticketParams !== undefined && object.ticketParams !== null
+        ? TicketParams.fromPartial(object.ticketParams)
+        : undefined;
     message.label = object.label ?? "";
-    message.priceInfo = (object.priceInfo !== undefined && object.priceInfo !== null)
-      ? PriceInfo.fromPartial(object.priceInfo)
-      : undefined;
+    message.priceInfo =
+      object.priceInfo !== undefined && object.priceInfo !== null
+        ? PriceInfo.fromPartial(object.priceInfo)
+        : undefined;
     return message;
   },
 };
@@ -210,15 +222,22 @@ function createBaseStartSessionResponse(): StartSessionResponse {
 }
 
 export const StartSessionResponse: MessageFns<StartSessionResponse> = {
-  encode(message: StartSessionResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: StartSessionResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.workId !== "") {
       writer.uint32(10).string(message.workId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): StartSessionResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): StartSessionResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseStartSessionResponse();
     while (reader.pos < end) {
@@ -246,8 +265,8 @@ export const StartSessionResponse: MessageFns<StartSessionResponse> = {
       workId: isSet(object.workId)
         ? globalThis.String(object.workId)
         : isSet(object.work_id)
-        ? globalThis.String(object.work_id)
-        : "",
+          ? globalThis.String(object.work_id)
+          : "",
     };
   },
 
@@ -259,10 +278,14 @@ export const StartSessionResponse: MessageFns<StartSessionResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<StartSessionResponse>, I>>(base?: I): StartSessionResponse {
+  create<I extends Exact<DeepPartial<StartSessionResponse>, I>>(
+    base?: I,
+  ): StartSessionResponse {
     return StartSessionResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<StartSessionResponse>, I>>(object: I): StartSessionResponse {
+  fromPartial<I extends Exact<DeepPartial<StartSessionResponse>, I>>(
+    object: I,
+  ): StartSessionResponse {
     const message = createBaseStartSessionResponse();
     message.workId = object.workId ?? "";
     return message;
@@ -274,21 +297,30 @@ function createBaseCreatePaymentRequest(): CreatePaymentRequest {
 }
 
 export const CreatePaymentRequest: MessageFns<CreatePaymentRequest> = {
-  encode(message: CreatePaymentRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CreatePaymentRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.workId !== "") {
       writer.uint32(10).string(message.workId);
     }
     if (message.workUnits !== 0n) {
       if (BigInt.asIntN(64, message.workUnits) !== message.workUnits) {
-        throw new globalThis.Error("value provided for field message.workUnits of type int64 too large");
+        throw new globalThis.Error(
+          "value provided for field message.workUnits of type int64 too large",
+        );
       }
       writer.uint32(16).int64(message.workUnits);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreatePaymentRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CreatePaymentRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCreatePaymentRequest();
     while (reader.pos < end) {
@@ -324,13 +356,13 @@ export const CreatePaymentRequest: MessageFns<CreatePaymentRequest> = {
       workId: isSet(object.workId)
         ? globalThis.String(object.workId)
         : isSet(object.work_id)
-        ? globalThis.String(object.work_id)
-        : "",
+          ? globalThis.String(object.work_id)
+          : "",
       workUnits: isSet(object.workUnits)
         ? BigInt(object.workUnits)
         : isSet(object.work_units)
-        ? BigInt(object.work_units)
-        : 0n,
+          ? BigInt(object.work_units)
+          : 0n,
     };
   },
 
@@ -345,10 +377,14 @@ export const CreatePaymentRequest: MessageFns<CreatePaymentRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreatePaymentRequest>, I>>(base?: I): CreatePaymentRequest {
+  create<I extends Exact<DeepPartial<CreatePaymentRequest>, I>>(
+    base?: I,
+  ): CreatePaymentRequest {
     return CreatePaymentRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreatePaymentRequest>, I>>(object: I): CreatePaymentRequest {
+  fromPartial<I extends Exact<DeepPartial<CreatePaymentRequest>, I>>(
+    object: I,
+  ): CreatePaymentRequest {
     const message = createBaseCreatePaymentRequest();
     message.workId = object.workId ?? "";
     message.workUnits = object.workUnits ?? 0n;
@@ -357,11 +393,18 @@ export const CreatePaymentRequest: MessageFns<CreatePaymentRequest> = {
 };
 
 function createBaseCreatePaymentResponse(): CreatePaymentResponse {
-  return { paymentBytes: Buffer.alloc(0), ticketsCreated: 0, expectedValue: Buffer.alloc(0) };
+  return {
+    paymentBytes: Buffer.alloc(0),
+    ticketsCreated: 0,
+    expectedValue: Buffer.alloc(0),
+  };
 }
 
 export const CreatePaymentResponse: MessageFns<CreatePaymentResponse> = {
-  encode(message: CreatePaymentResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CreatePaymentResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.paymentBytes.length !== 0) {
       writer.uint32(10).bytes(message.paymentBytes);
     }
@@ -374,8 +417,12 @@ export const CreatePaymentResponse: MessageFns<CreatePaymentResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreatePaymentResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CreatePaymentResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCreatePaymentResponse();
     while (reader.pos < end) {
@@ -419,18 +466,18 @@ export const CreatePaymentResponse: MessageFns<CreatePaymentResponse> = {
       paymentBytes: isSet(object.paymentBytes)
         ? Buffer.from(bytesFromBase64(object.paymentBytes))
         : isSet(object.payment_bytes)
-        ? Buffer.from(bytesFromBase64(object.payment_bytes))
-        : Buffer.alloc(0),
+          ? Buffer.from(bytesFromBase64(object.payment_bytes))
+          : Buffer.alloc(0),
       ticketsCreated: isSet(object.ticketsCreated)
         ? globalThis.Number(object.ticketsCreated)
         : isSet(object.tickets_created)
-        ? globalThis.Number(object.tickets_created)
-        : 0,
+          ? globalThis.Number(object.tickets_created)
+          : 0,
       expectedValue: isSet(object.expectedValue)
         ? Buffer.from(bytesFromBase64(object.expectedValue))
         : isSet(object.expected_value)
-        ? Buffer.from(bytesFromBase64(object.expected_value))
-        : Buffer.alloc(0),
+          ? Buffer.from(bytesFromBase64(object.expected_value))
+          : Buffer.alloc(0),
     };
   },
 
@@ -448,10 +495,14 @@ export const CreatePaymentResponse: MessageFns<CreatePaymentResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreatePaymentResponse>, I>>(base?: I): CreatePaymentResponse {
+  create<I extends Exact<DeepPartial<CreatePaymentResponse>, I>>(
+    base?: I,
+  ): CreatePaymentResponse {
     return CreatePaymentResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreatePaymentResponse>, I>>(object: I): CreatePaymentResponse {
+  fromPartial<I extends Exact<DeepPartial<CreatePaymentResponse>, I>>(
+    object: I,
+  ): CreatePaymentResponse {
     const message = createBaseCreatePaymentResponse();
     message.paymentBytes = object.paymentBytes ?? Buffer.alloc(0);
     message.ticketsCreated = object.ticketsCreated ?? 0;
@@ -464,122 +515,151 @@ function createBasePayerDaemonCloseSessionRequest(): PayerDaemonCloseSessionRequ
   return { workId: "" };
 }
 
-export const PayerDaemonCloseSessionRequest: MessageFns<PayerDaemonCloseSessionRequest> = {
-  encode(message: PayerDaemonCloseSessionRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.workId !== "") {
-      writer.uint32(10).string(message.workId);
-    }
-    return writer;
-  },
+export const PayerDaemonCloseSessionRequest: MessageFns<PayerDaemonCloseSessionRequest> =
+  {
+    encode(
+      message: PayerDaemonCloseSessionRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.workId !== "") {
+        writer.uint32(10).string(message.workId);
+      }
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PayerDaemonCloseSessionRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePayerDaemonCloseSessionRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): PayerDaemonCloseSessionRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePayerDaemonCloseSessionRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.workId = reader.string();
+            continue;
           }
-
-          message.workId = reader.string();
-          continue;
         }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      return message;
+    },
+
+    fromJSON(object: any): PayerDaemonCloseSessionRequest {
+      return {
+        workId: isSet(object.workId)
+          ? globalThis.String(object.workId)
+          : isSet(object.work_id)
+            ? globalThis.String(object.work_id)
+            : "",
+      };
+    },
+
+    toJSON(message: PayerDaemonCloseSessionRequest): unknown {
+      const obj: any = {};
+      if (message.workId !== "") {
+        obj.workId = message.workId;
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return obj;
+    },
 
-  fromJSON(object: any): PayerDaemonCloseSessionRequest {
-    return {
-      workId: isSet(object.workId)
-        ? globalThis.String(object.workId)
-        : isSet(object.work_id)
-        ? globalThis.String(object.work_id)
-        : "",
-    };
-  },
-
-  toJSON(message: PayerDaemonCloseSessionRequest): unknown {
-    const obj: any = {};
-    if (message.workId !== "") {
-      obj.workId = message.workId;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<PayerDaemonCloseSessionRequest>, I>>(base?: I): PayerDaemonCloseSessionRequest {
-    return PayerDaemonCloseSessionRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<PayerDaemonCloseSessionRequest>, I>>(
-    object: I,
-  ): PayerDaemonCloseSessionRequest {
-    const message = createBasePayerDaemonCloseSessionRequest();
-    message.workId = object.workId ?? "";
-    return message;
-  },
-};
+    create<I extends Exact<DeepPartial<PayerDaemonCloseSessionRequest>, I>>(
+      base?: I,
+    ): PayerDaemonCloseSessionRequest {
+      return PayerDaemonCloseSessionRequest.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<
+      I extends Exact<DeepPartial<PayerDaemonCloseSessionRequest>, I>,
+    >(object: I): PayerDaemonCloseSessionRequest {
+      const message = createBasePayerDaemonCloseSessionRequest();
+      message.workId = object.workId ?? "";
+      return message;
+    },
+  };
 
 function createBasePayerDaemonCloseSessionResponse(): PayerDaemonCloseSessionResponse {
   return {};
 }
 
-export const PayerDaemonCloseSessionResponse: MessageFns<PayerDaemonCloseSessionResponse> = {
-  encode(_: PayerDaemonCloseSessionResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    return writer;
-  },
+export const PayerDaemonCloseSessionResponse: MessageFns<PayerDaemonCloseSessionResponse> =
+  {
+    encode(
+      _: PayerDaemonCloseSessionResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): PayerDaemonCloseSessionResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePayerDaemonCloseSessionResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): PayerDaemonCloseSessionResponse {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePayerDaemonCloseSessionResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return message;
+    },
 
-  fromJSON(_: any): PayerDaemonCloseSessionResponse {
-    return {};
-  },
+    fromJSON(_: any): PayerDaemonCloseSessionResponse {
+      return {};
+    },
 
-  toJSON(_: PayerDaemonCloseSessionResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
+    toJSON(_: PayerDaemonCloseSessionResponse): unknown {
+      const obj: any = {};
+      return obj;
+    },
 
-  create<I extends Exact<DeepPartial<PayerDaemonCloseSessionResponse>, I>>(base?: I): PayerDaemonCloseSessionResponse {
-    return PayerDaemonCloseSessionResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<PayerDaemonCloseSessionResponse>, I>>(_: I): PayerDaemonCloseSessionResponse {
-    const message = createBasePayerDaemonCloseSessionResponse();
-    return message;
-  },
-};
+    create<I extends Exact<DeepPartial<PayerDaemonCloseSessionResponse>, I>>(
+      base?: I,
+    ): PayerDaemonCloseSessionResponse {
+      return PayerDaemonCloseSessionResponse.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<
+      I extends Exact<DeepPartial<PayerDaemonCloseSessionResponse>, I>,
+    >(_: I): PayerDaemonCloseSessionResponse {
+      const message = createBasePayerDaemonCloseSessionResponse();
+      return message;
+    },
+  };
 
 function createBaseGetDepositInfoRequest(): GetDepositInfoRequest {
   return {};
 }
 
 export const GetDepositInfoRequest: MessageFns<GetDepositInfoRequest> = {
-  encode(_: GetDepositInfoRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    _: GetDepositInfoRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetDepositInfoRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetDepositInfoRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetDepositInfoRequest();
     while (reader.pos < end) {
@@ -603,21 +683,32 @@ export const GetDepositInfoRequest: MessageFns<GetDepositInfoRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetDepositInfoRequest>, I>>(base?: I): GetDepositInfoRequest {
+  create<I extends Exact<DeepPartial<GetDepositInfoRequest>, I>>(
+    base?: I,
+  ): GetDepositInfoRequest {
     return GetDepositInfoRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetDepositInfoRequest>, I>>(_: I): GetDepositInfoRequest {
+  fromPartial<I extends Exact<DeepPartial<GetDepositInfoRequest>, I>>(
+    _: I,
+  ): GetDepositInfoRequest {
     const message = createBaseGetDepositInfoRequest();
     return message;
   },
 };
 
 function createBaseGetDepositInfoResponse(): GetDepositInfoResponse {
-  return { deposit: Buffer.alloc(0), reserve: Buffer.alloc(0), withdrawRound: 0n };
+  return {
+    deposit: Buffer.alloc(0),
+    reserve: Buffer.alloc(0),
+    withdrawRound: 0n,
+  };
 }
 
 export const GetDepositInfoResponse: MessageFns<GetDepositInfoResponse> = {
-  encode(message: GetDepositInfoResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetDepositInfoResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.deposit.length !== 0) {
       writer.uint32(10).bytes(message.deposit);
     }
@@ -626,15 +717,21 @@ export const GetDepositInfoResponse: MessageFns<GetDepositInfoResponse> = {
     }
     if (message.withdrawRound !== 0n) {
       if (BigInt.asIntN(64, message.withdrawRound) !== message.withdrawRound) {
-        throw new globalThis.Error("value provided for field message.withdrawRound of type int64 too large");
+        throw new globalThis.Error(
+          "value provided for field message.withdrawRound of type int64 too large",
+        );
       }
       writer.uint32(24).int64(message.withdrawRound);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetDepositInfoResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetDepositInfoResponse {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetDepositInfoResponse();
     while (reader.pos < end) {
@@ -675,13 +772,17 @@ export const GetDepositInfoResponse: MessageFns<GetDepositInfoResponse> = {
 
   fromJSON(object: any): GetDepositInfoResponse {
     return {
-      deposit: isSet(object.deposit) ? Buffer.from(bytesFromBase64(object.deposit)) : Buffer.alloc(0),
-      reserve: isSet(object.reserve) ? Buffer.from(bytesFromBase64(object.reserve)) : Buffer.alloc(0),
+      deposit: isSet(object.deposit)
+        ? Buffer.from(bytesFromBase64(object.deposit))
+        : Buffer.alloc(0),
+      reserve: isSet(object.reserve)
+        ? Buffer.from(bytesFromBase64(object.reserve))
+        : Buffer.alloc(0),
       withdrawRound: isSet(object.withdrawRound)
         ? BigInt(object.withdrawRound)
         : isSet(object.withdraw_round)
-        ? BigInt(object.withdraw_round)
-        : 0n,
+          ? BigInt(object.withdraw_round)
+          : 0n,
     };
   },
 
@@ -699,10 +800,14 @@ export const GetDepositInfoResponse: MessageFns<GetDepositInfoResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetDepositInfoResponse>, I>>(base?: I): GetDepositInfoResponse {
+  create<I extends Exact<DeepPartial<GetDepositInfoResponse>, I>>(
+    base?: I,
+  ): GetDepositInfoResponse {
     return GetDepositInfoResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetDepositInfoResponse>, I>>(object: I): GetDepositInfoResponse {
+  fromPartial<I extends Exact<DeepPartial<GetDepositInfoResponse>, I>>(
+    object: I,
+  ): GetDepositInfoResponse {
     const message = createBaseGetDepositInfoResponse();
     message.deposit = object.deposit ?? Buffer.alloc(0);
     message.reserve = object.reserve ?? Buffer.alloc(0);
@@ -723,11 +828,14 @@ export const PayerDaemonService = {
     path: "/livepeer.payments.v1.PayerDaemon/StartSession" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: StartSessionRequest): Buffer => Buffer.from(StartSessionRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): StartSessionRequest => StartSessionRequest.decode(value),
+    requestSerialize: (value: StartSessionRequest): Buffer =>
+      Buffer.from(StartSessionRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): StartSessionRequest =>
+      StartSessionRequest.decode(value),
     responseSerialize: (value: StartSessionResponse): Buffer =>
       Buffer.from(StartSessionResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): StartSessionResponse => StartSessionResponse.decode(value),
+    responseDeserialize: (value: Buffer): StartSessionResponse =>
+      StartSessionResponse.decode(value),
   },
   /**
    * Create a payment blob (a `Payment` with one or more tickets) covering a
@@ -738,11 +846,14 @@ export const PayerDaemonService = {
     path: "/livepeer.payments.v1.PayerDaemon/CreatePayment" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: CreatePaymentRequest): Buffer => Buffer.from(CreatePaymentRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): CreatePaymentRequest => CreatePaymentRequest.decode(value),
+    requestSerialize: (value: CreatePaymentRequest): Buffer =>
+      Buffer.from(CreatePaymentRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): CreatePaymentRequest =>
+      CreatePaymentRequest.decode(value),
     responseSerialize: (value: CreatePaymentResponse): Buffer =>
       Buffer.from(CreatePaymentResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): CreatePaymentResponse => CreatePaymentResponse.decode(value),
+    responseDeserialize: (value: Buffer): CreatePaymentResponse =>
+      CreatePaymentResponse.decode(value),
   },
   /** Close a session and free its nonce state. */
   closeSession: {
@@ -751,7 +862,8 @@ export const PayerDaemonService = {
     responseStream: false as const,
     requestSerialize: (value: PayerDaemonCloseSessionRequest): Buffer =>
       Buffer.from(PayerDaemonCloseSessionRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): PayerDaemonCloseSessionRequest => PayerDaemonCloseSessionRequest.decode(value),
+    requestDeserialize: (value: Buffer): PayerDaemonCloseSessionRequest =>
+      PayerDaemonCloseSessionRequest.decode(value),
     responseSerialize: (value: PayerDaemonCloseSessionResponse): Buffer =>
       Buffer.from(PayerDaemonCloseSessionResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): PayerDaemonCloseSessionResponse =>
@@ -767,10 +879,12 @@ export const PayerDaemonService = {
     responseStream: false as const,
     requestSerialize: (value: GetDepositInfoRequest): Buffer =>
       Buffer.from(GetDepositInfoRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetDepositInfoRequest => GetDepositInfoRequest.decode(value),
+    requestDeserialize: (value: Buffer): GetDepositInfoRequest =>
+      GetDepositInfoRequest.decode(value),
     responseSerialize: (value: GetDepositInfoResponse): Buffer =>
       Buffer.from(GetDepositInfoResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): GetDepositInfoResponse => GetDepositInfoResponse.decode(value),
+    responseDeserialize: (value: Buffer): GetDepositInfoResponse =>
+      GetDepositInfoResponse.decode(value),
   },
 } as const;
 
@@ -789,12 +903,18 @@ export interface PayerDaemonServer extends UntypedServiceImplementation {
    */
   createPayment: handleUnaryCall<CreatePaymentRequest, CreatePaymentResponse>;
   /** Close a session and free its nonce state. */
-  closeSession: handleUnaryCall<PayerDaemonCloseSessionRequest, PayerDaemonCloseSessionResponse>;
+  closeSession: handleUnaryCall<
+    PayerDaemonCloseSessionRequest,
+    PayerDaemonCloseSessionResponse
+  >;
   /**
    * Inspect the payer's current TicketBroker deposit/reserve state. Read-only;
    * the daemon does not fund escrow.
    */
-  getDepositInfo: handleUnaryCall<GetDepositInfoRequest, GetDepositInfoResponse>;
+  getDepositInfo: handleUnaryCall<
+    GetDepositInfoRequest,
+    GetDepositInfoResponse
+  >;
 }
 
 export interface PayerDaemonClient extends Client {
@@ -806,18 +926,27 @@ export interface PayerDaemonClient extends Client {
    */
   startSession(
     request: StartSessionRequest,
-    callback: (error: ServiceError | null, response: StartSessionResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: StartSessionResponse,
+    ) => void,
   ): ClientUnaryCall;
   startSession(
     request: StartSessionRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: StartSessionResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: StartSessionResponse,
+    ) => void,
   ): ClientUnaryCall;
   startSession(
     request: StartSessionRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: StartSessionResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: StartSessionResponse,
+    ) => void,
   ): ClientUnaryCall;
   /**
    * Create a payment blob (a `Payment` with one or more tickets) covering a
@@ -826,34 +955,52 @@ export interface PayerDaemonClient extends Client {
    */
   createPayment(
     request: CreatePaymentRequest,
-    callback: (error: ServiceError | null, response: CreatePaymentResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: CreatePaymentResponse,
+    ) => void,
   ): ClientUnaryCall;
   createPayment(
     request: CreatePaymentRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: CreatePaymentResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: CreatePaymentResponse,
+    ) => void,
   ): ClientUnaryCall;
   createPayment(
     request: CreatePaymentRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: CreatePaymentResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: CreatePaymentResponse,
+    ) => void,
   ): ClientUnaryCall;
   /** Close a session and free its nonce state. */
   closeSession(
     request: PayerDaemonCloseSessionRequest,
-    callback: (error: ServiceError | null, response: PayerDaemonCloseSessionResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: PayerDaemonCloseSessionResponse,
+    ) => void,
   ): ClientUnaryCall;
   closeSession(
     request: PayerDaemonCloseSessionRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: PayerDaemonCloseSessionResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: PayerDaemonCloseSessionResponse,
+    ) => void,
   ): ClientUnaryCall;
   closeSession(
     request: PayerDaemonCloseSessionRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: PayerDaemonCloseSessionResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: PayerDaemonCloseSessionResponse,
+    ) => void,
   ): ClientUnaryCall;
   /**
    * Inspect the payer's current TicketBroker deposit/reserve state. Read-only;
@@ -861,18 +1008,27 @@ export interface PayerDaemonClient extends Client {
    */
   getDepositInfo(
     request: GetDepositInfoRequest,
-    callback: (error: ServiceError | null, response: GetDepositInfoResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetDepositInfoResponse,
+    ) => void,
   ): ClientUnaryCall;
   getDepositInfo(
     request: GetDepositInfoRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: GetDepositInfoResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetDepositInfoResponse,
+    ) => void,
   ): ClientUnaryCall;
   getDepositInfo(
     request: GetDepositInfoRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: GetDepositInfoResponse) => void,
+    callback: (
+      error: ServiceError | null,
+      response: GetDepositInfoResponse,
+    ) => void,
   ): ClientUnaryCall;
 }
 
@@ -880,7 +1036,11 @@ export const PayerDaemonClient = makeGenericClientConstructor(
   PayerDaemonService,
   "livepeer.payments.v1.PayerDaemon",
 ) as unknown as {
-  new (address: string, credentials: ChannelCredentials, options?: Partial<ClientOptions>): PayerDaemonClient;
+  new (
+    address: string,
+    credentials: ChannelCredentials,
+    options?: Partial<ClientOptions>,
+  ): PayerDaemonClient;
   service: typeof PayerDaemonService;
   serviceName: string;
 };
@@ -893,17 +1053,32 @@ function base64FromBytes(arr: Uint8Array): string {
   return globalThis.Buffer.from(arr).toString("base64");
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | bigint
+  | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
+      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
+    };
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

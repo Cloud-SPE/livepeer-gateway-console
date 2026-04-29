@@ -9,19 +9,19 @@
 // Escrow: PayerDaemon.GetDepositInfo. The daemon owns the keystore
 // and reads TicketBroker on the operator's behalf; we just decode.
 
-import type { Address } from 'viem';
-import type { ChainReader } from '../../providers/chain/viem.js';
-import type { PayerDaemonClient } from '../../providers/payerDaemon/client.js';
-import type { SenderEscrow, SenderWallet } from '../../types/sender.js';
+import type { Address } from "viem";
+import type { ChainReader } from "../../providers/chain/viem.js";
+import type { PayerDaemonClient } from "../../providers/payerDaemon/client.js";
+import type { SenderEscrow, SenderWallet } from "../../types/sender.js";
 
 export class SenderWalletNotConfiguredError extends Error {
   constructor() {
     super(
-      'sender wallet view is unavailable: SENDER_ADDRESS env is not ' +
-        'set on this gateway-console deployment. Set it to the hot wallet ' +
-        'the payment-daemon mounts; the console reads its balance from chain.',
+      "sender wallet view is unavailable: SENDER_ADDRESS env is not " +
+        "set on this gateway-console deployment. Set it to the hot wallet " +
+        "the payment-daemon mounts; the console reads its balance from chain.",
     );
-    this.name = 'SenderWalletNotConfiguredError';
+    this.name = "SenderWalletNotConfiguredError";
   }
 }
 

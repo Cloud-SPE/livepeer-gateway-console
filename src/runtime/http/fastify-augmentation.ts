@@ -3,7 +3,7 @@
 // Empty string until set; the hook 400s before any handler runs if missing
 // or malformed.
 
-declare module 'fastify' {
+declare module "fastify" {
   interface FastifyRequest {
     actor: string;
   }

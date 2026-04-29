@@ -3,19 +3,19 @@
 // stake, ServiceRegistry serviceURI). Per-orch routing observation
 // rows are the local mirror of `Resolver.GetAuditLog` entries.
 
-import { z } from 'zod';
+import { z } from "zod";
 
-const EthAddressLike = z
-  .string()
-  .regex(/^0x[a-fA-F0-9]{40}$/, { message: 'Expected 0x-prefixed 40-hex address' });
+const EthAddressLike = z.string().regex(/^0x[a-fA-F0-9]{40}$/, {
+  message: "Expected 0x-prefixed 40-hex address",
+});
 
 export const OrchRosterRowSchema = z.object({
   address: EthAddressLike,
   serviceUri: z.string().nullable(),
   capabilities: z.array(z.string()).default([]),
   models: z.array(z.string()).default([]),
-  signatureStatus: z.enum(['signed', 'unsigned', 'unknown']).default('unknown'),
-  freshnessStatus: z.enum(['fresh', 'stale', 'unknown']).default('unknown'),
+  signatureStatus: z.enum(["signed", "unsigned", "unknown"]).default("unknown"),
+  freshnessStatus: z.enum(["fresh", "stale", "unknown"]).default("unknown"),
   /** Orchestrator's active-set membership from the BondingManager pool walk. */
   activePoolMember: z.boolean().default(false),
   /** Self-stake + delegated-stake from `getDelegator` (raw wei as string). */

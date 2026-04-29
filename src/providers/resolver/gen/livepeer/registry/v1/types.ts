@@ -242,7 +242,10 @@ function createBaseCapability(): Capability {
 }
 
 export const Capability: MessageFns<Capability> = {
-  encode(message: Capability, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Capability,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.name !== "") {
       writer.uint32(10).string(message.name);
     }
@@ -259,7 +262,8 @@ export const Capability: MessageFns<Capability> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Capability {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCapability();
     while (reader.pos < end) {
@@ -312,14 +316,16 @@ export const Capability: MessageFns<Capability> = {
       workUnit: isSet(object.workUnit)
         ? globalThis.String(object.workUnit)
         : isSet(object.work_unit)
-        ? globalThis.String(object.work_unit)
-        : "",
-      models: globalThis.Array.isArray(object?.models) ? object.models.map((e: any) => Model.fromJSON(e)) : [],
+          ? globalThis.String(object.work_unit)
+          : "",
+      models: globalThis.Array.isArray(object?.models)
+        ? object.models.map((e: any) => Model.fromJSON(e))
+        : [],
       extraJson: isSet(object.extraJson)
         ? Buffer.from(bytesFromBase64(object.extraJson))
         : isSet(object.extra_json)
-        ? Buffer.from(bytesFromBase64(object.extra_json))
-        : Buffer.alloc(0),
+          ? Buffer.from(bytesFromBase64(object.extra_json))
+          : Buffer.alloc(0),
     };
   },
 
@@ -343,7 +349,9 @@ export const Capability: MessageFns<Capability> = {
   create<I extends Exact<DeepPartial<Capability>, I>>(base?: I): Capability {
     return Capability.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Capability>, I>>(object: I): Capability {
+  fromPartial<I extends Exact<DeepPartial<Capability>, I>>(
+    object: I,
+  ): Capability {
     const message = createBaseCapability();
     message.name = object.name ?? "";
     message.workUnit = object.workUnit ?? "";
@@ -354,11 +362,19 @@ export const Capability: MessageFns<Capability> = {
 };
 
 function createBaseModel(): Model {
-  return { id: "", pricePerWorkUnitWei: "", warm: false, constraintsJson: Buffer.alloc(0) };
+  return {
+    id: "",
+    pricePerWorkUnitWei: "",
+    warm: false,
+    constraintsJson: Buffer.alloc(0),
+  };
 }
 
 export const Model: MessageFns<Model> = {
-  encode(message: Model, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Model,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -375,7 +391,8 @@ export const Model: MessageFns<Model> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Model {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseModel();
     while (reader.pos < end) {
@@ -428,14 +445,14 @@ export const Model: MessageFns<Model> = {
       pricePerWorkUnitWei: isSet(object.pricePerWorkUnitWei)
         ? globalThis.String(object.pricePerWorkUnitWei)
         : isSet(object.price_per_work_unit_wei)
-        ? globalThis.String(object.price_per_work_unit_wei)
-        : "",
+          ? globalThis.String(object.price_per_work_unit_wei)
+          : "",
       warm: isSet(object.warm) ? globalThis.Boolean(object.warm) : false,
       constraintsJson: isSet(object.constraintsJson)
         ? Buffer.from(bytesFromBase64(object.constraintsJson))
         : isSet(object.constraints_json)
-        ? Buffer.from(bytesFromBase64(object.constraints_json))
-        : Buffer.alloc(0),
+          ? Buffer.from(bytesFromBase64(object.constraints_json))
+          : Buffer.alloc(0),
     };
   },
 
@@ -487,7 +504,10 @@ function createBaseNode(): Node {
 }
 
 export const Node: MessageFns<Node> = {
-  encode(message: Node, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: Node,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -528,7 +548,8 @@ export const Node: MessageFns<Node> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): Node {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseNode();
     while (reader.pos < end) {
@@ -653,19 +674,21 @@ export const Node: MessageFns<Node> = {
       signatureStatus: isSet(object.signatureStatus)
         ? signatureStatusFromJSON(object.signatureStatus)
         : isSet(object.signature_status)
-        ? signatureStatusFromJSON(object.signature_status)
-        : 0,
+          ? signatureStatusFromJSON(object.signature_status)
+          : 0,
       operatorAddress: isSet(object.operatorAddress)
         ? globalThis.String(object.operatorAddress)
         : isSet(object.operator_address)
-        ? globalThis.String(object.operator_address)
-        : "",
-      enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
+          ? globalThis.String(object.operator_address)
+          : "",
+      enabled: isSet(object.enabled)
+        ? globalThis.Boolean(object.enabled)
+        : false,
       tierAllowed: globalThis.Array.isArray(object?.tierAllowed)
         ? object.tierAllowed.map((e: any) => globalThis.String(e))
         : globalThis.Array.isArray(object?.tier_allowed)
-        ? object.tier_allowed.map((e: any) => globalThis.String(e))
-        : [],
+          ? object.tier_allowed.map((e: any) => globalThis.String(e))
+          : [],
       weight: isSet(object.weight) ? globalThis.Number(object.weight) : 0,
     };
   },
@@ -721,7 +744,8 @@ export const Node: MessageFns<Node> = {
     message.lat = object.lat ?? 0;
     message.lon = object.lon ?? 0;
     message.region = object.region ?? "";
-    message.capabilities = object.capabilities?.map((e) => Capability.fromPartial(e)) || [];
+    message.capabilities =
+      object.capabilities?.map((e) => Capability.fromPartial(e)) || [];
     message.source = object.source ?? 0;
     message.signatureStatus = object.signatureStatus ?? 0;
     message.operatorAddress = object.operatorAddress ?? "";
@@ -740,17 +764,32 @@ function base64FromBytes(arr: Uint8Array): string {
   return globalThis.Buffer.from(arr).toString("base64");
 }
 
-type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | bigint
+  | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P
-  : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & {
+      [K in Exclude<keyof I, KeysOfUnion<P>>]: never;
+    };
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

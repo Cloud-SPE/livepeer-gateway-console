@@ -1,9 +1,9 @@
 // Fastify provider — the only place `fastify` and its plugins are imported.
 // Higher layers consume the `HttpServer` interface and never see Fastify.
 
-import Fastify, { type FastifyInstance } from 'fastify';
-import fastifyStatic from '@fastify/static';
-import fastifySensible from '@fastify/sensible';
+import Fastify, { type FastifyInstance } from "fastify";
+import fastifyStatic from "@fastify/static";
+import fastifySensible from "@fastify/sensible";
 
 export interface HttpServer {
   app: FastifyInstance;

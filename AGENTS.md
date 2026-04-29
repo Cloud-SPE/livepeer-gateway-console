@@ -95,13 +95,13 @@ Lints enforce this. See [DESIGN.md](DESIGN.md) and `lint/eslint-plugin-livepeer-
 
 ## Where to look for X
 
-| Question                            | Go to                                                          |
-| ----------------------------------- | -------------------------------------------------------------- |
-| What does the console do?           | [DESIGN.md](DESIGN.md)                                         |
-| Why is X done this way?             | `docs/design-docs/`                                            |
-| What's in flight?                   | `docs/exec-plans/active/`                                      |
-| How does the SPA work?              | [FRONTEND.md](FRONTEND.md)                                     |
-| How do I add a route?               | `src/runtime/http/handlers/` + `src/types/` schemas            |
-| How do I add a DB column?           | edit `src/repo/schema.ts`, run `npm run db:generate`           |
-| How do I update daemon protos?      | run `npm run proto:gen` after the upstream daemon proto change |
-| Known debt?                         | `docs/exec-plans/tech-debt-tracker.md`                         |
+| Question                       | Go to                                                          |
+| ------------------------------ | -------------------------------------------------------------- |
+| What does the console do?      | [DESIGN.md](DESIGN.md)                                         |
+| Why is X done this way?        | `docs/design-docs/`                                            |
+| What's in flight?              | `docs/exec-plans/active/`                                      |
+| How does the SPA work?         | [FRONTEND.md](FRONTEND.md)                                     |
+| How do I add a route?          | `src/runtime/http/handlers/` + `src/types/` schemas            |
+| How do I add a DB column?      | edit `src/repo/schema.ts`, run `npm run db:generate`           |
+| How do I update daemon protos? | run `npm run proto:gen` after the upstream daemon proto change |
+| Known debt?                    | `docs/exec-plans/tech-debt-tracker.md`                         |

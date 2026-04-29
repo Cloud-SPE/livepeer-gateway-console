@@ -1,6 +1,6 @@
-import { LitElement, html } from 'lit';
-import { getOrch, refreshResolverByAddress } from '../lib/api.js';
-import { formatTimestamp, formatWei, shortAddress } from '../lib/format.js';
+import { LitElement, html } from "lit";
+import { getOrch, refreshResolverByAddress } from "../lib/api.js";
+import { formatTimestamp, formatWei, shortAddress } from "../lib/format.js";
 
 /**
  * Per-orch direct-link drilldown — `#/orchs/0xabc...`. Loads the orch
@@ -18,9 +18,9 @@ export class AdminOrchDetail extends LitElement {
 
   constructor() {
     super();
-    this.address = '';
+    this.address = "";
     this._data = null;
-    this._error = '';
+    this._error = "";
     this._loading = false;
     this._refreshing = false;
   }
@@ -35,18 +35,19 @@ export class AdminOrchDetail extends LitElement {
   }
 
   updated(changed) {
-    if (changed.has('address')) void this._load();
+    if (changed.has("address")) void this._load();
   }
 
   async _load() {
     if (!this.address) return;
     this._loading = true;
-    this._error = '';
+    this._error = "";
     this._data = null;
     try {
       this._data = await getOrch(this.address);
     } catch (err) {
-      const status = err && typeof err === 'object' && 'status' in err ? err.status : 0;
+      const status =
+        err && typeof err === "object" && "status" in err ? err.status : 0;
       if (status === 404) {
         this._data = { orch: null, recentObservations: [] };
       } else {
@@ -72,18 +73,25 @@ export class AdminOrchDetail extends LitElement {
 
   render() {
     if (!this.address)
-      return html`<p class="error" role="alert">Missing orch address in URL.</p>`;
-    if (this._loading) return html`<p class="muted">Loading orch ${this.address}…</p>`;
-    if (this._error) return html`<div class="error" role="alert">${this._error}</div>`;
-    if (!this._data)
-      return html`<p class="muted">No data.</p>`;
+      return html`<p class="error" role="alert">
+        Missing orch address in URL.
+      </p>`;
+    if (this._loading)
+      return html`<p class="muted">Loading orch ${this.address}…</p>`;
+    if (this._error)
+      return html`<div class="error" role="alert">${this._error}</div>`;
+    if (!this._data) return html`<p class="muted">No data.</p>`;
     const orch = this._data.orch;
     const observations = this._data.recentObservations ?? [];
     return html`
       <header class="card-header">
         <h1>Orch ${shortAddress(this.address)}</h1>
-        <button type="button" @click=${() => void this._refresh()} ?disabled=${this._refreshing}>
-          ${this._refreshing ? 'Refreshing…' : 'Refresh'}
+        <button
+          type="button"
+          @click=${() => void this._refresh()}
+          ?disabled=${this._refreshing}
+        >
+          ${this._refreshing ? "Refreshing…" : "Refresh"}
         </button>
       </header>
       <p class="muted"><code>${this.address}</code></p>
@@ -93,22 +101,30 @@ export class AdminOrchDetail extends LitElement {
             <section class="card">
               <dl class="kv">
                 <dt>Service URI</dt>
-                <dd>${orch.serviceUri ?? '—'}</dd>
+                <dd>${orch.serviceUri ?? "—"}</dd>
                 <dt>Stake</dt>
                 <dd>${formatWei(orch.totalStakeWei)}</dd>
                 <dt>Active in pool</dt>
-                <dd>${orch.activePoolMember ? 'yes' : 'no'}</dd>
+                <dd>${orch.activePoolMember ? "yes" : "no"}</dd>
                 <dt>Capabilities</dt>
-                <dd>${orch.capabilities.length ? orch.capabilities.join(', ') : '—'}</dd>
+                <dd>
+                  ${orch.capabilities.length
+                    ? orch.capabilities.join(", ")
+                    : "—"}
+                </dd>
                 <dt>Models</dt>
-                <dd>${orch.models.length ? orch.models.join(', ') : '—'}</dd>
+                <dd>${orch.models.length ? orch.models.join(", ") : "—"}</dd>
                 <dt>Signature</dt>
                 <dd>
-                  <span class="pill pill-${orch.signatureStatus}">${orch.signatureStatus}</span>
+                  <span class="pill pill-${orch.signatureStatus}"
+                    >${orch.signatureStatus}</span
+                  >
                 </dd>
                 <dt>Freshness</dt>
                 <dd>
-                  <span class="pill pill-${orch.freshnessStatus}">${orch.freshnessStatus}</span>
+                  <span class="pill pill-${orch.freshnessStatus}"
+                    >${orch.freshnessStatus}</span
+                  >
                 </dd>
                 <dt>Last observation</dt>
                 <dd>${formatTimestamp(orch.lastObservedAt)}</dd>
@@ -118,9 +134,10 @@ export class AdminOrchDetail extends LitElement {
         : html`
             <section class="card">
               <p class="muted">
-                Resolver doesn't know this orch. ${observations.length === 0
-                  ? 'And the local mirror has no observations either.'
-                  : 'Showing locally-mirrored observations only.'}
+                Resolver doesn't know this orch.
+                ${observations.length === 0
+                  ? "And the local mirror has no observations either."
+                  : "Showing locally-mirrored observations only."}
               </p>
             </section>
           `}
@@ -146,11 +163,15 @@ export class AdminOrchDetail extends LitElement {
                     (o) => html`
                       <tr>
                         <td>${formatTimestamp(o.observedAt)}</td>
-                        <td>${o.capability ?? '—'}</td>
-                        <td>${o.model ?? '—'}</td>
-                        <td>${o.signatureStatus ?? '—'}</td>
-                        <td>${o.freshnessStatus ?? '—'}</td>
-                        <td>${o.detailsJson ? html`<code>${o.detailsJson}</code>` : '—'}</td>
+                        <td>${o.capability ?? "—"}</td>
+                        <td>${o.model ?? "—"}</td>
+                        <td>${o.signatureStatus ?? "—"}</td>
+                        <td>${o.freshnessStatus ?? "—"}</td>
+                        <td>
+                          ${o.detailsJson
+                            ? html`<code>${o.detailsJson}</code>`
+                            : "—"}
+                        </td>
                       </tr>
                     `,
                   )}
@@ -162,5 +183,5 @@ export class AdminOrchDetail extends LitElement {
   }
 }
 
-if (!customElements.get('admin-orch-detail'))
-  customElements.define('admin-orch-detail', AdminOrchDetail);
+if (!customElements.get("admin-orch-detail"))
+  customElements.define("admin-orch-detail", AdminOrchDetail);

@@ -2,9 +2,9 @@
 // bearer-action audit log. Cursor: opaque autoincrement-id boundary
 // (`before=N` returns rows with id < N, ordered desc).
 
-import { z } from 'zod';
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import type { AuditService } from '../../../service/audit/index.js';
+import { z } from "zod";
+import type { FastifyReply, FastifyRequest } from "fastify";
+import type { AuditService } from "../../../service/audit/index.js";
 
 const QuerySchema = z
   .object({
