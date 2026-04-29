@@ -57,6 +57,15 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@fastify/*"
         update-types: ["version-update:semver-major"]
+      # Vitest + @vitest/coverage-v8 are a coupled pair: the v8 plugin
+      # peer-pins vitest to its own exact version, so bumping either
+      # one without the other ERESOLVEs npm ci. Plan vitest majors as
+      # a single coordinated effort (likely API churn in vi.fn types,
+      # coverage reporters, and config shape).
+      - dependency-name: "vitest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitest/coverage-v8"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: docker
     directory: /
