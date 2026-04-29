@@ -8,13 +8,11 @@ import { z } from "zod";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { RoutingService } from "../../../service/routing/index.js";
 
-const ParamsSchema = z
-  .object({
-    address: z.string().regex(/^0x[a-fA-F0-9]{40}$/, {
-      message: "Expected 0x-prefixed 40-hex address",
-    }),
-  })
-  .strict();
+const ParamsSchema = z.strictObject({
+  address: z.string().regex(/^0x[a-fA-F0-9]{40}$/, {
+    message: "Expected 0x-prefixed 40-hex address",
+  }),
+});
 
 export interface HandleGetOrchDeps {
   routing: RoutingService;

@@ -5,18 +5,16 @@ import { z } from "zod";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { ResolverService } from "../../../service/resolver/index.js";
 
-const QuerySchema = z
-  .object({
-    since: z.coerce.number().int().nonnegative().optional(),
-    limit: z.coerce.number().int().positive().max(1000).optional(),
-    ethAddress: z
-      .string()
-      .regex(/^0x[a-fA-F0-9]{40}$/, {
-        message: "Expected 0x-prefixed 40-hex address",
-      })
-      .optional(),
-  })
-  .strict();
+const QuerySchema = z.strictObject({
+  since: z.coerce.number().int().nonnegative().optional(),
+  limit: z.coerce.number().int().positive().max(1000).optional(),
+  ethAddress: z
+    .string()
+    .regex(/^0x[a-fA-F0-9]{40}$/, {
+      message: "Expected 0x-prefixed 40-hex address",
+    })
+    .optional(),
+});
 
 export interface HandleListResolverAuditLogDeps {
   resolver: ResolverService;

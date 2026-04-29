@@ -7,12 +7,10 @@ import { z } from "zod";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { RoutingService } from "../../../service/routing/index.js";
 
-const ListOrchsQuerySchema = z
-  .object({
-    capability: z.string().min(1).max(120).optional(),
-    model: z.string().min(1).max(240).optional(),
-  })
-  .strict();
+const ListOrchsQuerySchema = z.strictObject({
+  capability: z.string().min(1).max(120).optional(),
+  model: z.string().min(1).max(240).optional(),
+});
 
 export interface HandleListOrchsDeps {
   routing: RoutingService;

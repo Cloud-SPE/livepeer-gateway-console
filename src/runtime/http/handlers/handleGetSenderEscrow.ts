@@ -6,7 +6,7 @@ import { z } from "zod";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { SenderService } from "../../../service/sender/index.js";
 
-const QuerySchema = z.object({}).strict();
+const QuerySchema = z.strictObject({});
 
 export interface HandleGetSenderEscrowDeps {
   sender: SenderService;

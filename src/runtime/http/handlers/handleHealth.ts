@@ -9,7 +9,7 @@ import type { PayerDaemonClient } from "../../../providers/payerDaemon/client.js
 import type { ResolverClient } from "../../../providers/resolver/client.js";
 import { checkUnixSocket } from "../../../utils/socketCheck.js";
 
-const HealthQuerySchema = z.object({}).strict();
+const HealthQuerySchema = z.strictObject({});
 
 export interface HandleHealthDeps {
   resolver: ResolverClient;

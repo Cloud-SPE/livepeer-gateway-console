@@ -6,12 +6,10 @@ import { z } from "zod";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { AuditService } from "../../../service/audit/index.js";
 
-const QuerySchema = z
-  .object({
-    limit: z.coerce.number().int().positive().max(500).optional(),
-    before: z.coerce.number().int().positive().optional(),
-  })
-  .strict();
+const QuerySchema = z.strictObject({
+  limit: z.coerce.number().int().positive().max(500).optional(),
+  before: z.coerce.number().int().positive().optional(),
+});
 
 export interface HandleListAuditLogDeps {
   audit: AuditService;

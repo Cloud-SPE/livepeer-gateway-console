@@ -10,7 +10,7 @@ import {
   type SenderService,
 } from "../../../service/sender/index.js";
 
-const QuerySchema = z.object({}).strict();
+const QuerySchema = z.strictObject({});
 
 export interface HandleGetSenderWalletDeps {
   sender: SenderService;

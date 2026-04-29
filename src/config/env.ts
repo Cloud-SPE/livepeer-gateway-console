@@ -16,7 +16,7 @@ export const EnvSchema = z.object({
     message: "ADMIN_TOKEN must be at least 32 characters",
   }),
 
-  CHAIN_RPC: z.string().url(),
+  CHAIN_RPC: z.url(),
   CHAIN_ID: z.coerce.number().int().positive().default(42_161),
   CONTROLLER_ADDRESS: EthAddressLike.default(
     "0xD8E8328501E9645d16Cf49539efC04f734606ee4",

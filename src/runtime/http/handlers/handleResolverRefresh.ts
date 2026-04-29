@@ -10,16 +10,14 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import type { AuditService } from "../../../service/audit/index.js";
 import type { ResolverService } from "../../../service/resolver/index.js";
 
-const ParamsSchema = z
-  .object({
-    address: z.string().regex(/^0x[a-fA-F0-9]{40}$/, {
-      message: "Expected 0x-prefixed 40-hex address",
-    }),
-  })
-  .strict();
+const ParamsSchema = z.strictObject({
+  address: z.string().regex(/^0x[a-fA-F0-9]{40}$/, {
+    message: "Expected 0x-prefixed 40-hex address",
+  }),
+});
 
 const EmptyBodySchema = z
-  .union([z.object({}).strict(), z.null(), z.undefined()])
+  .union([z.strictObject({}), z.null(), z.undefined()])
   .optional();
 
 export interface HandleResolverRefreshDeps {
