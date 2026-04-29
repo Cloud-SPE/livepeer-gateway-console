@@ -122,7 +122,7 @@ describe("RoutingService.getOrch", () => {
         observedAt: 1_700_000_000_000,
         orchAddress: ORCH_A,
         capability: "whisper",
-        model: "whisper-large",
+        offering: "whisper-large",
         signatureStatus: "verified",
         freshnessStatus: "fresh",
         detailsJson: null,
@@ -151,7 +151,7 @@ describe("RoutingService.getOrch", () => {
       totalStakeWei: "7000",
       lastObservedAt: 1_700_000_000_000,
       capabilities: ["transcode", "whisper"],
-      models: ["whisper-large"],
+      offerings: ["whisper-large"],
       signatureStatus: "signed",
     });
   });
@@ -247,7 +247,7 @@ function resolvedOrch(addr: string): ResolvedOrch {
         url: "https://orch.example/",
         region: "us-east",
         capabilities: ["transcode", "whisper"],
-        models: ["whisper-large"],
+        offerings: ["whisper-large"],
         signatureStatus: "verified",
         operatorAddress: addr,
         enabled: true,
