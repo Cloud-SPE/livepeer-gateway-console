@@ -1,6 +1,6 @@
-// GET /api/capabilities/search — capability/model search via
-// `Resolver.Select`. Operator picks (capability, model?, tier?); the
-// daemon decides which orch wins.
+// GET /api/capabilities/search — capability/offering search via
+// `Resolver.Select`. Operator picks (capability, offering, tier?); the
+// daemon returns the selected route.
 
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { ResolverService } from "../../../service/resolver/index.js";
@@ -18,7 +18,7 @@ export async function handleCapabilitySearch(
   const query = CapabilitySearchQuerySchema.parse(req.query ?? {});
   const result = await deps.resolver.search({
     capability: query.capability,
-    ...(query.offering !== undefined ? { offering: query.offering } : {}),
+    offering: query.offering,
     ...(query.tier !== undefined ? { tier: query.tier } : {}),
   });
   await reply.send(result);

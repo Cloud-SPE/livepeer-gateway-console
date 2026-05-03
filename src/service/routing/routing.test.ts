@@ -73,6 +73,7 @@ describe("RoutingService.listOrchs", () => {
       resolver,
       chain,
       controllerAddress: CONTROLLER,
+      serviceRegistryAddress: null,
       chainReadTtlMs: 30_000,
     });
 
@@ -109,6 +110,7 @@ describe("RoutingService.getOrch", () => {
       resolver,
       chain,
       controllerAddress: CONTROLLER,
+      serviceRegistryAddress: null,
       chainReadTtlMs: 30_000,
     });
     const result = await svc.getOrch(ORCH_A);
@@ -140,6 +142,7 @@ describe("RoutingService.getOrch", () => {
       resolver,
       chain,
       controllerAddress: CONTROLLER,
+      serviceRegistryAddress: null,
       chainReadTtlMs: 30_000,
     });
 
@@ -172,6 +175,7 @@ describe("RoutingService TTL cache", () => {
       resolver,
       chain,
       controllerAddress: CONTROLLER,
+      serviceRegistryAddress: null,
       chainReadTtlMs: 30_000,
       now: () => now,
     });
@@ -211,6 +215,7 @@ describe("RoutingService TTL cache", () => {
       resolver,
       chain,
       controllerAddress: CONTROLLER,
+      serviceRegistryAddress: null,
       chainReadTtlMs: 30_000,
     });
 
@@ -245,7 +250,7 @@ function resolvedOrch(addr: string): ResolvedOrch {
       {
         id: addr,
         url: "https://orch.example/",
-        region: "us-east",
+        workerEthAddress: addr,
         capabilities: ["transcode", "whisper"],
         offerings: ["whisper-large"],
         signatureStatus: "verified",
@@ -258,7 +263,7 @@ function resolvedOrch(addr: string): ResolvedOrch {
     freshnessStatus: "fresh",
     cachedAt: 1_700_000_000_000,
     fetchedAt: 1_700_000_000_000,
-    schemaVersion: 1,
+    schemaVersion: "3.0.1",
   };
 }
 
@@ -268,9 +273,8 @@ function makeResolver(overrides: Partial<ResolverClient>): ResolverClient {
     listKnown: async () => [],
     resolveByAddress: async () => null,
     select: async () => ({
-      orchAddress: null,
-      reason: "no node matched",
-      nodes: [],
+      route: null,
+      reason: "no route matched",
     }),
     refresh: async () => undefined,
     getAuditLog: async () => [],
@@ -317,6 +321,7 @@ function makeChain(opts: FakeChainOptions): FakeChain {
     bondingManagerListPool: (a) => spies.bondingManagerListPool(a),
     getReserveInfo: (a, b) => spies.getReserveInfo(a, b),
     readServiceUri: (a, b) => spies.readServiceUri(a, b),
+    getBalance: async () => "0",
     spies,
   };
 }

@@ -112,8 +112,10 @@ export class AdminOrchDetail extends LitElement {
                     ? orch.capabilities.join(", ")
                     : "—"}
                 </dd>
-                <dt>Models</dt>
-                <dd>${orch.models.length ? orch.models.join(", ") : "—"}</dd>
+                <dt>Offerings</dt>
+                <dd>
+                  ${orch.offerings.length ? orch.offerings.join(", ") : "—"}
+                </dd>
                 <dt>Signature</dt>
                 <dd>
                   <span class="pill pill-${orch.signatureStatus}"
@@ -152,7 +154,7 @@ export class AdminOrchDetail extends LitElement {
                   <tr>
                     <th>When</th>
                     <th>Cap.</th>
-                    <th>Model</th>
+                    <th>Offering</th>
                     <th>Sig</th>
                     <th>Fresh</th>
                     <th>Detail</th>
@@ -164,7 +166,7 @@ export class AdminOrchDetail extends LitElement {
                       <tr>
                         <td>${formatTimestamp(o.observedAt)}</td>
                         <td>${o.capability ?? "—"}</td>
-                        <td>${o.model ?? "—"}</td>
+                        <td>${o.offering ?? "—"}</td>
                         <td>${o.signatureStatus ?? "—"}</td>
                         <td>${o.freshnessStatus ?? "—"}</td>
                         <td>

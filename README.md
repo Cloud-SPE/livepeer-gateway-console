@@ -25,8 +25,8 @@ deployment:
 - **Routing dashboard is the central screen.** Multi-pane: orch roster with
   capability filters + per-orch drill-down panels (signatures, freshness,
   routing history charts derived from the resolver's audit log).
-- **Capability search** via `Resolver.Select` — preview which orch the
-  resolver would pick for a given capability/model/tier.
+- **Capability search** via `Resolver.Select` — preview the selected route
+  for a given capability/offering/tier request.
 - **Sender wallet status** — wallet balance from chain, escrow / reserve
   details from `PayerDaemon.GetDepositInfo`.
 - **Audit log** — both the resolver's own (`Resolver.GetAuditLog`) and the
@@ -49,14 +49,15 @@ diagram see [DESIGN.md](DESIGN.md). For UI architecture see
 - The two upstream daemons running and exposing their unix sockets:
   - `service-registry-daemon` in resolver mode →
     `/var/run/livepeer/resolver/service-registry.sock`
-  - `payment-daemon` (v2.0.0+) in sender mode →
+  - `payment-daemon` in sender mode →
     `/var/run/livepeer/sender/payment.sock`
 
   In a typical deployment those are named volumes from
   [`livepeer-modules-project/deploy/gateway/compose.yaml`][gateway-compose].
-  The console consumes only `payer_daemon.proto` (read-only RPCs); the
-  v2.0.0 breaking changes (`worker.yaml` rename, `payee_daemon.proto`
-  field deletion) sit on surfaces this console does not touch.
+  Set `SERVICE_REGISTRY_ADDRESS` when the gateway should read a specific
+  registry contract (for example standard `ServiceRegistry` vs
+  `AIServiceRegistry`) so the console's direct chain reads match the
+  colocated resolver daemon.
 
 [gateway-compose]: ../livepeer-modules-project/deploy/gateway/compose.yaml
 

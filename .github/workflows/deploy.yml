@@ -5,7 +5,7 @@
 #
 # Releases are explicit — only annotated semver tags produce images.
 # Push to main runs CI (gates the merge) but does NOT publish to
-# Docker Hub. To cut a release: `git tag v0.1.1 && git push origin v0.1.1`.
+# Docker Hub. To cut a release: `git tag v4.0.1 && git push origin v4.0.1`.
 #
 # The job re-runs the same lint/typecheck/test gate as ci.yml before
 # touching the registry — a broken image must never land on Docker Hub.
@@ -45,6 +45,15 @@ jobs:
       - name: Install root + lint-plugin workspace
         run: npm ci
 
+      - name: Verify git tag matches package.json version
+        run: |
+          PKG_VERSION="v$(node -p "require('./package.json').version")"
+          if [[ "${{ github.ref_name }}" != "$PKG_VERSION" ]]; then
+            echo "::error::git tag '${{ github.ref_name }}' does not match package.json version '$PKG_VERSION'"
+            exit 1
+          fi
+          echo "tag and package.json version agree at $PKG_VERSION"
+
       - name: Format check (prettier)
         run: npm run fmt:check
 
@@ -56,6 +65,9 @@ jobs:
 
       - name: Test (with 75% coverage floor)
         run: npm test
+
+      - name: Test SPA (Lit components in jsdom)
+        run: npm run test:ui
 
       # ---- Build & push ---------------------------------------------------
       - name: Set up Docker Buildx

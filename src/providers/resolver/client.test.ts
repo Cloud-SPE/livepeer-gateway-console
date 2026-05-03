@@ -86,7 +86,7 @@ describe("ResolverClient", () => {
     });
   });
 
-  it("resolveByAddress() returns mapped ResolvedOrch with node capabilities/models", async () => {
+  it("resolveByAddress() returns mapped ResolvedOrch with node capabilities/offerings", async () => {
     const r = await client.resolveByAddress(ORCH_A);
     expect(r).not.toBeNull();
     expect(r?.address).toBe(ORCH_A);
@@ -95,6 +95,7 @@ describe("ResolverClient", () => {
     expect(r?.freshnessStatus).toBe("fresh");
     expect(r?.nodes).toHaveLength(1);
     expect(r?.nodes[0]).toMatchObject({
+      workerEthAddress: ORCH_A,
       capabilities: ["transcode", "whisper"],
       offerings: ["whisper-large"],
       signatureStatus: "verified",
@@ -107,21 +108,23 @@ describe("ResolverClient", () => {
     expect(r).toBeNull();
   });
 
-  it("select() returns top-weighted node + reason", async () => {
+  it("select() returns selected route + reason", async () => {
     const r = await client.select({
       capability: "whisper",
       offering: "whisper-large",
     });
-    expect(r.orchAddress).toBe(ORCH_A);
+    expect(r.route?.ethAddress).toBe(ORCH_A);
+    expect(r.route?.workerUrl).toBe("https://orch-a.example/inference");
     expect(r.reason).toBe("top-weighted");
-    expect(r.nodes).toHaveLength(1);
   });
 
-  it("select() returns null orchAddress when no node matches", async () => {
-    const r = await client.select({ capability: "unobtainium" });
-    expect(r.orchAddress).toBeNull();
-    expect(r.reason).toBe("no node matched");
-    expect(r.nodes).toHaveLength(0);
+  it("select() returns null route when no node matches", async () => {
+    const r = await client.select({
+      capability: "unobtainium",
+      offering: "missing",
+    });
+    expect(r.route).toBeNull();
+    expect(r.reason).toBe("no route matched");
   });
 
   it("refresh() wildcard records the request", async () => {
@@ -190,13 +193,13 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
           {
             ethAddress: ORCH_A,
             mode: ResolveMode.RESOLVE_MODE_WELL_KNOWN,
-            freshnessStatus: FreshnessStatus.FRESHNESS_FRESH,
+            freshnessStatus: FreshnessStatus.FRESHNESS_STATUS_FRESH,
             cachedAt: new Date("2026-04-28T12:00:00Z"),
           },
           {
             ethAddress: ORCH_B,
             mode: ResolveMode.RESOLVE_MODE_CSV,
-            freshnessStatus: FreshnessStatus.FRESHNESS_STALE_RECOVERABLE,
+            freshnessStatus: FreshnessStatus.FRESHNESS_STATUS_STALE_RECOVERABLE,
             cachedAt: new Date("2026-04-28T11:50:00Z"),
           },
         ],
@@ -227,9 +230,8 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
           {
             id: addr,
             url: "https://orch-a.example/inference",
-            lat: 0,
-            lon: 0,
-            region: "us-east",
+            workerEthAddress: addr,
+            extraJson: Buffer.from('{"region":"us-east"}'),
             capabilities: [
               {
                 name: "transcode",
@@ -244,7 +246,6 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
                   {
                     id: "whisper-large",
                     pricePerWorkUnitWei: "1000",
-                    warm: true,
                     constraintsJson: Buffer.alloc(0),
                   },
                 ],
@@ -259,10 +260,10 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
             weight: 100,
           },
         ],
-        freshnessStatus: FreshnessStatus.FRESHNESS_FRESH,
+        freshnessStatus: FreshnessStatus.FRESHNESS_STATUS_FRESH,
         cachedAt: new Date(),
         fetchedAt: new Date(),
-        schemaVersion: 1,
+        schemaVersion: "3.0.1",
       });
     },
     select(
@@ -270,26 +271,23 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
       cb: sendUnaryData<SelectResult>,
     ) {
       if (call.request.capability === "unobtainium") {
-        cb(null, { nodes: [] });
+        cb(
+          { code: grpcStatus.NOT_FOUND, details: "no matching route" } as never,
+          null,
+        );
         return;
       }
       cb(null, {
-        nodes: [
-          {
-            id: ORCH_A,
-            url: "https://orch-a.example/inference",
-            lat: 0,
-            lon: 0,
-            region: "us-east",
-            capabilities: [],
-            source: 1,
-            signatureStatus: SignatureStatus.SIGNATURE_STATUS_VERIFIED,
-            operatorAddress: ORCH_A,
-            enabled: true,
-            tierAllowed: [],
-            weight: 100,
-          },
-        ],
+        route: {
+          workerUrl: "https://orch-a.example/inference",
+          ethAddress: ORCH_A,
+          capability: call.request.capability,
+          offering: call.request.offering,
+          pricePerWorkUnitWei: "1000",
+          workUnit: "second",
+          extraJson: Buffer.from('{"region":"us-east"}'),
+          constraintsJson: Buffer.alloc(0),
+        },
       });
     },
     refresh(
@@ -337,7 +335,7 @@ function emptyResolveResult(addr: string): ResolveResult {
     resolvedUri: "",
     mode: ResolveMode.RESOLVE_MODE_UNSPECIFIED,
     nodes: [],
-    freshnessStatus: FreshnessStatus.FRESHNESS_UNSPECIFIED,
-    schemaVersion: 0,
+    freshnessStatus: FreshnessStatus.FRESHNESS_STATUS_UNSPECIFIED,
+    schemaVersion: "",
   };
 }

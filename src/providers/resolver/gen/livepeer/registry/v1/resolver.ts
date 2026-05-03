@@ -47,7 +47,7 @@ export interface ResolveResult {
   freshnessStatus: FreshnessStatus;
   cachedAt?: Date | undefined;
   fetchedAt?: Date | undefined;
-  schemaVersion: number;
+  schemaVersion: string;
 }
 
 export interface SelectRequest {
@@ -55,14 +55,21 @@ export interface SelectRequest {
   offering: string;
   tier: string;
   minWeight: number;
-  geoLat: number;
-  geoLon: number;
-  geoWithinKm: number;
-  hasGeo: boolean;
 }
 
 export interface SelectResult {
-  nodes: Node[];
+  route?: SelectedRoute | undefined;
+}
+
+export interface SelectedRoute {
+  workerUrl: string;
+  ethAddress: string;
+  capability: string;
+  offering: string;
+  pricePerWorkUnitWei: string;
+  workUnit: string;
+  extraJson: Buffer;
+  constraintsJson: Buffer;
 }
 
 export interface ListKnownRequest {
@@ -244,7 +251,7 @@ function createBaseResolveResult(): ResolveResult {
     freshnessStatus: 0,
     cachedAt: undefined,
     fetchedAt: undefined,
-    schemaVersion: 0,
+    schemaVersion: "",
   };
 }
 
@@ -271,8 +278,8 @@ export const ResolveResult: MessageFns<ResolveResult> = {
     if (message.fetchedAt !== undefined) {
       Timestamp.encode(toTimestamp(message.fetchedAt), writer.uint32(58).fork()).join();
     }
-    if (message.schemaVersion !== 0) {
-      writer.uint32(64).int32(message.schemaVersion);
+    if (message.schemaVersion !== "") {
+      writer.uint32(66).string(message.schemaVersion);
     }
     return writer;
   },
@@ -341,11 +348,11 @@ export const ResolveResult: MessageFns<ResolveResult> = {
           continue;
         }
         case 8: {
-          if (tag !== 64) {
+          if (tag !== 66) {
             break;
           }
 
-          message.schemaVersion = reader.int32();
+          message.schemaVersion = reader.string();
           continue;
         }
       }
@@ -387,10 +394,10 @@ export const ResolveResult: MessageFns<ResolveResult> = {
         ? fromJsonTimestamp(object.fetched_at)
         : undefined,
       schemaVersion: isSet(object.schemaVersion)
-        ? globalThis.Number(object.schemaVersion)
+        ? globalThis.String(object.schemaVersion)
         : isSet(object.schema_version)
-        ? globalThis.Number(object.schema_version)
-        : 0,
+        ? globalThis.String(object.schema_version)
+        : "",
     };
   },
 
@@ -417,8 +424,8 @@ export const ResolveResult: MessageFns<ResolveResult> = {
     if (message.fetchedAt !== undefined) {
       obj.fetchedAt = message.fetchedAt.toISOString();
     }
-    if (message.schemaVersion !== 0) {
-      obj.schemaVersion = Math.round(message.schemaVersion);
+    if (message.schemaVersion !== "") {
+      obj.schemaVersion = message.schemaVersion;
     }
     return obj;
   },
@@ -435,13 +442,13 @@ export const ResolveResult: MessageFns<ResolveResult> = {
     message.freshnessStatus = object.freshnessStatus ?? 0;
     message.cachedAt = object.cachedAt ?? undefined;
     message.fetchedAt = object.fetchedAt ?? undefined;
-    message.schemaVersion = object.schemaVersion ?? 0;
+    message.schemaVersion = object.schemaVersion ?? "";
     return message;
   },
 };
 
 function createBaseSelectRequest(): SelectRequest {
-  return { capability: "", offering: "", tier: "", minWeight: 0, geoLat: 0, geoLon: 0, geoWithinKm: 0, hasGeo: false };
+  return { capability: "", offering: "", tier: "", minWeight: 0 };
 }
 
 export const SelectRequest: MessageFns<SelectRequest> = {
@@ -457,18 +464,6 @@ export const SelectRequest: MessageFns<SelectRequest> = {
     }
     if (message.minWeight !== 0) {
       writer.uint32(32).int32(message.minWeight);
-    }
-    if (message.geoLat !== 0) {
-      writer.uint32(41).double(message.geoLat);
-    }
-    if (message.geoLon !== 0) {
-      writer.uint32(49).double(message.geoLon);
-    }
-    if (message.geoWithinKm !== 0) {
-      writer.uint32(57).double(message.geoWithinKm);
-    }
-    if (message.hasGeo !== false) {
-      writer.uint32(64).bool(message.hasGeo);
     }
     return writer;
   },
@@ -512,38 +507,6 @@ export const SelectRequest: MessageFns<SelectRequest> = {
           message.minWeight = reader.int32();
           continue;
         }
-        case 5: {
-          if (tag !== 41) {
-            break;
-          }
-
-          message.geoLat = reader.double();
-          continue;
-        }
-        case 6: {
-          if (tag !== 49) {
-            break;
-          }
-
-          message.geoLon = reader.double();
-          continue;
-        }
-        case 7: {
-          if (tag !== 57) {
-            break;
-          }
-
-          message.geoWithinKm = reader.double();
-          continue;
-        }
-        case 8: {
-          if (tag !== 64) {
-            break;
-          }
-
-          message.hasGeo = reader.bool();
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -563,26 +526,6 @@ export const SelectRequest: MessageFns<SelectRequest> = {
         : isSet(object.min_weight)
         ? globalThis.Number(object.min_weight)
         : 0,
-      geoLat: isSet(object.geoLat)
-        ? globalThis.Number(object.geoLat)
-        : isSet(object.geo_lat)
-        ? globalThis.Number(object.geo_lat)
-        : 0,
-      geoLon: isSet(object.geoLon)
-        ? globalThis.Number(object.geoLon)
-        : isSet(object.geo_lon)
-        ? globalThis.Number(object.geo_lon)
-        : 0,
-      geoWithinKm: isSet(object.geoWithinKm)
-        ? globalThis.Number(object.geoWithinKm)
-        : isSet(object.geo_within_km)
-        ? globalThis.Number(object.geo_within_km)
-        : 0,
-      hasGeo: isSet(object.hasGeo)
-        ? globalThis.Boolean(object.hasGeo)
-        : isSet(object.has_geo)
-        ? globalThis.Boolean(object.has_geo)
-        : false,
     };
   },
 
@@ -592,25 +535,13 @@ export const SelectRequest: MessageFns<SelectRequest> = {
       obj.capability = message.capability;
     }
     if (message.offering !== "") {
-      obj.model = message.offering;
+      obj.offering = message.offering;
     }
     if (message.tier !== "") {
       obj.tier = message.tier;
     }
     if (message.minWeight !== 0) {
       obj.minWeight = Math.round(message.minWeight);
-    }
-    if (message.geoLat !== 0) {
-      obj.geoLat = message.geoLat;
-    }
-    if (message.geoLon !== 0) {
-      obj.geoLon = message.geoLon;
-    }
-    if (message.geoWithinKm !== 0) {
-      obj.geoWithinKm = message.geoWithinKm;
-    }
-    if (message.hasGeo !== false) {
-      obj.hasGeo = message.hasGeo;
     }
     return obj;
   },
@@ -624,22 +555,18 @@ export const SelectRequest: MessageFns<SelectRequest> = {
     message.offering = object.offering ?? "";
     message.tier = object.tier ?? "";
     message.minWeight = object.minWeight ?? 0;
-    message.geoLat = object.geoLat ?? 0;
-    message.geoLon = object.geoLon ?? 0;
-    message.geoWithinKm = object.geoWithinKm ?? 0;
-    message.hasGeo = object.hasGeo ?? false;
     return message;
   },
 };
 
 function createBaseSelectResult(): SelectResult {
-  return { nodes: [] };
+  return { route: undefined };
 }
 
 export const SelectResult: MessageFns<SelectResult> = {
   encode(message: SelectResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.nodes) {
-      Node.encode(v!, writer.uint32(10).fork()).join();
+    if (message.route !== undefined) {
+      SelectedRoute.encode(message.route, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -656,7 +583,7 @@ export const SelectResult: MessageFns<SelectResult> = {
             break;
           }
 
-          message.nodes.push(Node.decode(reader, reader.uint32()));
+          message.route = SelectedRoute.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -669,13 +596,13 @@ export const SelectResult: MessageFns<SelectResult> = {
   },
 
   fromJSON(object: any): SelectResult {
-    return { nodes: globalThis.Array.isArray(object?.nodes) ? object.nodes.map((e: any) => Node.fromJSON(e)) : [] };
+    return { route: isSet(object.route) ? SelectedRoute.fromJSON(object.route) : undefined };
   },
 
   toJSON(message: SelectResult): unknown {
     const obj: any = {};
-    if (message.nodes?.length) {
-      obj.nodes = message.nodes.map((e) => Node.toJSON(e));
+    if (message.route !== undefined) {
+      obj.route = SelectedRoute.toJSON(message.route);
     }
     return obj;
   },
@@ -685,7 +612,214 @@ export const SelectResult: MessageFns<SelectResult> = {
   },
   fromPartial<I extends Exact<DeepPartial<SelectResult>, I>>(object: I): SelectResult {
     const message = createBaseSelectResult();
-    message.nodes = object.nodes?.map((e) => Node.fromPartial(e)) || [];
+    message.route = (object.route !== undefined && object.route !== null)
+      ? SelectedRoute.fromPartial(object.route)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseSelectedRoute(): SelectedRoute {
+  return {
+    workerUrl: "",
+    ethAddress: "",
+    capability: "",
+    offering: "",
+    pricePerWorkUnitWei: "",
+    workUnit: "",
+    extraJson: Buffer.alloc(0),
+    constraintsJson: Buffer.alloc(0),
+  };
+}
+
+export const SelectedRoute: MessageFns<SelectedRoute> = {
+  encode(message: SelectedRoute, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.workerUrl !== "") {
+      writer.uint32(10).string(message.workerUrl);
+    }
+    if (message.ethAddress !== "") {
+      writer.uint32(18).string(message.ethAddress);
+    }
+    if (message.capability !== "") {
+      writer.uint32(26).string(message.capability);
+    }
+    if (message.offering !== "") {
+      writer.uint32(34).string(message.offering);
+    }
+    if (message.pricePerWorkUnitWei !== "") {
+      writer.uint32(42).string(message.pricePerWorkUnitWei);
+    }
+    if (message.workUnit !== "") {
+      writer.uint32(50).string(message.workUnit);
+    }
+    if (message.extraJson.length !== 0) {
+      writer.uint32(58).bytes(message.extraJson);
+    }
+    if (message.constraintsJson.length !== 0) {
+      writer.uint32(66).bytes(message.constraintsJson);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SelectedRoute {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSelectedRoute();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.workerUrl = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.ethAddress = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.capability = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.offering = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.pricePerWorkUnitWei = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.workUnit = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.extraJson = Buffer.from(reader.bytes());
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.constraintsJson = Buffer.from(reader.bytes());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SelectedRoute {
+    return {
+      workerUrl: isSet(object.workerUrl)
+        ? globalThis.String(object.workerUrl)
+        : isSet(object.worker_url)
+        ? globalThis.String(object.worker_url)
+        : "",
+      ethAddress: isSet(object.ethAddress)
+        ? globalThis.String(object.ethAddress)
+        : isSet(object.eth_address)
+        ? globalThis.String(object.eth_address)
+        : "",
+      capability: isSet(object.capability) ? globalThis.String(object.capability) : "",
+      offering: isSet(object.offering) ? globalThis.String(object.offering) : "",
+      pricePerWorkUnitWei: isSet(object.pricePerWorkUnitWei)
+        ? globalThis.String(object.pricePerWorkUnitWei)
+        : isSet(object.price_per_work_unit_wei)
+        ? globalThis.String(object.price_per_work_unit_wei)
+        : "",
+      workUnit: isSet(object.workUnit)
+        ? globalThis.String(object.workUnit)
+        : isSet(object.work_unit)
+        ? globalThis.String(object.work_unit)
+        : "",
+      extraJson: isSet(object.extraJson)
+        ? Buffer.from(bytesFromBase64(object.extraJson))
+        : isSet(object.extra_json)
+        ? Buffer.from(bytesFromBase64(object.extra_json))
+        : Buffer.alloc(0),
+      constraintsJson: isSet(object.constraintsJson)
+        ? Buffer.from(bytesFromBase64(object.constraintsJson))
+        : isSet(object.constraints_json)
+        ? Buffer.from(bytesFromBase64(object.constraints_json))
+        : Buffer.alloc(0),
+    };
+  },
+
+  toJSON(message: SelectedRoute): unknown {
+    const obj: any = {};
+    if (message.workerUrl !== "") {
+      obj.workerUrl = message.workerUrl;
+    }
+    if (message.ethAddress !== "") {
+      obj.ethAddress = message.ethAddress;
+    }
+    if (message.capability !== "") {
+      obj.capability = message.capability;
+    }
+    if (message.offering !== "") {
+      obj.offering = message.offering;
+    }
+    if (message.pricePerWorkUnitWei !== "") {
+      obj.pricePerWorkUnitWei = message.pricePerWorkUnitWei;
+    }
+    if (message.workUnit !== "") {
+      obj.workUnit = message.workUnit;
+    }
+    if (message.extraJson.length !== 0) {
+      obj.extraJson = base64FromBytes(message.extraJson);
+    }
+    if (message.constraintsJson.length !== 0) {
+      obj.constraintsJson = base64FromBytes(message.constraintsJson);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SelectedRoute>, I>>(base?: I): SelectedRoute {
+    return SelectedRoute.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SelectedRoute>, I>>(object: I): SelectedRoute {
+    const message = createBaseSelectedRoute();
+    message.workerUrl = object.workerUrl ?? "";
+    message.ethAddress = object.ethAddress ?? "";
+    message.capability = object.capability ?? "";
+    message.offering = object.offering ?? "";
+    message.pricePerWorkUnitWei = object.pricePerWorkUnitWei ?? "";
+    message.workUnit = object.workUnit ?? "";
+    message.extraJson = object.extraJson ?? Buffer.alloc(0);
+    message.constraintsJson = object.constraintsJson ?? Buffer.alloc(0);
     return message;
   },
 };
@@ -1580,6 +1714,14 @@ export const ResolverClient = makeGenericClientConstructor(
   service: typeof ResolverService;
   serviceName: string;
 };
+
+function bytesFromBase64(b64: string): Uint8Array {
+  return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
+}
+
+function base64FromBytes(arr: Uint8Array): string {
+  return globalThis.Buffer.from(arr).toString("base64");
+}
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | bigint | undefined;
 

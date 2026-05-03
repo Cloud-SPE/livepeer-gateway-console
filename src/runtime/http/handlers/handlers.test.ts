@@ -71,7 +71,7 @@ describe("handleListOrchs", () => {
     expect(reply.body).toMatchObject({ orchs: expect.any(Array) });
   });
 
-  it("client-side filters by capability + model", async () => {
+  it("client-side filters by capability + offering", async () => {
     const listOrchs = vi.fn(async () => [
       rosterRow(ORCH_A, ["whisper"], ["whisper-large"]),
       rosterRow(
@@ -150,11 +150,19 @@ describe("handleGetOrch", () => {
 // ---------------- handleCapabilitySearch ----------------
 
 describe("handleCapabilitySearch", () => {
-  it("forwards capability/model/tier to resolver.search", async () => {
+  it("forwards capability/offering/tier to resolver.search", async () => {
     const search = vi.fn(async () => ({
-      orchAddress: ORCH_A,
+      route: {
+        workerUrl: "https://orch.example/worker",
+        ethAddress: ORCH_A,
+        capability: "whisper",
+        offering: "whisper-large",
+        pricePerWorkUnitWei: "1000",
+        workUnit: "second",
+        extraJson: null,
+        constraintsJson: null,
+      },
       reason: "top-weighted",
-      nodes: [],
     }));
     const reply = makeReply();
     await handleCapabilitySearch(
@@ -173,22 +181,22 @@ describe("handleCapabilitySearch", () => {
       offering: "whisper-large",
       tier: "tier-0",
     });
-    expect(reply.body).toMatchObject({ orchAddress: ORCH_A });
+    expect(reply.body).toMatchObject({ route: { ethAddress: ORCH_A } });
   });
 
-  it("omits undefined optional fields", async () => {
+  it("requires offering", async () => {
     const search = vi.fn(async () => ({
-      orchAddress: null,
-      reason: "no node matched",
-      nodes: [],
+      route: null,
+      reason: "no route matched",
     }));
     const reply = makeReply();
-    await handleCapabilitySearch(
-      makeReq({ query: { capability: "whisper" } }) as never,
-      reply as never,
-      { resolver: makeResolverService({ search }) },
-    );
-    expect(search).toHaveBeenCalledWith({ capability: "whisper" });
+    await expect(
+      handleCapabilitySearch(
+        makeReq({ query: { capability: "whisper" } }) as never,
+        reply as never,
+        { resolver: makeResolverService({ search }) },
+      ),
+    ).rejects.toThrow();
   });
 });
 

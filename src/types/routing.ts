@@ -40,7 +40,7 @@ export type RoutingObservation = z.infer<typeof RoutingObservationSchema>;
 
 export const CapabilitySearchQuerySchema = z.strictObject({
   capability: z.string().min(1).max(120),
-  offering: z.string().min(1).max(240).optional(),
+  offering: z.string().min(1).max(240),
   tier: z.string().min(1).max(60).optional(),
 });
 

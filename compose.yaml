@@ -32,6 +32,7 @@ services:
       CHAIN_RPC: ${CHAIN_RPC:?set CHAIN_RPC (Arbitrum One RPC endpoint)}
       CHAIN_ID: ${CHAIN_ID:-42161}
       CONTROLLER_ADDRESS: ${CONTROLLER_ADDRESS:-0xD8E8328501E9645d16Cf49539efC04f734606ee4}
+      SERVICE_REGISTRY_ADDRESS: ${SERVICE_REGISTRY_ADDRESS:-}
 
       # Storage paths.
       STATE_PATH: /var/lib/livepeer/state.db

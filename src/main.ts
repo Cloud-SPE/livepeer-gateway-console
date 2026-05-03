@@ -50,6 +50,9 @@ async function main(): Promise<void> {
     payer,
     chain,
     controllerAddress: env.CONTROLLER_ADDRESS as `0x${string}`,
+    serviceRegistryAddress: env.SERVICE_REGISTRY_ADDRESS
+      ? (env.SERVICE_REGISTRY_ADDRESS as `0x${string}`)
+      : null,
     chainReadTtlMs: env.CHAIN_READ_TTL_SEC * 1000,
     senderAddress: env.SENDER_ADDRESS
       ? (env.SENDER_ADDRESS as `0x${string}`)

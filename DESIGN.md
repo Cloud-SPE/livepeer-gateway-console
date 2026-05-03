@@ -76,7 +76,7 @@ backend over HTTP only and may not import from `src/`.
 | `GET /api/health`                     | bearer | Console self-status; pings both daemon sockets                                     |
 | `GET /api/orchs`                      | bearer | Routing dashboard roster (resolver `ListKnown` + chain enrich)                     |
 | `GET /api/orchs/:address`             | bearer | Per-orch drilldown (resolver `ResolveByAddress` + slice of `routing_observations`) |
-| `GET /api/capabilities/search`        | bearer | Capability/model search via `Resolver.Select`                                      |
+| `GET /api/capabilities/search`        | bearer | Capability/offering selected-route preview via `Resolver.Select`                   |
 | `GET /api/sender/wallet`              | bearer | Hot-wallet address + chain balance                                                 |
 | `GET /api/sender/escrow`              | bearer | TicketBroker deposit + reserve via `PayerDaemon.GetDepositInfo`                    |
 | `GET /api/resolver/audit-log`         | bearer | Resolver-side audit log via `Resolver.GetAuditLog`                                 |
@@ -94,7 +94,7 @@ backend over HTTP only and may not import from `src/`.
 | `ResolverClient`    | gRPC client for service-registry-daemon (resolver mode)                                            | `@grpc/grpc-js` over unix socket |
 | `PayerDaemonClient` | gRPC client for payment-daemon (sender mode)                                                       | `@grpc/grpc-js` over unix socket |
 | `Logger`            | Structured log                                                                                     | `pino`                           |
-| `HttpServer`        | Fastify instance + plugin registration                                                             | `fastify` ^4                     |
+| `HttpServer`        | Fastify instance + plugin registration                                                             | `fastify` ^5                     |
 
 ## State model
 
@@ -125,14 +125,15 @@ Outbound HTTPS to `CHAIN_RPC` (Arbitrum One by default):
 - `Controller.getContract(keccak256("TicketBroker"))` →
   `getReserveInfo(senderAddress)` — sender escrow view.
 - `ServiceRegistry.getServiceURI(orchAddress)` — per-orch row's manifest URL
-  for the dashboard.
+  for the dashboard. Uses `SERVICE_REGISTRY_ADDRESS` when explicitly set;
+  otherwise resolves the default registry via `Controller`.
 
 ## What this does NOT do
 
 - Does **not** sign anything. The payment-daemon owns the sender keystore
   via its own bind-mount; the console only reads from it.
-- Does **not** drive `payment-daemon.StartSession` / `CreatePayment`. Those
-  are bridge-app concerns; the console is observation-only.
+- Does **not** drive `payment-daemon.CreatePayment`. That is a bridge-app
+  concern; the console is observation-only.
 - Does **not** edit fleet configuration, push-config, or restart anything.
   The two `Refresh` writes against the resolver cache are the only writes.
 - Does **not** ship a public unauthenticated route. The closest sibling

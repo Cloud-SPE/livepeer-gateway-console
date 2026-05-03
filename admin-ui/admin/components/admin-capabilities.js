@@ -4,7 +4,7 @@ import { shortAddress } from "../lib/format.js";
 
 /**
  * Capability search — `Resolver.Select` preview. Operator picks
- * (capability, model?, tier?); the daemon decides which orch wins.
+ * (capability, offering, tier?); the daemon returns one selected route.
  */
 export class AdminCapabilities extends LitElement {
   static properties = {
@@ -16,7 +16,7 @@ export class AdminCapabilities extends LitElement {
 
   constructor() {
     super();
-    this._form = { capability: "", model: "", tier: "" };
+    this._form = { capability: "", offering: "", tier: "" };
     this._result = null;
     this._loading = false;
     this._error = "";
@@ -33,13 +33,17 @@ export class AdminCapabilities extends LitElement {
       this._error = "capability is required";
       return;
     }
+    if (!this._form.offering.trim()) {
+      this._error = "offering is required";
+      return;
+    }
     this._loading = true;
     this._error = "";
     this._result = null;
     try {
       const query = {
         capability: this._form.capability.trim(),
-        ...(this._form.model.trim() ? { model: this._form.model.trim() } : {}),
+        offering: this._form.offering.trim(),
         ...(this._form.tier.trim() ? { tier: this._form.tier.trim() } : {}),
       };
       this._result = await searchCapabilities(query);
@@ -54,7 +58,7 @@ export class AdminCapabilities extends LitElement {
     return html`
       <h1>Capability search</h1>
       <p class="muted">
-        Preview which orch the resolver would pick for a capability/model/tier.
+        Preview the selected route for a capability/offering/tier request.
       </p>
 
       <form class="card" @submit=${(e) => void this._submit(e)} novalidate>
@@ -71,13 +75,14 @@ export class AdminCapabilities extends LitElement {
           />
         </div>
         <div class="field">
-          <label for="model">Model</label>
+          <label for="offering">Offering *</label>
           <input
-            id="model"
+            id="offering"
             type="text"
-            .value=${this._form.model}
+            required
+            .value=${this._form.offering}
             @input=${(e) => {
-              this._form = { ...this._form, model: e.target.value };
+              this._form = { ...this._form, offering: e.target.value };
             }}
           />
         </div>
@@ -110,62 +115,31 @@ export class AdminCapabilities extends LitElement {
       <section class="card">
         <h2>Result</h2>
         <dl class="kv">
-          <dt>Picked</dt>
+          <dt>Selected orch</dt>
           <dd>
-            ${r.orchAddress
-              ? html`<a href="#/orchs/${r.orchAddress}"
-                  ><code>${shortAddress(r.orchAddress)}</code></a
+            ${r.route?.ethAddress
+              ? html`<a href="#/orchs/${r.route.ethAddress}"
+                  ><code>${shortAddress(r.route.ethAddress)}</code></a
                 >`
               : html`<span class="muted">none</span>`}
           </dd>
           <dt>Reason</dt>
           <dd>${r.reason}</dd>
-          <dt>Candidates</dt>
-          <dd>${r.nodes?.length ?? 0}</dd>
+          <dt>Worker URL</dt>
+          <dd>${r.route?.workerUrl ?? "—"}</dd>
+          <dt>Capability</dt>
+          <dd>${r.route?.capability ?? "—"}</dd>
+          <dt>Offering</dt>
+          <dd>${r.route?.offering ?? "—"}</dd>
+          <dt>Wholesale price</dt>
+          <dd>${r.route?.pricePerWorkUnitWei ?? "—"}</dd>
+          <dt>Work unit</dt>
+          <dd>${r.route?.workUnit ?? "—"}</dd>
+          <dt>Extra JSON</dt>
+          <dd>${r.route?.extraJson ?? "—"}</dd>
+          <dt>Constraints JSON</dt>
+          <dd>${r.route?.constraintsJson ?? "—"}</dd>
         </dl>
-
-        ${r.nodes?.length
-          ? html`
-              <table class="data">
-                <thead>
-                  <tr>
-                    <th>Operator</th>
-                    <th>URL</th>
-                    <th>Region</th>
-                    <th>Capabilities</th>
-                    <th>Models</th>
-                    <th>Sig</th>
-                    <th>Weight</th>
-                    <th>Tiers</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${r.nodes.map(
-                    (n) => html`
-                      <tr>
-                        <td>
-                          <code
-                            >${shortAddress(n.operatorAddress || n.id)}</code
-                          >
-                        </td>
-                        <td>${n.url}</td>
-                        <td>${n.region || "—"}</td>
-                        <td>${n.capabilities?.join(", ") || "—"}</td>
-                        <td>${n.models?.join(", ") || "—"}</td>
-                        <td>
-                          <span class="pill pill-${n.signatureStatus}"
-                            >${n.signatureStatus}</span
-                          >
-                        </td>
-                        <td>${n.weight}</td>
-                        <td>${n.tierAllowed?.join(", ") || "—"}</td>
-                      </tr>
-                    `,
-                  )}
-                </tbody>
-              </table>
-            `
-          : ""}
       </section>
     `;
   }

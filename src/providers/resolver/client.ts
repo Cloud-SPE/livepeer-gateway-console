@@ -15,6 +15,7 @@ import {
   type RefreshRequest,
   type ResolveByAddressRequest,
   type ResolveResult,
+  type SelectedRoute as ProtoSelectedRoute,
   type SelectRequest,
   type SelectResult as ProtoSelectResult,
   type AuditLogResult,
@@ -47,7 +48,7 @@ export interface KnownOrch {
 export interface ResolvedNode {
   id: string;
   url: string;
-  region: string;
+  workerEthAddress: string;
   capabilities: readonly string[];
   offerings: readonly string[];
   signatureStatus: SignatureLabel;
@@ -65,20 +66,29 @@ export interface ResolvedOrch {
   freshnessStatus: FreshnessLabel;
   cachedAt: number | null;
   fetchedAt: number | null;
-  schemaVersion: number;
+  schemaVersion: string;
 }
 
 export interface SelectQuery {
   capability: string;
-  offering?: string;
+  offering: string;
   tier?: string;
 }
 
+export interface SelectedRoute {
+  workerUrl: string;
+  ethAddress: string;
+  capability: string;
+  offering: string;
+  pricePerWorkUnitWei: string;
+  workUnit: string;
+  extraJson: string | null;
+  constraintsJson: string | null;
+}
+
 export interface SelectResult {
-  /** First-ranked node's id (== orch address) if any matched, else null. */
-  orchAddress: string | null;
+  route: SelectedRoute | null;
   reason: string;
-  nodes: readonly ResolvedNode[];
 }
 
 export interface ResolverAuditEntry {
@@ -173,25 +183,25 @@ export function createResolverClient(
     async select(query) {
       const req: SelectRequest = {
         capability: query.capability,
-        offering: query.offering ?? "",
+        offering: query.offering,
         tier: query.tier ?? "",
         minWeight: 0,
-        geoLat: 0,
-        geoLon: 0,
-        geoWithinKm: 0,
-        hasGeo: false,
       };
-      const res = await unary<SelectRequest, ProtoSelectResult>(
-        (r, md, o, cb) => grpc.select(r, md, o, cb),
-        req,
-      );
-      const nodes = res.nodes.map(mapNode);
-      const top = nodes[0];
-      return {
-        orchAddress: top ? top.operatorAddress || top.id : null,
-        reason: nodes.length === 0 ? "no node matched" : "top-weighted",
-        nodes,
-      };
+      try {
+        const res = await unary<SelectRequest, ProtoSelectResult>(
+          (r, md, o, cb) => grpc.select(r, md, o, cb),
+          req,
+        );
+        return {
+          route: res.route ? mapSelectedRoute(res.route) : null,
+          reason: res.route ? "top-weighted" : "no route matched",
+        };
+      } catch (err) {
+        if (isStatus(err, grpcStatus.NOT_FOUND)) {
+          return { route: null, reason: "no route matched" };
+        }
+        throw err;
+      }
     },
 
     async refresh(addressOrWildcard, opts) {
@@ -273,7 +283,7 @@ function mapNode(n: ProtoNode): ResolvedNode {
   return {
     id: n.id,
     url: n.url,
-    region: n.region,
+    workerEthAddress: n.workerEthAddress,
     capabilities,
     offerings,
     signatureStatus: mapSignature(n.signatureStatus),
@@ -281,6 +291,19 @@ function mapNode(n: ProtoNode): ResolvedNode {
     enabled: n.enabled,
     tierAllowed: [...n.tierAllowed],
     weight: n.weight,
+  };
+}
+
+function mapSelectedRoute(r: ProtoSelectedRoute): SelectedRoute {
+  return {
+    workerUrl: r.workerUrl,
+    ethAddress: r.ethAddress,
+    capability: r.capability,
+    offering: r.offering,
+    pricePerWorkUnitWei: r.pricePerWorkUnitWei,
+    workUnit: r.workUnit,
+    extraJson: bufferToJsonStringOrNull(r.extraJson),
+    constraintsJson: bufferToJsonStringOrNull(r.constraintsJson),
   };
 }
 
@@ -309,11 +332,11 @@ function mapResolveMode(m: ResolveMode): ResolveModeLabel {
 
 function mapFreshness(f: FreshnessStatus): FreshnessLabel {
   switch (f) {
-    case FreshnessStatus.FRESHNESS_FRESH:
+    case FreshnessStatus.FRESHNESS_STATUS_FRESH:
       return "fresh";
-    case FreshnessStatus.FRESHNESS_STALE_RECOVERABLE:
+    case FreshnessStatus.FRESHNESS_STATUS_STALE_RECOVERABLE:
       return "stale-recoverable";
-    case FreshnessStatus.FRESHNESS_STALE_FAILING:
+    case FreshnessStatus.FRESHNESS_STATUS_STALE_FAILING:
       return "stale-failing";
     default:
       return "unknown";
@@ -345,4 +368,9 @@ function isStatus(err: unknown, code: number): boolean {
 function errorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
   return String(err);
+}
+
+function bufferToJsonStringOrNull(value: Buffer): string | null {
+  if (value.length === 0) return null;
+  return value.toString("utf8");
 }

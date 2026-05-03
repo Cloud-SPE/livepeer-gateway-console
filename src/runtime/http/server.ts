@@ -71,6 +71,7 @@ export interface ServerDeps {
   payer: PayerDaemonClient;
   chain: ChainReader;
   controllerAddress: Address;
+  serviceRegistryAddress: Address | null;
   chainReadTtlMs: number;
   /** Hot-wallet address from env. Null when SENDER_ADDRESS is unset. */
   senderAddress: Address | null;
@@ -100,6 +101,7 @@ export async function createServer(deps: ServerDeps): Promise<ServerHandle> {
     resolver: deps.resolver,
     chain: deps.chain,
     controllerAddress: deps.controllerAddress,
+    serviceRegistryAddress: deps.serviceRegistryAddress,
     chainReadTtlMs: deps.chainReadTtlMs,
   });
   const resolverService = createResolverService({ resolver: deps.resolver });

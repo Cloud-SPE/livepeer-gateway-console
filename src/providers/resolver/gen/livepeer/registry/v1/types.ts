@@ -103,27 +103,27 @@ export function signatureStatusToJSON(object: SignatureStatus): string {
 
 /** FreshnessStatus mirrors types.FreshnessStatus. */
 export enum FreshnessStatus {
-  FRESHNESS_UNSPECIFIED = 0,
-  FRESHNESS_FRESH = 1,
-  FRESHNESS_STALE_RECOVERABLE = 2,
-  FRESHNESS_STALE_FAILING = 3,
+  FRESHNESS_STATUS_UNSPECIFIED = 0,
+  FRESHNESS_STATUS_FRESH = 1,
+  FRESHNESS_STATUS_STALE_RECOVERABLE = 2,
+  FRESHNESS_STATUS_STALE_FAILING = 3,
   UNRECOGNIZED = -1,
 }
 
 export function freshnessStatusFromJSON(object: any): FreshnessStatus {
   switch (object) {
     case 0:
-    case "FRESHNESS_UNSPECIFIED":
-      return FreshnessStatus.FRESHNESS_UNSPECIFIED;
+    case "FRESHNESS_STATUS_UNSPECIFIED":
+      return FreshnessStatus.FRESHNESS_STATUS_UNSPECIFIED;
     case 1:
-    case "FRESHNESS_FRESH":
-      return FreshnessStatus.FRESHNESS_FRESH;
+    case "FRESHNESS_STATUS_FRESH":
+      return FreshnessStatus.FRESHNESS_STATUS_FRESH;
     case 2:
-    case "FRESHNESS_STALE_RECOVERABLE":
-      return FreshnessStatus.FRESHNESS_STALE_RECOVERABLE;
+    case "FRESHNESS_STATUS_STALE_RECOVERABLE":
+      return FreshnessStatus.FRESHNESS_STATUS_STALE_RECOVERABLE;
     case 3:
-    case "FRESHNESS_STALE_FAILING":
-      return FreshnessStatus.FRESHNESS_STALE_FAILING;
+    case "FRESHNESS_STATUS_STALE_FAILING":
+      return FreshnessStatus.FRESHNESS_STATUS_STALE_FAILING;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -133,14 +133,14 @@ export function freshnessStatusFromJSON(object: any): FreshnessStatus {
 
 export function freshnessStatusToJSON(object: FreshnessStatus): string {
   switch (object) {
-    case FreshnessStatus.FRESHNESS_UNSPECIFIED:
-      return "FRESHNESS_UNSPECIFIED";
-    case FreshnessStatus.FRESHNESS_FRESH:
-      return "FRESHNESS_FRESH";
-    case FreshnessStatus.FRESHNESS_STALE_RECOVERABLE:
-      return "FRESHNESS_STALE_RECOVERABLE";
-    case FreshnessStatus.FRESHNESS_STALE_FAILING:
-      return "FRESHNESS_STALE_FAILING";
+    case FreshnessStatus.FRESHNESS_STATUS_UNSPECIFIED:
+      return "FRESHNESS_STATUS_UNSPECIFIED";
+    case FreshnessStatus.FRESHNESS_STATUS_FRESH:
+      return "FRESHNESS_STATUS_FRESH";
+    case FreshnessStatus.FRESHNESS_STATUS_STALE_RECOVERABLE:
+      return "FRESHNESS_STATUS_STALE_RECOVERABLE";
+    case FreshnessStatus.FRESHNESS_STATUS_STALE_FAILING:
+      return "FRESHNESS_STATUS_STALE_FAILING";
     case FreshnessStatus.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -211,12 +211,20 @@ export interface Capability {
   extraJson: Buffer;
 }
 
+/**
+ * Offering is a priced tier under a capability. The id is opaque to the
+ * registry — for AI workloads it's typically the model name (e.g.
+ * "gpt-oss-20b"); for video transcoding it's a preset id (e.g.
+ * "h264-1080p"); for streaming sessions a resolution/fps tier (e.g.
+ * "vtuber-1080p30"). Pricing is the per-work-unit wholesale rate the
+ * orchestrator advertises; consumers (gateways/bridges) read it as the
+ * wholesale-side input to their routing decision.
+ */
 export interface Offering {
   id: string;
   /** decimal big-int as string */
   pricePerWorkUnitWei: string;
-  warm: boolean;
-  /** arbitrary JSON, opaque */
+  /** arbitrary JSON object, opaque */
   constraintsJson: Buffer;
 }
 
@@ -224,9 +232,9 @@ export interface Offering {
 export interface Node {
   id: string;
   url: string;
-  lat: number;
-  lon: number;
-  region: string;
+  workerEthAddress: string;
+  /** arbitrary JSON object, opaque */
+  extraJson: Buffer;
   capabilities: Capability[];
   source: Source;
   signatureStatus: SignatureStatus;
@@ -314,7 +322,9 @@ export const Capability: MessageFns<Capability> = {
         : isSet(object.work_unit)
         ? globalThis.String(object.work_unit)
         : "",
-      offerings: globalThis.Array.isArray(object?.offerings) ? object.offerings.map((e: any) => Offering.fromJSON(e)) : [],
+      offerings: globalThis.Array.isArray(object?.offerings)
+        ? object.offerings.map((e: any) => Offering.fromJSON(e))
+        : [],
       extraJson: isSet(object.extraJson)
         ? Buffer.from(bytesFromBase64(object.extraJson))
         : isSet(object.extra_json)
@@ -354,7 +364,7 @@ export const Capability: MessageFns<Capability> = {
 };
 
 function createBaseOffering(): Offering {
-  return { id: "", pricePerWorkUnitWei: "", warm: false, constraintsJson: Buffer.alloc(0) };
+  return { id: "", pricePerWorkUnitWei: "", constraintsJson: Buffer.alloc(0) };
 }
 
 export const Offering: MessageFns<Offering> = {
@@ -365,11 +375,8 @@ export const Offering: MessageFns<Offering> = {
     if (message.pricePerWorkUnitWei !== "") {
       writer.uint32(18).string(message.pricePerWorkUnitWei);
     }
-    if (message.warm !== false) {
-      writer.uint32(24).bool(message.warm);
-    }
     if (message.constraintsJson.length !== 0) {
-      writer.uint32(34).bytes(message.constraintsJson);
+      writer.uint32(26).bytes(message.constraintsJson);
     }
     return writer;
   },
@@ -398,15 +405,7 @@ export const Offering: MessageFns<Offering> = {
           continue;
         }
         case 3: {
-          if (tag !== 24) {
-            break;
-          }
-
-          message.warm = reader.bool();
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
+          if (tag !== 26) {
             break;
           }
 
@@ -430,7 +429,6 @@ export const Offering: MessageFns<Offering> = {
         : isSet(object.price_per_work_unit_wei)
         ? globalThis.String(object.price_per_work_unit_wei)
         : "",
-      warm: isSet(object.warm) ? globalThis.Boolean(object.warm) : false,
       constraintsJson: isSet(object.constraintsJson)
         ? Buffer.from(bytesFromBase64(object.constraintsJson))
         : isSet(object.constraints_json)
@@ -447,9 +445,6 @@ export const Offering: MessageFns<Offering> = {
     if (message.pricePerWorkUnitWei !== "") {
       obj.pricePerWorkUnitWei = message.pricePerWorkUnitWei;
     }
-    if (message.warm !== false) {
-      obj.warm = message.warm;
-    }
     if (message.constraintsJson.length !== 0) {
       obj.constraintsJson = base64FromBytes(message.constraintsJson);
     }
@@ -463,7 +458,6 @@ export const Offering: MessageFns<Offering> = {
     const message = createBaseOffering();
     message.id = object.id ?? "";
     message.pricePerWorkUnitWei = object.pricePerWorkUnitWei ?? "";
-    message.warm = object.warm ?? false;
     message.constraintsJson = object.constraintsJson ?? Buffer.alloc(0);
     return message;
   },
@@ -473,9 +467,8 @@ function createBaseNode(): Node {
   return {
     id: "",
     url: "",
-    lat: 0,
-    lon: 0,
-    region: "",
+    workerEthAddress: "",
+    extraJson: Buffer.alloc(0),
     capabilities: [],
     source: 0,
     signatureStatus: 0,
@@ -494,35 +487,32 @@ export const Node: MessageFns<Node> = {
     if (message.url !== "") {
       writer.uint32(18).string(message.url);
     }
-    if (message.lat !== 0) {
-      writer.uint32(25).double(message.lat);
+    if (message.workerEthAddress !== "") {
+      writer.uint32(26).string(message.workerEthAddress);
     }
-    if (message.lon !== 0) {
-      writer.uint32(33).double(message.lon);
-    }
-    if (message.region !== "") {
-      writer.uint32(42).string(message.region);
+    if (message.extraJson.length !== 0) {
+      writer.uint32(34).bytes(message.extraJson);
     }
     for (const v of message.capabilities) {
-      Capability.encode(v!, writer.uint32(50).fork()).join();
+      Capability.encode(v!, writer.uint32(42).fork()).join();
     }
     if (message.source !== 0) {
-      writer.uint32(56).int32(message.source);
+      writer.uint32(48).int32(message.source);
     }
     if (message.signatureStatus !== 0) {
-      writer.uint32(64).int32(message.signatureStatus);
+      writer.uint32(56).int32(message.signatureStatus);
     }
     if (message.operatorAddress !== "") {
-      writer.uint32(74).string(message.operatorAddress);
+      writer.uint32(66).string(message.operatorAddress);
     }
     if (message.enabled !== false) {
-      writer.uint32(80).bool(message.enabled);
+      writer.uint32(72).bool(message.enabled);
     }
     for (const v of message.tierAllowed) {
-      writer.uint32(90).string(v!);
+      writer.uint32(82).string(v!);
     }
     if (message.weight !== 0) {
-      writer.uint32(96).int32(message.weight);
+      writer.uint32(88).int32(message.weight);
     }
     return writer;
   },
@@ -551,19 +541,19 @@ export const Node: MessageFns<Node> = {
           continue;
         }
         case 3: {
-          if (tag !== 25) {
+          if (tag !== 26) {
             break;
           }
 
-          message.lat = reader.double();
+          message.workerEthAddress = reader.string();
           continue;
         }
         case 4: {
-          if (tag !== 33) {
+          if (tag !== 34) {
             break;
           }
 
-          message.lon = reader.double();
+          message.extraJson = Buffer.from(reader.bytes());
           continue;
         }
         case 5: {
@@ -571,15 +561,15 @@ export const Node: MessageFns<Node> = {
             break;
           }
 
-          message.region = reader.string();
+          message.capabilities.push(Capability.decode(reader, reader.uint32()));
           continue;
         }
         case 6: {
-          if (tag !== 50) {
+          if (tag !== 48) {
             break;
           }
 
-          message.capabilities.push(Capability.decode(reader, reader.uint32()));
+          message.source = reader.int32() as any;
           continue;
         }
         case 7: {
@@ -587,43 +577,35 @@ export const Node: MessageFns<Node> = {
             break;
           }
 
-          message.source = reader.int32() as any;
-          continue;
-        }
-        case 8: {
-          if (tag !== 64) {
-            break;
-          }
-
           message.signatureStatus = reader.int32() as any;
           continue;
         }
-        case 9: {
-          if (tag !== 74) {
+        case 8: {
+          if (tag !== 66) {
             break;
           }
 
           message.operatorAddress = reader.string();
           continue;
         }
-        case 10: {
-          if (tag !== 80) {
+        case 9: {
+          if (tag !== 72) {
             break;
           }
 
           message.enabled = reader.bool();
           continue;
         }
-        case 11: {
-          if (tag !== 90) {
+        case 10: {
+          if (tag !== 82) {
             break;
           }
 
           message.tierAllowed.push(reader.string());
           continue;
         }
-        case 12: {
-          if (tag !== 96) {
+        case 11: {
+          if (tag !== 88) {
             break;
           }
 
@@ -643,9 +625,16 @@ export const Node: MessageFns<Node> = {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       url: isSet(object.url) ? globalThis.String(object.url) : "",
-      lat: isSet(object.lat) ? globalThis.Number(object.lat) : 0,
-      lon: isSet(object.lon) ? globalThis.Number(object.lon) : 0,
-      region: isSet(object.region) ? globalThis.String(object.region) : "",
+      workerEthAddress: isSet(object.workerEthAddress)
+        ? globalThis.String(object.workerEthAddress)
+        : isSet(object.worker_eth_address)
+        ? globalThis.String(object.worker_eth_address)
+        : "",
+      extraJson: isSet(object.extraJson)
+        ? Buffer.from(bytesFromBase64(object.extraJson))
+        : isSet(object.extra_json)
+        ? Buffer.from(bytesFromBase64(object.extra_json))
+        : Buffer.alloc(0),
       capabilities: globalThis.Array.isArray(object?.capabilities)
         ? object.capabilities.map((e: any) => Capability.fromJSON(e))
         : [],
@@ -678,14 +667,11 @@ export const Node: MessageFns<Node> = {
     if (message.url !== "") {
       obj.url = message.url;
     }
-    if (message.lat !== 0) {
-      obj.lat = message.lat;
+    if (message.workerEthAddress !== "") {
+      obj.workerEthAddress = message.workerEthAddress;
     }
-    if (message.lon !== 0) {
-      obj.lon = message.lon;
-    }
-    if (message.region !== "") {
-      obj.region = message.region;
+    if (message.extraJson.length !== 0) {
+      obj.extraJson = base64FromBytes(message.extraJson);
     }
     if (message.capabilities?.length) {
       obj.capabilities = message.capabilities.map((e) => Capability.toJSON(e));
@@ -718,9 +704,8 @@ export const Node: MessageFns<Node> = {
     const message = createBaseNode();
     message.id = object.id ?? "";
     message.url = object.url ?? "";
-    message.lat = object.lat ?? 0;
-    message.lon = object.lon ?? 0;
-    message.region = object.region ?? "";
+    message.workerEthAddress = object.workerEthAddress ?? "";
+    message.extraJson = object.extraJson ?? Buffer.alloc(0);
     message.capabilities = object.capabilities?.map((e) => Capability.fromPartial(e)) || [];
     message.source = object.source ?? 0;
     message.signatureStatus = object.signatureStatus ?? 0;

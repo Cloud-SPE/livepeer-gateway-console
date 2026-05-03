@@ -8,9 +8,8 @@ function makeResolver(overrides: Partial<ResolverClient> = {}): ResolverClient {
     listKnown: async () => [],
     resolveByAddress: async () => null,
     select: async () => ({
-      orchAddress: null,
-      reason: "no node matched",
-      nodes: [],
+      route: null,
+      reason: "no route matched",
     }),
     refresh: async () => undefined,
     getAuditLog: async () => [],
@@ -22,19 +21,27 @@ function makeResolver(overrides: Partial<ResolverClient> = {}): ResolverClient {
 describe("ResolverService", () => {
   it("search() forwards the query untouched", async () => {
     const select = vi.fn(async () => ({
-      orchAddress: "0xabc",
+      route: {
+        workerUrl: "https://orch.example/worker",
+        ethAddress: "0xabc",
+        capability: "whisper",
+        offering: "whisper-large",
+        pricePerWorkUnitWei: "1000",
+        workUnit: "second",
+        extraJson: null,
+        constraintsJson: null,
+      },
       reason: "top-weighted",
-      nodes: [],
     }));
     const svc = createResolverService({ resolver: makeResolver({ select }) });
     const res = await svc.search({
       capability: "whisper",
-      model: "whisper-large",
+      offering: "whisper-large",
     });
-    expect(res.orchAddress).toBe("0xabc");
+    expect(res.route?.ethAddress).toBe("0xabc");
     expect(select).toHaveBeenCalledWith({
       capability: "whisper",
-      model: "whisper-large",
+      offering: "whisper-large",
     });
   });
 

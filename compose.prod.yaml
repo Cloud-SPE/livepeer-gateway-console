@@ -21,7 +21,7 @@ name: livepeer-gateway-console
 
 services:
   gateway-console:
-    image: ${GATEWAY_CONSOLE_IMAGE:-tztcloud/livepeer-gateway-console:v0.0.1}
+    image: ${GATEWAY_CONSOLE_IMAGE:-tztcloud/livepeer-gateway-console:v4.0.1}
     restart: unless-stopped
     build: !reset null
     networks:

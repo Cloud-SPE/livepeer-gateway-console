@@ -25,7 +25,7 @@ const api = createApi({
 export function listOrchs(filter = {}) {
   const q = new URLSearchParams();
   if (filter.capability) q.set("capability", filter.capability);
-  if (filter.model) q.set("model", filter.model);
+  if (filter.offering) q.set("offering", filter.offering);
   const suffix = q.toString() ? `?${q}` : "";
   return api.get(`/api/orchs${suffix}`);
 }
@@ -35,11 +35,11 @@ export function getOrch(address) {
   return api.get(`/api/orchs/${encodeURIComponent(address)}`);
 }
 
-/** @param {{ capability: string, model?: string, tier?: string }} query */
+/** @param {{ capability: string, offering: string, tier?: string }} query */
 export function searchCapabilities(query) {
   const q = new URLSearchParams();
   q.set("capability", query.capability);
-  if (query.model) q.set("model", query.model);
+  q.set("offering", query.offering);
   if (query.tier) q.set("tier", query.tier);
   return api.get(`/api/capabilities/search?${q}`);
 }

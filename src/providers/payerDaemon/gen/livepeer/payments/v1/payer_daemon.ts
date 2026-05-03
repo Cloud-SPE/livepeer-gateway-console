@@ -18,50 +18,29 @@ import {
   type ServiceError,
   type UntypedServiceImplementation,
 } from "@grpc/grpc-js";
-import { PriceInfo, TicketParams } from "./types.js";
 
 export const protobufPackage = "livepeer.payments.v1";
 
-export interface StartSessionRequest {
-  /** Ticket parameters as returned by the payee's `GetQuote`. */
-  ticketParams?:
-    | TicketParams
-    | undefined;
-  /** Optional caller-chosen label used only in the daemon's audit log. */
-  label: string;
-  /**
-   * Price the payee committed to when issuing `ticket_params`. The daemon
-   * stores this price on the session and:
-   *   1. Embeds it in every Payment as `expected_price` so the payee's
-   *      `recipientRand` HMAC inputs match what they used at quote time.
-   *      Without it, the payee re-derives `recipientRand` against price=0
-   *      and the recipient_rand_hash check fails — see receiver.go's
-   *      `computeRecipientRand`.
-   *   2. Sizes ticket batches against `work_units × price`.
-   *
-   * REQUIRED for any session that will produce non-free tickets. Free /
-   * bootstrap sessions may pass `{ price_per_unit_wei: "0", pixels_per_unit: "1" }`.
-   */
-  priceInfo?: PriceInfo | undefined;
-}
-
-export interface StartSessionResponse {
-  /**
-   * Opaque session identifier. Include in subsequent `CreatePayment` /
-   * `CloseSession` calls for this relationship.
-   */
-  workId: string;
-}
-
 export interface CreatePaymentRequest {
-  /** Session previously returned by `StartSession`. */
-  workId: string;
+  /** Exact face value to mint into the ticket, in wei, big-endian bytes. */
+  faceValue: Buffer;
   /**
-   * Number of work units the payment should cover. The daemon consults the
-   * session's PriceInfo and produces tickets whose cumulative expected value
-   * >= `work_units × price`.
+   * Recipient orchestrator identity (the on-chain payee address), 20 raw
+   * bytes. The daemon resolves a worker URL for this address via the local
+   * service-registry-daemon resolver.
    */
-  workUnits: bigint;
+  recipient: Buffer;
+  /**
+   * Capability being purchased, e.g. "openai:/v1/chat/completions". Sender
+   * mode forwards this to the payee-side ticket-params endpoint so the worker
+   * can validate the request against its offered routes.
+   */
+  capability: string;
+  /**
+   * Offering within the capability being purchased, e.g. a model identifier.
+   * Sender mode forwards this to the payee-side ticket-params endpoint.
+   */
+  offering: string;
 }
 
 export interface CreatePaymentResponse {
@@ -79,13 +58,6 @@ export interface CreatePaymentResponse {
   expectedValue: Buffer;
 }
 
-export interface PayerDaemonCloseSessionRequest {
-  workId: string;
-}
-
-export interface PayerDaemonCloseSessionResponse {
-}
-
 export interface GetDepositInfoRequest {
 }
 
@@ -101,188 +73,23 @@ export interface GetDepositInfoResponse {
   withdrawRound: bigint;
 }
 
-function createBaseStartSessionRequest(): StartSessionRequest {
-  return { ticketParams: undefined, label: "", priceInfo: undefined };
-}
-
-export const StartSessionRequest: MessageFns<StartSessionRequest> = {
-  encode(message: StartSessionRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.ticketParams !== undefined) {
-      TicketParams.encode(message.ticketParams, writer.uint32(10).fork()).join();
-    }
-    if (message.label !== "") {
-      writer.uint32(18).string(message.label);
-    }
-    if (message.priceInfo !== undefined) {
-      PriceInfo.encode(message.priceInfo, writer.uint32(26).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): StartSessionRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseStartSessionRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.ticketParams = TicketParams.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.label = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.priceInfo = PriceInfo.decode(reader, reader.uint32());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): StartSessionRequest {
-    return {
-      ticketParams: isSet(object.ticketParams)
-        ? TicketParams.fromJSON(object.ticketParams)
-        : isSet(object.ticket_params)
-        ? TicketParams.fromJSON(object.ticket_params)
-        : undefined,
-      label: isSet(object.label) ? globalThis.String(object.label) : "",
-      priceInfo: isSet(object.priceInfo)
-        ? PriceInfo.fromJSON(object.priceInfo)
-        : isSet(object.price_info)
-        ? PriceInfo.fromJSON(object.price_info)
-        : undefined,
-    };
-  },
-
-  toJSON(message: StartSessionRequest): unknown {
-    const obj: any = {};
-    if (message.ticketParams !== undefined) {
-      obj.ticketParams = TicketParams.toJSON(message.ticketParams);
-    }
-    if (message.label !== "") {
-      obj.label = message.label;
-    }
-    if (message.priceInfo !== undefined) {
-      obj.priceInfo = PriceInfo.toJSON(message.priceInfo);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<StartSessionRequest>, I>>(base?: I): StartSessionRequest {
-    return StartSessionRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<StartSessionRequest>, I>>(object: I): StartSessionRequest {
-    const message = createBaseStartSessionRequest();
-    message.ticketParams = (object.ticketParams !== undefined && object.ticketParams !== null)
-      ? TicketParams.fromPartial(object.ticketParams)
-      : undefined;
-    message.label = object.label ?? "";
-    message.priceInfo = (object.priceInfo !== undefined && object.priceInfo !== null)
-      ? PriceInfo.fromPartial(object.priceInfo)
-      : undefined;
-    return message;
-  },
-};
-
-function createBaseStartSessionResponse(): StartSessionResponse {
-  return { workId: "" };
-}
-
-export const StartSessionResponse: MessageFns<StartSessionResponse> = {
-  encode(message: StartSessionResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.workId !== "") {
-      writer.uint32(10).string(message.workId);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): StartSessionResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseStartSessionResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.workId = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): StartSessionResponse {
-    return {
-      workId: isSet(object.workId)
-        ? globalThis.String(object.workId)
-        : isSet(object.work_id)
-        ? globalThis.String(object.work_id)
-        : "",
-    };
-  },
-
-  toJSON(message: StartSessionResponse): unknown {
-    const obj: any = {};
-    if (message.workId !== "") {
-      obj.workId = message.workId;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<StartSessionResponse>, I>>(base?: I): StartSessionResponse {
-    return StartSessionResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<StartSessionResponse>, I>>(object: I): StartSessionResponse {
-    const message = createBaseStartSessionResponse();
-    message.workId = object.workId ?? "";
-    return message;
-  },
-};
-
 function createBaseCreatePaymentRequest(): CreatePaymentRequest {
-  return { workId: "", workUnits: 0n };
+  return { faceValue: Buffer.alloc(0), recipient: Buffer.alloc(0), capability: "", offering: "" };
 }
 
 export const CreatePaymentRequest: MessageFns<CreatePaymentRequest> = {
   encode(message: CreatePaymentRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.workId !== "") {
-      writer.uint32(10).string(message.workId);
+    if (message.faceValue.length !== 0) {
+      writer.uint32(10).bytes(message.faceValue);
     }
-    if (message.workUnits !== 0n) {
-      if (BigInt.asIntN(64, message.workUnits) !== message.workUnits) {
-        throw new globalThis.Error("value provided for field message.workUnits of type int64 too large");
-      }
-      writer.uint32(16).int64(message.workUnits);
+    if (message.recipient.length !== 0) {
+      writer.uint32(18).bytes(message.recipient);
+    }
+    if (message.capability !== "") {
+      writer.uint32(26).string(message.capability);
+    }
+    if (message.offering !== "") {
+      writer.uint32(34).string(message.offering);
     }
     return writer;
   },
@@ -299,15 +106,31 @@ export const CreatePaymentRequest: MessageFns<CreatePaymentRequest> = {
             break;
           }
 
-          message.workId = reader.string();
+          message.faceValue = Buffer.from(reader.bytes());
           continue;
         }
         case 2: {
-          if (tag !== 16) {
+          if (tag !== 18) {
             break;
           }
 
-          message.workUnits = reader.int64() as bigint;
+          message.recipient = Buffer.from(reader.bytes());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.capability = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.offering = reader.string();
           continue;
         }
       }
@@ -321,26 +144,30 @@ export const CreatePaymentRequest: MessageFns<CreatePaymentRequest> = {
 
   fromJSON(object: any): CreatePaymentRequest {
     return {
-      workId: isSet(object.workId)
-        ? globalThis.String(object.workId)
-        : isSet(object.work_id)
-        ? globalThis.String(object.work_id)
-        : "",
-      workUnits: isSet(object.workUnits)
-        ? BigInt(object.workUnits)
-        : isSet(object.work_units)
-        ? BigInt(object.work_units)
-        : 0n,
+      faceValue: isSet(object.faceValue)
+        ? Buffer.from(bytesFromBase64(object.faceValue))
+        : isSet(object.face_value)
+        ? Buffer.from(bytesFromBase64(object.face_value))
+        : Buffer.alloc(0),
+      recipient: isSet(object.recipient) ? Buffer.from(bytesFromBase64(object.recipient)) : Buffer.alloc(0),
+      capability: isSet(object.capability) ? globalThis.String(object.capability) : "",
+      offering: isSet(object.offering) ? globalThis.String(object.offering) : "",
     };
   },
 
   toJSON(message: CreatePaymentRequest): unknown {
     const obj: any = {};
-    if (message.workId !== "") {
-      obj.workId = message.workId;
+    if (message.faceValue.length !== 0) {
+      obj.faceValue = base64FromBytes(message.faceValue);
     }
-    if (message.workUnits !== 0n) {
-      obj.workUnits = message.workUnits.toString();
+    if (message.recipient.length !== 0) {
+      obj.recipient = base64FromBytes(message.recipient);
+    }
+    if (message.capability !== "") {
+      obj.capability = message.capability;
+    }
+    if (message.offering !== "") {
+      obj.offering = message.offering;
     }
     return obj;
   },
@@ -350,8 +177,10 @@ export const CreatePaymentRequest: MessageFns<CreatePaymentRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<CreatePaymentRequest>, I>>(object: I): CreatePaymentRequest {
     const message = createBaseCreatePaymentRequest();
-    message.workId = object.workId ?? "";
-    message.workUnits = object.workUnits ?? 0n;
+    message.faceValue = object.faceValue ?? Buffer.alloc(0);
+    message.recipient = object.recipient ?? Buffer.alloc(0);
+    message.capability = object.capability ?? "";
+    message.offering = object.offering ?? "";
     return message;
   },
 };
@@ -456,115 +285,6 @@ export const CreatePaymentResponse: MessageFns<CreatePaymentResponse> = {
     message.paymentBytes = object.paymentBytes ?? Buffer.alloc(0);
     message.ticketsCreated = object.ticketsCreated ?? 0;
     message.expectedValue = object.expectedValue ?? Buffer.alloc(0);
-    return message;
-  },
-};
-
-function createBasePayerDaemonCloseSessionRequest(): PayerDaemonCloseSessionRequest {
-  return { workId: "" };
-}
-
-export const PayerDaemonCloseSessionRequest: MessageFns<PayerDaemonCloseSessionRequest> = {
-  encode(message: PayerDaemonCloseSessionRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.workId !== "") {
-      writer.uint32(10).string(message.workId);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): PayerDaemonCloseSessionRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePayerDaemonCloseSessionRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.workId = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): PayerDaemonCloseSessionRequest {
-    return {
-      workId: isSet(object.workId)
-        ? globalThis.String(object.workId)
-        : isSet(object.work_id)
-        ? globalThis.String(object.work_id)
-        : "",
-    };
-  },
-
-  toJSON(message: PayerDaemonCloseSessionRequest): unknown {
-    const obj: any = {};
-    if (message.workId !== "") {
-      obj.workId = message.workId;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<PayerDaemonCloseSessionRequest>, I>>(base?: I): PayerDaemonCloseSessionRequest {
-    return PayerDaemonCloseSessionRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<PayerDaemonCloseSessionRequest>, I>>(
-    object: I,
-  ): PayerDaemonCloseSessionRequest {
-    const message = createBasePayerDaemonCloseSessionRequest();
-    message.workId = object.workId ?? "";
-    return message;
-  },
-};
-
-function createBasePayerDaemonCloseSessionResponse(): PayerDaemonCloseSessionResponse {
-  return {};
-}
-
-export const PayerDaemonCloseSessionResponse: MessageFns<PayerDaemonCloseSessionResponse> = {
-  encode(_: PayerDaemonCloseSessionResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): PayerDaemonCloseSessionResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBasePayerDaemonCloseSessionResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(_: any): PayerDaemonCloseSessionResponse {
-    return {};
-  },
-
-  toJSON(_: PayerDaemonCloseSessionResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<PayerDaemonCloseSessionResponse>, I>>(base?: I): PayerDaemonCloseSessionResponse {
-    return PayerDaemonCloseSessionResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<PayerDaemonCloseSessionResponse>, I>>(_: I): PayerDaemonCloseSessionResponse {
-    const message = createBasePayerDaemonCloseSessionResponse();
     return message;
   },
 };
@@ -714,25 +434,10 @@ export const GetDepositInfoResponse: MessageFns<GetDepositInfoResponse> = {
 export type PayerDaemonService = typeof PayerDaemonService;
 export const PayerDaemonService = {
   /**
-   * Start a new payment session against a given payee's advertised ticket
-   * parameters. Returns a `work_id` that subsequent `CreatePayment` calls
-   * reference. One session should cover one ongoing work relationship between
-   * this payer and a specific payee (not one per HTTP call — amortize).
-   */
-  startSession: {
-    path: "/livepeer.payments.v1.PayerDaemon/StartSession" as const,
-    requestStream: false as const,
-    responseStream: false as const,
-    requestSerialize: (value: StartSessionRequest): Buffer => Buffer.from(StartSessionRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): StartSessionRequest => StartSessionRequest.decode(value),
-    responseSerialize: (value: StartSessionResponse): Buffer =>
-      Buffer.from(StartSessionResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): StartSessionResponse => StartSessionResponse.decode(value),
-  },
-  /**
-   * Create a payment blob (a `Payment` with one or more tickets) covering a
-   * requested number of work units against an existing session. The returned
-   * bytes are the exact wire-format `Payment` to hand to the payee.
+   * Create a payment blob (a `Payment` carrying one ticket) for a selected
+   * payee identity at an exact face value. The daemon resolves the payee's
+   * worker URL via the local resolver, fetches canonical TicketParams from
+   * the payee-side ticket-params endpoint, then signs a wire-format Payment.
    */
   createPayment: {
     path: "/livepeer.payments.v1.PayerDaemon/CreatePayment" as const,
@@ -743,19 +448,6 @@ export const PayerDaemonService = {
     responseSerialize: (value: CreatePaymentResponse): Buffer =>
       Buffer.from(CreatePaymentResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): CreatePaymentResponse => CreatePaymentResponse.decode(value),
-  },
-  /** Close a session and free its nonce state. */
-  closeSession: {
-    path: "/livepeer.payments.v1.PayerDaemon/CloseSession" as const,
-    requestStream: false as const,
-    responseStream: false as const,
-    requestSerialize: (value: PayerDaemonCloseSessionRequest): Buffer =>
-      Buffer.from(PayerDaemonCloseSessionRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): PayerDaemonCloseSessionRequest => PayerDaemonCloseSessionRequest.decode(value),
-    responseSerialize: (value: PayerDaemonCloseSessionResponse): Buffer =>
-      Buffer.from(PayerDaemonCloseSessionResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): PayerDaemonCloseSessionResponse =>
-      PayerDaemonCloseSessionResponse.decode(value),
   },
   /**
    * Inspect the payer's current TicketBroker deposit/reserve state. Read-only;
@@ -776,20 +468,12 @@ export const PayerDaemonService = {
 
 export interface PayerDaemonServer extends UntypedServiceImplementation {
   /**
-   * Start a new payment session against a given payee's advertised ticket
-   * parameters. Returns a `work_id` that subsequent `CreatePayment` calls
-   * reference. One session should cover one ongoing work relationship between
-   * this payer and a specific payee (not one per HTTP call — amortize).
-   */
-  startSession: handleUnaryCall<StartSessionRequest, StartSessionResponse>;
-  /**
-   * Create a payment blob (a `Payment` with one or more tickets) covering a
-   * requested number of work units against an existing session. The returned
-   * bytes are the exact wire-format `Payment` to hand to the payee.
+   * Create a payment blob (a `Payment` carrying one ticket) for a selected
+   * payee identity at an exact face value. The daemon resolves the payee's
+   * worker URL via the local resolver, fetches canonical TicketParams from
+   * the payee-side ticket-params endpoint, then signs a wire-format Payment.
    */
   createPayment: handleUnaryCall<CreatePaymentRequest, CreatePaymentResponse>;
-  /** Close a session and free its nonce state. */
-  closeSession: handleUnaryCall<PayerDaemonCloseSessionRequest, PayerDaemonCloseSessionResponse>;
   /**
    * Inspect the payer's current TicketBroker deposit/reserve state. Read-only;
    * the daemon does not fund escrow.
@@ -799,30 +483,10 @@ export interface PayerDaemonServer extends UntypedServiceImplementation {
 
 export interface PayerDaemonClient extends Client {
   /**
-   * Start a new payment session against a given payee's advertised ticket
-   * parameters. Returns a `work_id` that subsequent `CreatePayment` calls
-   * reference. One session should cover one ongoing work relationship between
-   * this payer and a specific payee (not one per HTTP call — amortize).
-   */
-  startSession(
-    request: StartSessionRequest,
-    callback: (error: ServiceError | null, response: StartSessionResponse) => void,
-  ): ClientUnaryCall;
-  startSession(
-    request: StartSessionRequest,
-    metadata: Metadata,
-    callback: (error: ServiceError | null, response: StartSessionResponse) => void,
-  ): ClientUnaryCall;
-  startSession(
-    request: StartSessionRequest,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: StartSessionResponse) => void,
-  ): ClientUnaryCall;
-  /**
-   * Create a payment blob (a `Payment` with one or more tickets) covering a
-   * requested number of work units against an existing session. The returned
-   * bytes are the exact wire-format `Payment` to hand to the payee.
+   * Create a payment blob (a `Payment` carrying one ticket) for a selected
+   * payee identity at an exact face value. The daemon resolves the payee's
+   * worker URL via the local resolver, fetches canonical TicketParams from
+   * the payee-side ticket-params endpoint, then signs a wire-format Payment.
    */
   createPayment(
     request: CreatePaymentRequest,
@@ -838,22 +502,6 @@ export interface PayerDaemonClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: CreatePaymentResponse) => void,
-  ): ClientUnaryCall;
-  /** Close a session and free its nonce state. */
-  closeSession(
-    request: PayerDaemonCloseSessionRequest,
-    callback: (error: ServiceError | null, response: PayerDaemonCloseSessionResponse) => void,
-  ): ClientUnaryCall;
-  closeSession(
-    request: PayerDaemonCloseSessionRequest,
-    metadata: Metadata,
-    callback: (error: ServiceError | null, response: PayerDaemonCloseSessionResponse) => void,
-  ): ClientUnaryCall;
-  closeSession(
-    request: PayerDaemonCloseSessionRequest,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: PayerDaemonCloseSessionResponse) => void,
   ): ClientUnaryCall;
   /**
    * Inspect the payer's current TicketBroker deposit/reserve state. Read-only;

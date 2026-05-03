@@ -41,6 +41,7 @@ export interface RoutingServiceDeps {
   resolver: ResolverClient;
   chain: ChainReader;
   controllerAddress: Address;
+  serviceRegistryAddress: Address | null;
   /** TTL for chain-read memoization, in milliseconds. */
   chainReadTtlMs: number;
   /** Test-only clock override; defaults to Date.now. */
@@ -57,9 +58,10 @@ export function createRoutingService(deps: RoutingServiceDeps): RoutingService {
     );
 
   const getServiceRegistry = async (): Promise<Address> =>
-    cache.getOrLoad("serviceRegistry", () =>
-      deps.chain.resolveServiceRegistry(deps.controllerAddress),
-    );
+    cache.getOrLoad("serviceRegistry", async () => {
+      if (deps.serviceRegistryAddress) return deps.serviceRegistryAddress;
+      return deps.chain.resolveServiceRegistry(deps.controllerAddress);
+    });
 
   const getPoolStakeMap = async (): Promise<Map<string, string>> =>
     cache.getOrLoad("poolStakeMap", async () => {

@@ -25,7 +25,7 @@ is the **routing dashboard**, not a status pane. Multi-pane:
    - Rows = each orch the resolver knows about (`Resolver.ListKnown`),
      enriched by chain reads (BondingManager pool membership for active
      set + stake, ServiceRegistry serviceURI for the per-row manifest URL).
-   - Filters: capability, model, tier, signed/unsigned, freshness.
+   - Filters: capability, offering, tier, signed/unsigned, freshness.
 2. **Right column / bottom**: per-orch drill-down panel.
    - Clicked from a roster row.
    - Routing-history chart pulled from the local `routing_observations`
@@ -38,7 +38,7 @@ Other top-level routes hang off the same shell:
 
 - `/admin/console/login` — bearer-token paste + operator-handle capture
 - `/admin/console/orchs/:address` — direct-link drilldown
-- `/admin/console/capabilities` — capability/model search via `Resolver.Select`
+- `/admin/console/capabilities` — capability/offering selected-route preview via `Resolver.Select`
 - `/admin/console/sender` — sender wallet balance + escrow view
 - `/admin/console/audit` — bearer-action audit log
 

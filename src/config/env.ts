@@ -21,6 +21,7 @@ export const EnvSchema = z.object({
   CONTROLLER_ADDRESS: EthAddressLike.default(
     "0xD8E8328501E9645d16Cf49539efC04f734606ee4",
   ),
+  SERVICE_REGISTRY_ADDRESS: EthAddressLike.optional(),
 
   STATE_PATH: z.string().default("/var/lib/livepeer/state.db"),
 

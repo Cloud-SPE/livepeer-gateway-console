@@ -3,9 +3,9 @@
 // The `gen/` directory is populated by `npm run proto:gen:payments` from
 // `../livepeer-modules-project/payment-daemon/proto`.
 //
-// Surface area: the console only ever reads `GetDepositInfo`. The other
-// PayerDaemon RPCs (StartSession / CreatePayment / CloseSession) belong
-// to the bridge app, not this console — see PRODUCT_SENSE.md.
+// Surface area: the console only ever reads `GetDepositInfo`. The
+// sender-side `CreatePayment` RPC belongs to the bridge app, not this
+// console — see PRODUCT_SENSE.md.
 //
 // Wallet identity + balance are NOT exposed by the daemon proto; per
 // Plan 0001 they come from chain via ChainReader (§4) configured with a

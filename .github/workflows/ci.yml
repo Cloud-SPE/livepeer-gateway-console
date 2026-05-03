@@ -50,6 +50,9 @@ jobs:
       - name: Test (vitest with coverage floor enforced by config)
         run: npm test
 
+      - name: Test SPA (Lit components in jsdom)
+        run: npm run test:ui
+
       - name: Build (server + SPA)
         run: npm run build
 

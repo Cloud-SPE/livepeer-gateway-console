@@ -25,7 +25,7 @@ export class AdminRouting extends LitElement {
   constructor() {
     super();
     this._orchs = [];
-    this._filter = { capability: "", model: "" };
+    this._filter = { capability: "", offering: "" };
     this._selected = null;
     this._detail = null;
     this._loading = true;
@@ -50,7 +50,7 @@ export class AdminRouting extends LitElement {
         ...(this._filter.capability
           ? { capability: this._filter.capability }
           : {}),
-        ...(this._filter.model ? { model: this._filter.model } : {}),
+        ...(this._filter.offering ? { offering: this._filter.offering } : {}),
       };
       const res = await listOrchs(filter);
       this._orchs = Array.isArray(res?.orchs) ? res.orchs : [];
@@ -123,10 +123,10 @@ export class AdminRouting extends LitElement {
         />
         <input
           type="text"
-          placeholder="model"
-          .value=${this._filter.model}
+          placeholder="offering"
+          .value=${this._filter.offering}
           @input=${(e) => {
-            this._filter = { ...this._filter, model: e.target.value };
+            this._filter = { ...this._filter, offering: e.target.value };
           }}
           @keyup=${(e) => {
             if (e.key === "Enter") void this._reload();
@@ -237,10 +237,10 @@ export class AdminRouting extends LitElement {
                     ? orch.capabilities.join(", ")
                     : html`<span class="muted">none reported</span>`}
                 </dd>
-                <dt>Models</dt>
+                <dt>Offerings</dt>
                 <dd>
-                  ${orch.models.length
-                    ? orch.models.join(", ")
+                  ${orch.offerings.length
+                    ? orch.offerings.join(", ")
                     : html`<span class="muted">none reported</span>`}
                 </dd>
                 <dt>Signature</dt>
@@ -262,7 +262,7 @@ export class AdminRouting extends LitElement {
                   <tr>
                     <th>When</th>
                     <th>Cap.</th>
-                    <th>Model</th>
+                    <th>Offering</th>
                     <th>Sig</th>
                     <th>Fresh</th>
                     <th>Detail</th>
@@ -274,7 +274,7 @@ export class AdminRouting extends LitElement {
                       <tr>
                         <td>${formatTimestamp(o.observedAt)}</td>
                         <td>${o.capability ?? "—"}</td>
-                        <td>${o.model ?? "—"}</td>
+                        <td>${o.offering ?? "—"}</td>
                         <td>${o.signatureStatus ?? "—"}</td>
                         <td>${o.freshnessStatus ?? "—"}</td>
                         <td>

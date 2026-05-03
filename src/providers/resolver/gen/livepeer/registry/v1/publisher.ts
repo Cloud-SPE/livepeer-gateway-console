@@ -19,15 +19,18 @@ import {
   type UntypedServiceImplementation,
 } from "@grpc/grpc-js";
 import { Empty } from "../../../google/protobuf/empty.js";
-import { Timestamp } from "../../../google/protobuf/timestamp.js";
 import { HealthResult } from "./resolver.js";
 import { Node } from "./types.js";
 
 export const protobufPackage = "livepeer.registry.v1";
 
+export interface IdentityResult {
+  ethAddress: string;
+}
+
 export interface BuildManifestRequest {
-  nodes: Node[];
-  expiresAt?: Date | undefined;
+  proposedEthAddress: string;
+  proposedNodes: Node[];
 }
 
 export interface BuildResult {
@@ -38,7 +41,8 @@ export interface BuildResult {
 
 /**
  * BuildAndSignRequest is the operator-facing one-shot path: the daemon
- * builds the canonical manifest from `nodes` and signs it with the
+ * validates the proposal eth_address against the loaded cold key, builds
+ * the canonical manifest from `proposed_nodes`, and signs it with the
  * loaded keystore in a single round-trip. Driven from the secure orch
  * by the livepeer-registry-refresh CLI when capacity changes.
  *
@@ -47,8 +51,7 @@ export interface BuildResult {
  * inventory tooling). See tech-debt: publisher-http-probe-impl.
  */
 export interface BuildAndSignRequest {
-  nodes: Node[];
-  expiresAt?: Date | undefined;
+  manifestJson: Buffer;
 }
 
 export interface SignManifestRequest {
@@ -59,10 +62,6 @@ export interface SignedManifest {
   manifestJson: Buffer;
   /** 0x-prefixed 130-hex */
   signatureValue: string;
-}
-
-export interface WriteServiceURIRequest {
-  uri: string;
 }
 
 export interface TxHashResult {
@@ -78,17 +77,81 @@ export interface ProbeResult {
   capabilitiesJson: Buffer;
 }
 
+function createBaseIdentityResult(): IdentityResult {
+  return { ethAddress: "" };
+}
+
+export const IdentityResult: MessageFns<IdentityResult> = {
+  encode(message: IdentityResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.ethAddress !== "") {
+      writer.uint32(10).string(message.ethAddress);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IdentityResult {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIdentityResult();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.ethAddress = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): IdentityResult {
+    return {
+      ethAddress: isSet(object.ethAddress)
+        ? globalThis.String(object.ethAddress)
+        : isSet(object.eth_address)
+        ? globalThis.String(object.eth_address)
+        : "",
+    };
+  },
+
+  toJSON(message: IdentityResult): unknown {
+    const obj: any = {};
+    if (message.ethAddress !== "") {
+      obj.ethAddress = message.ethAddress;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<IdentityResult>, I>>(base?: I): IdentityResult {
+    return IdentityResult.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<IdentityResult>, I>>(object: I): IdentityResult {
+    const message = createBaseIdentityResult();
+    message.ethAddress = object.ethAddress ?? "";
+    return message;
+  },
+};
+
 function createBaseBuildManifestRequest(): BuildManifestRequest {
-  return { nodes: [], expiresAt: undefined };
+  return { proposedEthAddress: "", proposedNodes: [] };
 }
 
 export const BuildManifestRequest: MessageFns<BuildManifestRequest> = {
   encode(message: BuildManifestRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.nodes) {
-      Node.encode(v!, writer.uint32(10).fork()).join();
+    if (message.proposedEthAddress !== "") {
+      writer.uint32(10).string(message.proposedEthAddress);
     }
-    if (message.expiresAt !== undefined) {
-      Timestamp.encode(toTimestamp(message.expiresAt), writer.uint32(18).fork()).join();
+    for (const v of message.proposedNodes) {
+      Node.encode(v!, writer.uint32(18).fork()).join();
     }
     return writer;
   },
@@ -105,7 +168,7 @@ export const BuildManifestRequest: MessageFns<BuildManifestRequest> = {
             break;
           }
 
-          message.nodes.push(Node.decode(reader, reader.uint32()));
+          message.proposedEthAddress = reader.string();
           continue;
         }
         case 2: {
@@ -113,7 +176,7 @@ export const BuildManifestRequest: MessageFns<BuildManifestRequest> = {
             break;
           }
 
-          message.expiresAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          message.proposedNodes.push(Node.decode(reader, reader.uint32()));
           continue;
         }
       }
@@ -127,22 +190,26 @@ export const BuildManifestRequest: MessageFns<BuildManifestRequest> = {
 
   fromJSON(object: any): BuildManifestRequest {
     return {
-      nodes: globalThis.Array.isArray(object?.nodes) ? object.nodes.map((e: any) => Node.fromJSON(e)) : [],
-      expiresAt: isSet(object.expiresAt)
-        ? fromJsonTimestamp(object.expiresAt)
-        : isSet(object.expires_at)
-        ? fromJsonTimestamp(object.expires_at)
-        : undefined,
+      proposedEthAddress: isSet(object.proposedEthAddress)
+        ? globalThis.String(object.proposedEthAddress)
+        : isSet(object.proposed_eth_address)
+        ? globalThis.String(object.proposed_eth_address)
+        : "",
+      proposedNodes: globalThis.Array.isArray(object?.proposedNodes)
+        ? object.proposedNodes.map((e: any) => Node.fromJSON(e))
+        : globalThis.Array.isArray(object?.proposed_nodes)
+        ? object.proposed_nodes.map((e: any) => Node.fromJSON(e))
+        : [],
     };
   },
 
   toJSON(message: BuildManifestRequest): unknown {
     const obj: any = {};
-    if (message.nodes?.length) {
-      obj.nodes = message.nodes.map((e) => Node.toJSON(e));
+    if (message.proposedEthAddress !== "") {
+      obj.proposedEthAddress = message.proposedEthAddress;
     }
-    if (message.expiresAt !== undefined) {
-      obj.expiresAt = message.expiresAt.toISOString();
+    if (message.proposedNodes?.length) {
+      obj.proposedNodes = message.proposedNodes.map((e) => Node.toJSON(e));
     }
     return obj;
   },
@@ -152,8 +219,8 @@ export const BuildManifestRequest: MessageFns<BuildManifestRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<BuildManifestRequest>, I>>(object: I): BuildManifestRequest {
     const message = createBaseBuildManifestRequest();
-    message.nodes = object.nodes?.map((e) => Node.fromPartial(e)) || [];
-    message.expiresAt = object.expiresAt ?? undefined;
+    message.proposedEthAddress = object.proposedEthAddress ?? "";
+    message.proposedNodes = object.proposedNodes?.map((e) => Node.fromPartial(e)) || [];
     return message;
   },
 };
@@ -263,16 +330,13 @@ export const BuildResult: MessageFns<BuildResult> = {
 };
 
 function createBaseBuildAndSignRequest(): BuildAndSignRequest {
-  return { nodes: [], expiresAt: undefined };
+  return { manifestJson: Buffer.alloc(0) };
 }
 
 export const BuildAndSignRequest: MessageFns<BuildAndSignRequest> = {
   encode(message: BuildAndSignRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.nodes) {
-      Node.encode(v!, writer.uint32(10).fork()).join();
-    }
-    if (message.expiresAt !== undefined) {
-      Timestamp.encode(toTimestamp(message.expiresAt), writer.uint32(18).fork()).join();
+    if (message.manifestJson.length !== 0) {
+      writer.uint32(10).bytes(message.manifestJson);
     }
     return writer;
   },
@@ -289,15 +353,7 @@ export const BuildAndSignRequest: MessageFns<BuildAndSignRequest> = {
             break;
           }
 
-          message.nodes.push(Node.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.expiresAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          message.manifestJson = Buffer.from(reader.bytes());
           continue;
         }
       }
@@ -311,22 +367,18 @@ export const BuildAndSignRequest: MessageFns<BuildAndSignRequest> = {
 
   fromJSON(object: any): BuildAndSignRequest {
     return {
-      nodes: globalThis.Array.isArray(object?.nodes) ? object.nodes.map((e: any) => Node.fromJSON(e)) : [],
-      expiresAt: isSet(object.expiresAt)
-        ? fromJsonTimestamp(object.expiresAt)
-        : isSet(object.expires_at)
-        ? fromJsonTimestamp(object.expires_at)
-        : undefined,
+      manifestJson: isSet(object.manifestJson)
+        ? Buffer.from(bytesFromBase64(object.manifestJson))
+        : isSet(object.manifest_json)
+        ? Buffer.from(bytesFromBase64(object.manifest_json))
+        : Buffer.alloc(0),
     };
   },
 
   toJSON(message: BuildAndSignRequest): unknown {
     const obj: any = {};
-    if (message.nodes?.length) {
-      obj.nodes = message.nodes.map((e) => Node.toJSON(e));
-    }
-    if (message.expiresAt !== undefined) {
-      obj.expiresAt = message.expiresAt.toISOString();
+    if (message.manifestJson.length !== 0) {
+      obj.manifestJson = base64FromBytes(message.manifestJson);
     }
     return obj;
   },
@@ -336,8 +388,7 @@ export const BuildAndSignRequest: MessageFns<BuildAndSignRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<BuildAndSignRequest>, I>>(object: I): BuildAndSignRequest {
     const message = createBaseBuildAndSignRequest();
-    message.nodes = object.nodes?.map((e) => Node.fromPartial(e)) || [];
-    message.expiresAt = object.expiresAt ?? undefined;
+    message.manifestJson = object.manifestJson ?? Buffer.alloc(0);
     return message;
   },
 };
@@ -486,64 +537,6 @@ export const SignedManifest: MessageFns<SignedManifest> = {
     const message = createBaseSignedManifest();
     message.manifestJson = object.manifestJson ?? Buffer.alloc(0);
     message.signatureValue = object.signatureValue ?? "";
-    return message;
-  },
-};
-
-function createBaseWriteServiceURIRequest(): WriteServiceURIRequest {
-  return { uri: "" };
-}
-
-export const WriteServiceURIRequest: MessageFns<WriteServiceURIRequest> = {
-  encode(message: WriteServiceURIRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.uri !== "") {
-      writer.uint32(10).string(message.uri);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): WriteServiceURIRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseWriteServiceURIRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.uri = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): WriteServiceURIRequest {
-    return { uri: isSet(object.uri) ? globalThis.String(object.uri) : "" };
-  },
-
-  toJSON(message: WriteServiceURIRequest): unknown {
-    const obj: any = {};
-    if (message.uri !== "") {
-      obj.uri = message.uri;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<WriteServiceURIRequest>, I>>(base?: I): WriteServiceURIRequest {
-    return WriteServiceURIRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<WriteServiceURIRequest>, I>>(object: I): WriteServiceURIRequest {
-    const message = createBaseWriteServiceURIRequest();
-    message.uri = object.uri ?? "";
     return message;
   },
 };
@@ -758,6 +751,15 @@ export const ProbeResult: MessageFns<ProbeResult> = {
 
 export type PublisherService = typeof PublisherService;
 export const PublisherService = {
+  getIdentity: {
+    path: "/livepeer.registry.v1.Publisher/GetIdentity" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: Empty): Buffer => Buffer.from(Empty.encode(value).finish()),
+    requestDeserialize: (value: Buffer): Empty => Empty.decode(value),
+    responseSerialize: (value: IdentityResult): Buffer => Buffer.from(IdentityResult.encode(value).finish()),
+    responseDeserialize: (value: Buffer): IdentityResult => IdentityResult.decode(value),
+  },
   buildManifest: {
     path: "/livepeer.registry.v1.Publisher/BuildManifest" as const,
     requestStream: false as const,
@@ -785,16 +787,6 @@ export const PublisherService = {
     responseSerialize: (value: SignedManifest): Buffer => Buffer.from(SignedManifest.encode(value).finish()),
     responseDeserialize: (value: Buffer): SignedManifest => SignedManifest.decode(value),
   },
-  writeServiceUri: {
-    path: "/livepeer.registry.v1.Publisher/WriteServiceURI" as const,
-    requestStream: false as const,
-    responseStream: false as const,
-    requestSerialize: (value: WriteServiceURIRequest): Buffer =>
-      Buffer.from(WriteServiceURIRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): WriteServiceURIRequest => WriteServiceURIRequest.decode(value),
-    responseSerialize: (value: TxHashResult): Buffer => Buffer.from(TxHashResult.encode(value).finish()),
-    responseDeserialize: (value: Buffer): TxHashResult => TxHashResult.decode(value),
-  },
   probeWorker: {
     path: "/livepeer.registry.v1.Publisher/ProbeWorker" as const,
     requestStream: false as const,
@@ -816,15 +808,30 @@ export const PublisherService = {
 } as const;
 
 export interface PublisherServer extends UntypedServiceImplementation {
+  getIdentity: handleUnaryCall<Empty, IdentityResult>;
   buildManifest: handleUnaryCall<BuildManifestRequest, BuildResult>;
   signManifest: handleUnaryCall<SignManifestRequest, SignedManifest>;
   buildAndSign: handleUnaryCall<BuildAndSignRequest, SignedManifest>;
-  writeServiceUri: handleUnaryCall<WriteServiceURIRequest, TxHashResult>;
   probeWorker: handleUnaryCall<ProbeWorkerRequest, ProbeResult>;
   health: handleUnaryCall<Empty, HealthResult>;
 }
 
 export interface PublisherClient extends Client {
+  getIdentity(
+    request: Empty,
+    callback: (error: ServiceError | null, response: IdentityResult) => void,
+  ): ClientUnaryCall;
+  getIdentity(
+    request: Empty,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: IdentityResult) => void,
+  ): ClientUnaryCall;
+  getIdentity(
+    request: Empty,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: IdentityResult) => void,
+  ): ClientUnaryCall;
   buildManifest(
     request: BuildManifestRequest,
     callback: (error: ServiceError | null, response: BuildResult) => void,
@@ -869,21 +876,6 @@ export interface PublisherClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: SignedManifest) => void,
-  ): ClientUnaryCall;
-  writeServiceUri(
-    request: WriteServiceURIRequest,
-    callback: (error: ServiceError | null, response: TxHashResult) => void,
-  ): ClientUnaryCall;
-  writeServiceUri(
-    request: WriteServiceURIRequest,
-    metadata: Metadata,
-    callback: (error: ServiceError | null, response: TxHashResult) => void,
-  ): ClientUnaryCall;
-  writeServiceUri(
-    request: WriteServiceURIRequest,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: TxHashResult) => void,
   ): ClientUnaryCall;
   probeWorker(
     request: ProbeWorkerRequest,
@@ -942,28 +934,6 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
-
-function toTimestamp(date: Date): Timestamp {
-  const seconds = BigInt(Math.trunc(date.getTime() / 1_000));
-  const nanos = (date.getTime() % 1_000) * 1_000_000;
-  return { seconds, nanos };
-}
-
-function fromTimestamp(t: Timestamp): Date {
-  let millis = (globalThis.Number(t.seconds.toString()) || 0) * 1_000;
-  millis += (t.nanos || 0) / 1_000_000;
-  return new globalThis.Date(millis);
-}
-
-function fromJsonTimestamp(o: any): Date {
-  if (o instanceof globalThis.Date) {
-    return o;
-  } else if (typeof o === "string") {
-    return new globalThis.Date(o);
-  } else {
-    return fromTimestamp(Timestamp.fromJSON(o));
-  }
-}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

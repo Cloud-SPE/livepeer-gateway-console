@@ -18,12 +18,8 @@ import {
   PayerDaemonService,
   type GetDepositInfoRequest,
   type GetDepositInfoResponse,
-  type StartSessionRequest,
-  type StartSessionResponse,
   type CreatePaymentRequest,
   type CreatePaymentResponse,
-  type PayerDaemonCloseSessionRequest,
-  type PayerDaemonCloseSessionResponse,
 } from "./gen/livepeer/payments/v1/payer_daemon.js";
 import { createPayerDaemonClient, type PayerDaemonClient } from "./client.js";
 
@@ -116,21 +112,9 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
         respond();
       }
     },
-    // Unused RPCs — the console never calls these but the service
-    // implementation must define them. Reject so accidental wiring is
+    // Unused RPC — the console never calls this but the service
+    // implementation defines it. Reject so accidental wiring is
     // surfaced loudly in tests.
-    startSession(
-      _call: ServerUnaryCall<StartSessionRequest, StartSessionResponse>,
-      cb: sendUnaryData<StartSessionResponse>,
-    ) {
-      cb(
-        {
-          code: grpcStatus.UNIMPLEMENTED,
-          details: "startSession not used by console",
-        } as never,
-        null,
-      );
-    },
     createPayment(
       _call: ServerUnaryCall<CreatePaymentRequest, CreatePaymentResponse>,
       cb: sendUnaryData<CreatePaymentResponse>,
@@ -139,21 +123,6 @@ async function startFakeServer(socketPath: string): Promise<FakeServer> {
         {
           code: grpcStatus.UNIMPLEMENTED,
           details: "createPayment not used by console",
-        } as never,
-        null,
-      );
-    },
-    closeSession(
-      _call: ServerUnaryCall<
-        PayerDaemonCloseSessionRequest,
-        PayerDaemonCloseSessionResponse
-      >,
-      cb: sendUnaryData<PayerDaemonCloseSessionResponse>,
-    ) {
-      cb(
-        {
-          code: grpcStatus.UNIMPLEMENTED,
-          details: "closeSession not used by console",
         } as never,
         null,
       );
